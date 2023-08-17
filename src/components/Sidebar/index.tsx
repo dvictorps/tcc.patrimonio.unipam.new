@@ -15,13 +15,13 @@ const menuOptions = [
         option: 'Lista de Patrimônio',
         icon: LuLayoutDashboard,
         id: 2,
-        link: '/patrimonio'
+        link: '/PatrimonioLista'
     },
     {
         option: 'Cadastro de Patrimônio',
         icon: LuPlus,
         id: 3,
-        link: '/'
+        link: '/equipamento'
     },
     {
         option: 'Configurações',
@@ -47,8 +47,8 @@ export default function Sidebar({
     const router = useRouter()
 
     return (
-        <Box display={'flex'} flexDirection={'row'}>
-            <Box h='100vh' shadow='dark-lg' minWidth='250px'>
+        <Box display={'flex'} maxHeight={'100vh'} maxWidth={'100vw'}>
+            <Box h='100vh' shadow='dark-lg' minWidth='15rem'>
                 <Box display={'inline-flex'} alignItems={'self-end'} gap={'0.5rem'} p={'1rem'} boxSizing='border-box'>
                     <Img src='https://portal.unipam.edu.br/assets/media/img/logo/favicon.ico' objectFit={'cover'} boxSize={'50px'} />
                     <Text fontSize={'2xl'} fontFamily={'sans-serif'} fontWeight={'bold'} color={'blue.600'}>UNIGEST</Text>
@@ -69,7 +69,7 @@ export default function Sidebar({
                     )}
                 </VStack>
             </Box>
-            <Box m={'1rem'} width={'100%'}>
+            <Box m={'2rem'} width={'100%'} overflowY={'auto'} >
                 {children}
             </Box>
         </Box>

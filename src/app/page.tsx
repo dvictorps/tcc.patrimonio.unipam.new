@@ -48,21 +48,21 @@ export default function Home() {
 
 
   return (
-    <Box display={'flex'} gap={'2rem'} flexDirection={'column'} >
+    <Box display={'flex'} flexDirection={'column'} gap={'2rem'}>
       <Text fontSize={'3xl'} color={'blue.700'}>Bem Vindo, Victor Pereira.</Text>
 
       <Box display={'flex'} flexDirection={'row'} gap={'4rem'} justifyContent={'center'} flexWrap={'wrap'}>
-        <Box shadow={'dark-lg'} borderRadius={'5px'} p={'1rem'} width={'45%'} >
+        <Box shadow={'md'} borderRadius={'5px'} p={'1rem'} width={'45%'} >
           <Text fontSize={'3xl'}>Separação por Departamento</Text>
           <Doughnut data={data1} />
         </Box>
 
-        <Box shadow={'dark-lg'} borderRadius={'5px'} p={'1rem'} width={'45%'}>
+        <Box shadow={'md'} borderRadius={'5px'} p={'1rem'} width={'45%'}>
           <Text fontSize={'3xl'}>Separação por tipo</Text>
           <Doughnut data={data} />
         </Box>
 
       </Box>
-    </Box>
+    </Box >
   )
 }
