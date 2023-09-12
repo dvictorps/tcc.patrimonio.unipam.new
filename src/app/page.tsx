@@ -1,5 +1,6 @@
 'use client'
 
+import Sidebar from '@/components/Sidebar';
 import { Box, Text, Divider } from '@chakra-ui/react'
 import { Button } from '@chakra-ui/react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -48,21 +49,23 @@ export default function Home() {
 
 
   return (
+    <Sidebar>
     <Box display={'flex'} flexDirection={'column'} gap={'2rem'}>
       <Text fontSize={'3xl'} color={'blue.700'}>Bem Vindo, Victor Pereira.</Text>
 
       <Box display={'flex'} flexDirection={'row'} gap={'4rem'} justifyContent={'center'} flexWrap={'wrap'}>
-        <Box shadow={'md'} borderRadius={'5px'} p={'1rem'} width={'45%'} >
+        <Box shadow={'dark-lg'}  borderRadius={'5px'} p={'1rem'} width={'45%'} >
           <Text fontSize={'3xl'}>Separação por Departamento</Text>
           <Doughnut data={data1} />
         </Box>
 
-        <Box shadow={'md'} borderRadius={'5px'} p={'1rem'} width={'45%'}>
+        <Box shadow={'dark-lg'}  borderRadius={'5px'} p={'1rem'} width={'45%'}>
           <Text fontSize={'3xl'}>Separação por tipo</Text>
           <Doughnut data={data} />
         </Box>
 
       </Box>
     </Box >
+    </Sidebar>
   )
 }

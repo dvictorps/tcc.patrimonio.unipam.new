@@ -1,6 +1,6 @@
 'use client'
 // app/layout.tsx
-import Sidebar from "@/components/Sidebar";
+// import Sidebar from "@/components/Sidebar";
 import { Providers } from "./providers";
 
 
@@ -13,9 +13,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-          <Sidebar>
+
             {children}
-          </Sidebar>
+  
         </Providers>
       </body>
     </html>

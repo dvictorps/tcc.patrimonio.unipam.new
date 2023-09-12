@@ -3,6 +3,7 @@
 import { Box, Input, Text, Button, Divider } from "@chakra-ui/react"
 import data from '@/app/mock/data_table.json'
 import { useState } from "react"
+import Sidebar from "@/components/Sidebar"
 const displayData = data[8]
 
 
@@ -94,7 +95,8 @@ export default function Patrimonio() {
 
 
     return (
-        <Box flexDirection={'column'} >
+       <Sidebar>
+       <Box flexDirection={'column'} >
             <Box shadow={'dark-lg'} my='1rem' mx='2.5rem' borderRadius={'5px'} p='1rem'  >
                 <Text fontSize={'xl'} color={'blue.700'}>Equipamento de Patrimônio nº {displayData.patrimonio}</Text>
                 <Divider />
@@ -129,5 +131,6 @@ export default function Patrimonio() {
 
 
         </Box>
+        </Sidebar>
     )
 }
