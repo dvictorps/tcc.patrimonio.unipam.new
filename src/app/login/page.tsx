@@ -1,10 +1,59 @@
 'use client'
-
+import Cookies from "js-cookie";
 import { Box, Button, Img, Input, Text, InputGroup, Stack, InputRightElement, IconButton, Icon } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
+import { api } from "@/api/api";
+import { useRouter } from "next/navigation";
 
-export default function Login(){
+export default function Login(){         
+   
+    const router = useRouter();
+
+    const checkForCookie = () => {
+        const cookieValue = document.cookie
+          .split('; ')
+          .find((row) => row.startsWith('token'));
+    
+        if (cookieValue) {
+       
+          router.push('/'); 
+        }
+      };  
+
+      useEffect(() => {
+        checkForCookie(); 
+      }, []);
+              
+         const [username, setUsername] = useState('');
+         const [password, setPassword] = useState('');
+
+        async function handleLogin() {
+            try {
+
+                const Usuario = username;
+                const Senha = password;
+
+                const response = await api.post('auth/signin', {
+                    Usuario,
+                    Senha,
+                  });
+
+                  console.log('bateu aqui funcionou essa desgraça', response)
+                  Cookies.set('token', response.data.token, { expires: 1 }); 
+                  router.push('/'); 
+               
+                
+            } catch(error: any) {
+                if (error.response && error.response.status === 400) {
+               
+                    console.error('Erro de autenticação:', error.response.data);
+                  } else {
+            
+                    console.error('Erro ao fazer login:', error);
+                  }
+        }
+    }
 
         const [show, setShow] = useState(false)
         const handleClick = () => setShow(!show) 
@@ -42,12 +91,17 @@ export default function Login(){
             <Text fontSize={'3xl'} color={'blue.700'} >Login</Text>
             <Stack>
             <InputGroup>
-            <Input placeholder='Usuário'/>
+            <Input placeholder='Usuário' 
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            />
             </InputGroup>
             <InputGroup>
             <Input 
-            placeholder='Senha'
-            type={show ? 'text' : 'password'}
+             value={password}
+             onChange={(e) => setPassword(e.target.value)}
+             placeholder='Senha'
+             type={show ? 'text' : 'password'}
             />
             <InputRightElement>
                 <IconButton 
@@ -60,7 +114,7 @@ export default function Login(){
             </InputRightElement>
             </InputGroup>
             </Stack>
-            <Button colorScheme="blue">Login</Button>
+            <Button colorScheme="blue" onClick={handleLogin}>Login</Button>
             </Box>
         </Box>
     )
