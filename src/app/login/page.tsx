@@ -1,10 +1,11 @@
 'use client'
 import Cookies from "js-cookie";
-import { Box, Button, Img, Input, Text, InputGroup, Stack, InputRightElement, IconButton, Icon } from "@chakra-ui/react";
+import { Box, Button, Img, Input, Text, InputGroup, Stack, InputRightElement, IconButton, Icon, useBoolean, useDisclosure } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from 'react-icons/fa'
 import { api } from "@/api/api";
 import { useRouter } from "next/navigation";
+import { AlertStyled } from "@/components/Alert";
 
 export default function Login(){         
    
@@ -28,6 +29,8 @@ export default function Login(){
          const [username, setUsername] = useState('');
          const [password, setPassword] = useState('');
 
+         const [error, setError] = useState('');
+
         async function handleLogin() {
             try {
 
@@ -48,22 +51,35 @@ export default function Login(){
                 if (error.response && error.response.status === 400) {
                
                     console.error('Erro de autenticação:', error.response.data);
+                    setError('Usuário ou senha inválidos')
+                    onOpen()
+
+
                   } else {
             
                     console.error('Erro ao fazer login:', error);
+                    setError('Internal Server Error')
+                    onOpen()
                   }
         }
     }
 
-        const [show, setShow] = useState(false)
-        const handleClick = () => setShow(!show) 
+        const [show, setShow] = useBoolean(false);
+ 
 
         function PasswordIcon(show: boolean) {
             if (!show) return FaEye;
             if (show) return FaEyeSlash;
         }
 
+        const {
+          isOpen: isVisible,
+          onClose,
+          onOpen,
+        } = useDisclosure({ defaultIsOpen: false })
+
     return (
+        <Box display={'flex'} justifyContent={'center'}>
         <Box   
         display={'flex'}
         position={'fixed'} 
@@ -107,7 +123,7 @@ export default function Login(){
                 <IconButton 
                 aria-label="ShowPassword" 
                 icon={<Icon as={PasswordIcon(show)}/>}
-                onClick={handleClick}
+                onClick={setShow.toggle}
                 variant={'outline'}
                 size={'sm'}
                 />
@@ -116,6 +132,11 @@ export default function Login(){
             </Stack>
             <Button colorScheme="blue" onClick={handleLogin}>Login</Button>
             </Box>
+      
         </Box>
+      <Box display={'flex'} width={'auto'} height={'auto'}>
+    <AlertStyled title="Erro de Login" description={error} status="error" isVisible={isVisible} onClose={onClose}/>
+    </Box>
+</Box>
     )
 }

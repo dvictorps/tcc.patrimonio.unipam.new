@@ -13,23 +13,26 @@ import {
     TableContainer,
     Box,
     IconButton,
-    Checkbox
+    Checkbox,
+    Select,
+    Text,
+    Input,
+    Button
 } from '@chakra-ui/react'
 import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-
 
 type DataTableType = {
     tableData: any
 }
 
-export default function DataTable({tableData} : DataTableType ) {
+export default function DataTable({ tableData }: DataTableType) {
 
-    const data = useMemo(() => tableData, [])
+    const data = useMemo(() => tableData, [tableData])
 
     const columns = [
         {
             header: 'Ação',
-            cell: () => <Box><Checkbox/></Box>
+            cell: () => <Box><Checkbox /></Box>
         },
         {
             header: 'Nº Patrimônio',
@@ -72,8 +75,8 @@ export default function DataTable({tableData} : DataTableType ) {
         },
         {
             header: 'Ações',
-            cell: ()=> <Box display={'flex'} flexDirection={'row'} gap={'5px'}><IconButton aria-label='Editar' colorScheme='blue' icon={<EditIcon />} /><IconButton aria-label='Remover' colorScheme='red' icon={<DeleteIcon />} /></Box>
-            
+            cell: () => <Box display={'flex'} flexDirection={'row'} gap={'5px'}><IconButton aria-label='Editar' colorScheme='blue' icon={<EditIcon />} /><IconButton aria-label='Remover' colorScheme='red' icon={<DeleteIcon />} /></Box>
+
         }
     ]
 
