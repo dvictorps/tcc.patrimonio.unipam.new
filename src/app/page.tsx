@@ -1,6 +1,7 @@
 'use client'
 
 import Sidebar from '@/components/Sidebar';
+import { useAuth } from '@/context/AuthContext';
 import { Box, Text, Divider } from '@chakra-ui/react'
 import { Button } from '@chakra-ui/react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
@@ -45,27 +46,49 @@ export const data1 = {
   ],
 };
 
+
+
 export default function Home() {
 
+  const { user } = useAuth();
 
   return (
-    <Sidebar>
-    <Box display={'flex'} flexDirection={'column'} gap={'2rem'}>
-      <Text fontSize={'3xl'} color={'blue.700'}>Bem Vindo, Victor Pereira.</Text>
+    <Box display={'flex'} height={'100vh'}>
+      <Sidebar />
+      <Box display={'flex'} flexDirection={'column'} gap={'2rem'} flex={'1'} sx={{
+        maxWidth: 'calc(100% - 15rem)'
+      }} margin={'1rem'}>
+        <Text fontSize={'3xl'} color={'blue.700'}>Bem Vindo, {user?.name}.</Text>
+        <Box display={'flex'} flexDirection={'row'} sx={{
+          '@media (max-width: 835px)': {
+            flexDirection: 'column',
+            gap: '1rem',
+            alignItems: 'center'
+          },
+        }}
+          justifyContent={'center'} flexWrap={'wrap'} gap={'1rem'}>
 
-      <Box display={'flex'} flexDirection={'row'} gap={'4rem'} justifyContent={'center'} flexWrap={'wrap'}>
-        <Box shadow={'dark-lg'}  borderRadius={'5px'} p={'1rem'} width={'45%'} >
-          <Text fontSize={'3xl'}>Separação por Departamento</Text>
-          <Doughnut data={data1} />
+          <Box shadow={'dark-lg'} borderRadius={'5px'} p={'1rem'} width={'45%'} sx={{
+            '@media (max-width: 835px)': {
+              width: '90%'
+            }
+          }}>
+            <Text fontSize={'3xl'}>Separação por Departamento</Text>
+            <Doughnut data={data1} />
+          </Box>
+
+          <Box shadow={'dark-lg'} borderRadius={'5px'} p={'1rem'} flexWrap={'wrap'} width={'45%'} sx={{
+            '@media (max-width: 835px)': {
+              width: '90%'
+            }
+          }}>
+            <Text fontSize={'3xl'}>Separação por tipo</Text>
+            <Doughnut data={data} />
+          </Box>
+
         </Box>
+      </Box >
+    </Box>
 
-        <Box shadow={'dark-lg'}  borderRadius={'5px'} p={'1rem'} width={'45%'}>
-          <Text fontSize={'3xl'}>Separação por tipo</Text>
-          <Doughnut data={data} />
-        </Box>
-
-      </Box>
-    </Box >
-    </Sidebar>
   )
 }

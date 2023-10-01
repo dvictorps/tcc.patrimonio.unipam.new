@@ -3,6 +3,7 @@
 
 import { CacheProvider } from '@chakra-ui/next-js'
 import { ChakraProvider } from '@chakra-ui/react'
+import { AuthProvider } from '@/context/AuthContext'
 
 export function Providers({
     children
@@ -11,8 +12,10 @@ export function Providers({
 }) {
     return (
         <CacheProvider>
-            <ChakraProvider>
-                {children}
+            <ChakraProvider cssVarsRoot={undefined}>
+                <AuthProvider>
+                    {children}
+                </AuthProvider>
             </ChakraProvider>
         </CacheProvider>
     )

@@ -1,6 +1,5 @@
-import { useReactTable, getCoreRowModel, flexRender, getPaginationRowModel } from "@tanstack/react-table";
-import mData from '@/app/mock/data_table.json'
-import { useMemo } from "react";
+import { useReactTable, getCoreRowModel, flexRender, PaginationState, ColumnDef } from "@tanstack/react-table";
+import { useEffect, useMemo, useState } from "react";
 import {
     Table,
     Thead,
@@ -9,25 +8,56 @@ import {
     Tr,
     Th,
     Td,
-    TableCaption,
-    TableContainer,
     Box,
     IconButton,
     Checkbox,
-    Select,
-    Text,
-    Input,
-    Button
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
 } from '@chakra-ui/react'
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
+import { api } from "@/api/api";
+import { Category, Company, Department, Manufacturer, Equipamento, Situation } from "@/utils/types";
 
 type DataTableType = {
-    tableData: any
+    tableData: Equipamento[]
+    categoryData: Category[]
+    companyData: Company[]
+    departmentData: Department[]
+    manufacturerData: Manufacturer[]
+    situationData: Situation[]
 }
 
-export default function DataTable({ tableData }: DataTableType) {
+const queryClient = new QueryClient()
+
+export default function DataTable({ tableData, categoryData, companyData, departmentData, manufacturerData, situationData }: DataTableType) {
 
     const data = useMemo(() => tableData, [tableData])
+
+    function ActionMenu() {
+        return (
+            <Menu>
+                <MenuButton
+                    as={IconButton}
+                    aria-label='Options'
+                    icon={<HamburgerIcon />}
+                    variant='outline'
+                />
+                <MenuList>
+                    <MenuItem icon={<EditIcon />}>
+                        Editar
+                    </MenuItem>
+                    <MenuItem icon={<DeleteIcon />}>
+                        Remover
+                    </MenuItem>
+                </MenuList>
+            </Menu>
+        )
+    }
+
+
 
     const columns = [
         {
@@ -36,56 +66,99 @@ export default function DataTable({ tableData }: DataTableType) {
         },
         {
             header: 'Nº Patrimônio',
-            accessorKey: 'patrimonio'
+            accessorKey: 'Patrimonio'
         },
         {
             header: 'Tipo Equipamento',
-            accessorKey: 'tipoEquipamento'
+            accessorKey: 'IdCategoriaEquipamento',
+            cell: (info: { getValue: () => number; }) => getCategory(info.getValue()),
         },
         {
-            header: 'Nota Fiscal',
-            accessorKey: 'notaFiscal'
+            header: 'Situação Equipamento',
+            accessorKey: 'IdSituacaoEquipamento',
+            cell: (info: { getValue: () => number; }) => getSituation(info.getValue()),
+        },
+        {
+            header: 'Número Serial',
+            accessorKey: 'NumeroSerial'
         },
         {
             header: 'Data Aquisição',
-            accessorKey: 'dataAquisicao',
+            accessorKey: 'DataAquisicao',
             cell: (info: { getValue: () => string | number | Date; }) => new Date(info.getValue()).toLocaleDateString(),
         },
         {
             header: 'Data Cadastro',
-            accessorKey: 'dataCadastro',
+            accessorKey: 'DataCadastro',
             cell: (info: { getValue: () => string | number | Date; }) => new Date(info.getValue()).toLocaleDateString(),
         },
         {
             header: 'Data Modificação',
-            accessorKey: 'dataModificacao',
-            cell: (info: { getValue: () => string | number | Date; }) => new Date(info.getValue()).toLocaleDateString(),
+            accessorKey: 'DataModificacao',
+            cell: (info: { getValue: () => string | Date | null; }) => formatDateTime(info.getValue()),
         },
         {
             header: 'Empresa',
-            accessorKey: 'empresa'
+            accessorKey: 'IdEmpresa',
+            cell: (info: { getValue: () => number; }) => getCompany(info.getValue()),
         },
         {
             header: 'Fabricante',
-            accessorKey: 'fabricante'
+            accessorKey: 'IdFabricante',
+            cell: (info: { getValue: () => number; }) => getManufacturer(info.getValue()),
         },
         {
             header: 'Departamento',
-            accessorKey: 'departamento'
+            accessorKey: 'IdDepartamento',
+            cell: (info: { getValue: () => number; }) => getDepartment(info.getValue()),
         },
         {
             header: 'Ações',
-            cell: () => <Box display={'flex'} flexDirection={'row'} gap={'5px'}><IconButton aria-label='Editar' colorScheme='blue' icon={<EditIcon />} /><IconButton aria-label='Remover' colorScheme='red' icon={<DeleteIcon />} /></Box>
+            cell: () => ActionMenu()
 
         }
     ]
+
+    function getCategory(id: number) {
+        const category = categoryData.find((category) => category.IdCategoriaEquipamento === id);
+        return category?.DescricaoCategoriaEquipamento
+    }
+
+    function getCompany(id: number) {
+        const company = companyData.find((company) => company.IdEmpresa === id);
+        return company?.NomeEmpresa
+    }
+
+    function getManufacturer(id: number) {
+        const manufacturer = manufacturerData.find((manufacturer) => manufacturer.IdFabricante === id);
+        return manufacturer?.NomeFabricante
+    }
+
+    function getDepartment(id: number) {
+        const department = departmentData.find((department) => department.IdDepartamento === id);
+        return department?.NomeDepartamento
+    }
+
+    function getSituation(id: number) {
+        const situation = situationData.find((situation) => situation.IdSituacaoEquipamento === id);
+        return situation?.DescricaoSituacaoEquipamento
+    }
+
+
+    function formatDateTime(date: Date | string | null) {
+
+        if (date === null) return 'Não modificado'
+
+        return new Date(date).toLocaleDateString()
+
+    }
 
     const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel(), getPaginationRowModel: getPaginationRowModel() })
 
 
 
     return (
-        <Box >
+        <Box>
             <Table variant='simple' colorScheme='blue'>
                 <Thead>
                     {table.getHeaderGroups().map(headerGroup => (
