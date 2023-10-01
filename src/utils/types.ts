@@ -48,3 +48,17 @@ export type Equipamento = {
     IdFabricante: number
     IdDepartamento: number
 }
+
+type DataTableType = {
+    // tableData: Equipamento[]
+    // categoryData: Category[]
+    // companyData: Company[]
+    // departmentData: Department[]
+    // manufacturerData: Manufacturer[]
+    // situationData: Situation[]
+}
+
+export type ReqData = {
+    pageCount: number
+    data: Equipamento[]
+}

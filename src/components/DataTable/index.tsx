@@ -1,6 +1,6 @@
 'use client'
 import { useReactTable, getCoreRowModel, flexRender, PaginationState, ColumnDef, getPaginationRowModel } from "@tanstack/react-table";
-import { HTMLProps, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, HTMLProps, useEffect, useMemo, useRef, useState } from "react";
 import {
     Table,
     Thead,
@@ -11,34 +11,147 @@ import {
     Td,
     Box,
     IconButton,
-    Checkbox,
+    Input,
     Menu,
     MenuButton,
     MenuList,
     MenuItem,
     Button,
     Select,
-    Input,
     Text,
+    Accordion,
 } from '@chakra-ui/react'
 import { DeleteIcon, EditIcon, HamburgerIcon } from "@chakra-ui/icons";
-import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
 import { api } from "@/api/api";
-import { Category, Company, Department, Manufacturer, Equipamento, Situation } from "@/utils/types";
+import { Category, Company, Department, Manufacturer, Equipamento, Situation, ReqData } from "@/utils/types";
+import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
+import { useQuery } from "react-query";
 
-type DataTableType = {
-    tableData: Equipamento[]
-    categoryData: Category[]
-    companyData: Company[]
-    departmentData: Department[]
-    manufacturerData: Manufacturer[]
-    situationData: Situation[]
-}
+const searchSelectOptions = [
+    {
+        label: 'Nº de Patrimonio',
+        value: 'searchPatrim'
+    },
+    {
+        label: 'Serial',
+        value: 'searchSerial'
+    },
+    {
+        label: 'Descrição',
+        value: 'searchDesc'
+    },
 
-export default function DataTable({ tableData, categoryData, companyData, departmentData, manufacturerData, situationData }: DataTableType) {
+]
+
+export default function DataTable() {
 
 
-    const data = useMemo(() => tableData, [tableData])
+    const [searchValue, setSearchValue] = useState('')
+    const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
+    const [categoryData, setCategoryData] = useState<Category[]>([]);
+    const [companyData, setCompanyData] = useState<Company[]>([]);
+    const [manufacturerData, setManufacturerData] = useState<Manufacturer[]>([]);
+    const [departmentData, setDepartmentData] = useState<Department[]>([]);
+    const [situationData, setSituationData] = useState<Situation[]>([]);
+
+    function setSelectedOption(event: ChangeEvent<HTMLSelectElement>) {
+
+        const option = searchSelectOptions.find(option => option.value === event.target.value)
+
+        if (option) return setSelectOption(option)
+    }
+
+    const [{ pageIndex, pageSize }, setPagination] =
+        useState<PaginationState>({
+            pageIndex: 0,
+            pageSize: 10,
+        })
+
+    const fetchDataOptions = {
+        pageIndex,
+        pageSize,
+    }
+
+    const dataQuery = useQuery(
+        ['data', fetchDataOptions],
+        () => fetchTableData(fetchDataOptions),
+        { keepPreviousData: true }
+    )
+
+    const defaultData = useMemo(() => [], [])
+
+    const pagination = useMemo(
+        () => ({
+            pageIndex,
+            pageSize,
+        }),
+        [pageIndex, pageSize]
+    )
+
+    async function fetchTableData(options: {
+        pageIndex: number
+        pageSize: number
+    }) {
+        try {
+            const response = await api.get(`/equipment?${selectOption.value}=${searchValue}&take=${options.pageSize}&skip=${options.pageIndex}`)
+            const responseTyped: ReqData = response.data
+            return { rows: responseTyped.data, pageCount: responseTyped.pageCount }
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    console.log('Page Index:', pagination.pageIndex)
+    console.log('Page Size:', pagination.pageSize)
+
+
+    console.log('teste de input:', selectOption)
+    console.log('pesquisa teste:', searchValue)
+
+    async function fetchTableDescriptionData() {
+
+        const urls = [
+            '/category',
+            '/company',
+            '/manufacturer',
+            '/department',
+            '/situation'
+        ]
+
+
+        const requests = urls.map((url) => api.get(url));
+
+        Promise.all(requests)
+            .then((responses) => {
+
+                const category = responses[0].data;
+                const company = responses[1].data;
+                const manufacturer = responses[2].data;
+                const department = responses[3].data;
+                const situation = responses[4].data;
+
+                setCategoryData(category);
+                setCompanyData(company);
+                setManufacturerData(manufacturer);
+                setDepartmentData(department);
+                setSituationData(situation);
+
+
+
+            })
+            .catch((error) => {
+                console.error('Erro nas requisições:', error);
+            });
+    }
+
+
+    useEffect(() => {
+
+        fetchTableDescriptionData();
+
+    }, [])
+
 
     function ActionMenu() {
         return (
@@ -198,12 +311,39 @@ export default function DataTable({ tableData, categoryData, companyData, depart
 
     }
 
-    const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel(), getPaginationRowModel: getPaginationRowModel() })
+    const table = useReactTable({
+        data: dataQuery.data?.rows ?? defaultData, columns, pageCount: dataQuery.data?.pageCount ?? -1, getCoreRowModel: getCoreRowModel(), manualPagination: true, state: {
+
+            pagination
+        },
+        onPaginationChange: setPagination,
+    })
 
     const [rowSelection, setRowSelection] = useState({})
 
     return (
         <Box>
+            <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
+                <AccordionItemStyled title='Filtros Avançados'>
+                    <Box p='1rem'>
+                        <Box display={'flex'} flexDirection={'column'}>
+                            <Text>Selecione uma opção para busca</Text>
+                            <Box display={'flex'} flexDirection={'row'} gap={'1rem'}>
+                                <Select placeholder='Selecionar opção' width={'250px'} onChange={setSelectedOption} defaultValue={selectOption.value}>
+                                    {searchSelectOptions.map(
+                                        selectOption =>
+                                            <option value={selectOption.value} key={selectOption.value}>
+                                                {selectOption.label}
+                                            </option>
+                                    )}
+                                </Select>
+                                <Input placeholder="Pesquisar" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
+                                <Button >Pesquisar</Button>
+                            </Box>
+                        </Box>
+                    </Box>
+                </AccordionItemStyled>
+            </Accordion>
             <Table variant='simple' colorScheme='blue'>
                 <Thead>
                     {table.getHeaderGroups().map(headerGroup => (
@@ -238,6 +378,7 @@ export default function DataTable({ tableData, categoryData, companyData, depart
                     ))}
                 </Tfoot>
             </Table>
+            <Button onClick={() => table.setPageIndex(pagination.pageIndex + 1 * pagination.pageSize)} >Teste</Button>
         </Box>
     )
 }

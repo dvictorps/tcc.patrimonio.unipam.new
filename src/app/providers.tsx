@@ -4,6 +4,9 @@
 import { CacheProvider } from '@chakra-ui/next-js'
 import { ChakraProvider } from '@chakra-ui/react'
 import { AuthProvider } from '@/context/AuthContext'
+import { QueryClient, QueryClientProvider } from 'react-query'
+
+const queryClient = new QueryClient()
 
 export function Providers({
     children
@@ -13,9 +16,11 @@ export function Providers({
     return (
         <CacheProvider>
             <ChakraProvider cssVarsRoot={undefined}>
-                <AuthProvider>
-                    {children}
-                </AuthProvider>
+                <QueryClientProvider client={queryClient}>
+                    <AuthProvider>
+                        {children}
+                    </AuthProvider>
+                </QueryClientProvider>
             </ChakraProvider>
         </CacheProvider>
     )
