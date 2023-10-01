@@ -95,8 +95,8 @@ export default function Patrimonio() {
 
 
     return (
-       <Sidebar>
-       <Box flexDirection={'column'} >
+
+        <Box flexDirection={'column'} >
             <Box shadow={'dark-lg'} my='1rem' mx='2.5rem' borderRadius={'5px'} p='1rem'  >
                 <Text fontSize={'xl'} color={'blue.700'}>Equipamento de Patrimônio nº {displayData.patrimonio}</Text>
                 <Divider />
@@ -131,6 +131,6 @@ export default function Patrimonio() {
 
 
         </Box>
-        </Sidebar>
+
     )
 }

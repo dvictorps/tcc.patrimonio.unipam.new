@@ -8,6 +8,7 @@ import { useAuth } from '@/context/AuthContext'
 import { ChangeEvent, useEffect, useState } from 'react'
 import { api } from '@/api/api'
 import { Category, Company, Manufacturer, Department, Equipamento, Situation } from '@/utils/types'
+import { DeleteIcon } from '@chakra-ui/icons'
 
 
 const searchSelectOptions = [
@@ -46,14 +47,25 @@ export default function PatrimonioLista() {
     if (option) return setSelectOption(option)
   }
 
+
+  const [pageIndex, setPageIndex] = useState(0)
+
+  const [pageSize, setPageSize] = useState(10)
+
   async function fetchTableData() {
     try {
-      const response = await api.get(`/equipment?${selectOption.value}=${searchValue}`)
-      setTableData(response.data)
+      const response = await api.get(`/equipment?${selectOption.value}=${searchValue}&take=${pageSize}&skip=${pageIndex}`)
+      setTableData(response.data.data)
     } catch (error) {
       console.log(error)
     }
   }
+
+  function handleButton() {
+    setPageIndex(pageIndex + 1 * pageSize)
+    console.log('PAGEINDEX:', pageIndex)
+  }
+
 
   console.log('teste de input:', selectOption)
   console.log('pesquisa teste:', searchValue)
@@ -103,10 +115,12 @@ export default function PatrimonioLista() {
     fetchTableData();
     fetchTableDescriptionData();
 
-  }, [])
+  }, [pageIndex])
+
+
 
   return (
-    <Box display={'flex'} height={'100vh'}>
+    <Box display={'flex'} minHeight={'100vh'}>
       <Sidebar />
       <Box flexDirection={'column'} boxSizing='border-box' flex={1} padding={'1rem'} sx={{
         maxWidth: 'calc(100% - 15rem)',
@@ -134,7 +148,8 @@ export default function PatrimonioLista() {
               </Box>
             </AccordionItemStyled>
           </Accordion>
-          <Box borderRadius={'6px'} overflowX={'auto'} shadow={'outline'} m='1rem'>
+          <Button onClick={handleButton}>teste</Button>
+          <Box borderRadius={'6px'} overflowX={'auto'} shadow={'outline'} m='1rem' overflowY={'auto'}>
             <DataTable
               tableData={tableData}
               categoryData={categoryData}
@@ -143,8 +158,8 @@ export default function PatrimonioLista() {
               manufacturerData={manufacturerData}
               situationData={situationData}
             />
-            <Button >Teste</Button>
           </Box>
+
         </Box>
       </Box >
     </Box>

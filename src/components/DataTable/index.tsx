@@ -1,5 +1,6 @@
-import { useReactTable, getCoreRowModel, flexRender, PaginationState, ColumnDef } from "@tanstack/react-table";
-import { useEffect, useMemo, useState } from "react";
+'use client'
+import { useReactTable, getCoreRowModel, flexRender, PaginationState, ColumnDef, getPaginationRowModel } from "@tanstack/react-table";
+import { HTMLProps, useEffect, useMemo, useRef, useState } from "react";
 import {
     Table,
     Thead,
@@ -15,6 +16,10 @@ import {
     MenuButton,
     MenuList,
     MenuItem,
+    Button,
+    Select,
+    Input,
+    Text,
 } from '@chakra-ui/react'
 import { DeleteIcon, EditIcon, HamburgerIcon } from "@chakra-ui/icons";
 import { QueryClient, QueryClientProvider, useQuery } from 'react-query'
@@ -30,9 +35,8 @@ type DataTableType = {
     situationData: Situation[]
 }
 
-const queryClient = new QueryClient()
-
 export default function DataTable({ tableData, categoryData, companyData, departmentData, manufacturerData, situationData }: DataTableType) {
+
 
     const data = useMemo(() => tableData, [tableData])
 
@@ -57,12 +61,53 @@ export default function DataTable({ tableData, categoryData, companyData, depart
         )
     }
 
+    function IndeterminateCheckbox({
+        indeterminate,
+        className = '',
+        ...rest
+    }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
+        const ref = useRef<HTMLInputElement>(null!)
 
+        useEffect(() => {
+            if (typeof indeterminate === 'boolean') {
+                ref.current.indeterminate = !rest.checked && indeterminate
+            }
+        }, [ref, indeterminate])
 
-    const columns = [
+        return (
+            <input
+                type="checkbox"
+                ref={ref}
+                className={className + ' cursor-pointer'}
+                {...rest}
+            />
+        )
+    }
+
+    const columns: ColumnDef<Equipamento>[] = [
         {
-            header: 'Ação',
-            cell: () => <Box><Checkbox /></Box>
+            id: 'select',
+            header: ({ table }) => (
+                <IndeterminateCheckbox
+                    {...{
+                        checked: table.getIsAllRowsSelected(),
+                        indeterminate: table.getIsSomeRowsSelected(),
+                        onChange: table.getToggleAllRowsSelectedHandler(),
+                    }}
+                />
+            ),
+            cell: ({ row }) => (
+                <div className="px-1">
+                    <IndeterminateCheckbox
+                        {...{
+                            checked: row.getIsSelected(),
+                            disabled: !row.getCanSelect(),
+                            indeterminate: row.getIsSomeSelected(),
+                            onChange: row.getToggleSelectedHandler(),
+                        }}
+                    />
+                </div>
+            ),
         },
         {
             header: 'Nº Patrimônio',
@@ -71,12 +116,12 @@ export default function DataTable({ tableData, categoryData, companyData, depart
         {
             header: 'Tipo Equipamento',
             accessorKey: 'IdCategoriaEquipamento',
-            cell: (info: { getValue: () => number; }) => getCategory(info.getValue()),
+            cell: info => getCategory(info.getValue<number>()),
         },
         {
             header: 'Situação Equipamento',
             accessorKey: 'IdSituacaoEquipamento',
-            cell: (info: { getValue: () => number; }) => getSituation(info.getValue()),
+            cell: info => getSituation(info.getValue<number>()),
         },
         {
             header: 'Número Serial',
@@ -85,32 +130,32 @@ export default function DataTable({ tableData, categoryData, companyData, depart
         {
             header: 'Data Aquisição',
             accessorKey: 'DataAquisicao',
-            cell: (info: { getValue: () => string | number | Date; }) => new Date(info.getValue()).toLocaleDateString(),
+            cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
         },
         {
             header: 'Data Cadastro',
             accessorKey: 'DataCadastro',
-            cell: (info: { getValue: () => string | number | Date; }) => new Date(info.getValue()).toLocaleDateString(),
+            cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
         },
         {
             header: 'Data Modificação',
             accessorKey: 'DataModificacao',
-            cell: (info: { getValue: () => string | Date | null; }) => formatDateTime(info.getValue()),
+            cell: info => formatDateTime(info.getValue<string>()),
         },
         {
             header: 'Empresa',
             accessorKey: 'IdEmpresa',
-            cell: (info: { getValue: () => number; }) => getCompany(info.getValue()),
+            cell: info => getCompany(info.getValue<number>()),
         },
         {
             header: 'Fabricante',
             accessorKey: 'IdFabricante',
-            cell: (info: { getValue: () => number; }) => getManufacturer(info.getValue()),
+            cell: info => getManufacturer(info.getValue<number>()),
         },
         {
             header: 'Departamento',
             accessorKey: 'IdDepartamento',
-            cell: (info: { getValue: () => number; }) => getDepartment(info.getValue()),
+            cell: info => getDepartment(info.getValue<number>()),
         },
         {
             header: 'Ações',
@@ -155,7 +200,7 @@ export default function DataTable({ tableData, categoryData, companyData, depart
 
     const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel(), getPaginationRowModel: getPaginationRowModel() })
 
-
+    const [rowSelection, setRowSelection] = useState({})
 
     return (
         <Box>
