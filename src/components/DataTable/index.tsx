@@ -1,6 +1,6 @@
 'use client'
-import { useReactTable, getCoreRowModel, flexRender, PaginationState, ColumnDef, getPaginationRowModel } from "@tanstack/react-table";
-import { ChangeEvent, HTMLProps, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useReactTable, getCoreRowModel, flexRender, PaginationState, ColumnDef } from "@tanstack/react-table";
+import { ChangeEvent, Dispatch, HTMLProps, SetStateAction, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
     Table,
     Thead,
@@ -12,10 +12,6 @@ import {
     Box,
     IconButton,
     Input,
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
     Button,
     Select,
     Text,
@@ -26,27 +22,12 @@ import {
 } from '@chakra-ui/react'
 import { DeleteIcon, EditIcon, HamburgerIcon, ArrowForwardIcon, ArrowBackIcon } from "@chakra-ui/icons";
 import { api } from "@/api/api";
-import { Category, Company, Department, Manufacturer, Equipamento, Situation, ReqData } from "@/utils/types";
+import { Category, Company, Department, Manufacturer, Equipamento, Situation, ReqData, SelectOptions, ArrayType } from "@/utils/types";
 import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
-import { useQuery } from "react-query";
+import { UseQueryResult, useQuery } from "react-query";
 import React from "react";
 import { ModalStyled } from "../Modal";
 import { useApi } from "@/context/ApiContext";
-
-const searchSelectOptions = [
-    {
-        label: 'Nº de Patrimonio',
-        value: 'searchPatrim'
-    },
-    {
-        label: 'Serial',
-        value: 'searchSerial'
-    },
-    {
-        label: 'Descrição',
-        value: 'searchDesc'
-    },
-]
 
 const selectResultsOptions = [
     10,
@@ -55,25 +36,27 @@ const selectResultsOptions = [
     50
 ]
 
-type ArrayType = {
-    arrayLength: number,
-    pageCount: number
+export type DataTableType<QueryResult> = {
+    column: ColumnDef<QueryResult>[]
+    searchSelectOptions: SelectOptions[]
+    arrayLength: ArrayType
+    idPosit: string[]
+    dataQuery: UseQueryResult<{
+        data: QueryResult[];
+        totalRecords: number;
+    }, unknown>
+    selectOption: SelectOptions
+    setSelectOption: Dispatch<SetStateAction<{
+        label: string;
+        value: string;
+    }>>
+    searchValue: string
+    setSearchValue: Dispatch<SetStateAction<string>>
 }
 
-type DataTableType = {
-    column: ColumnDef<Equipamento>[]
-}
+export default function DataTable<QueryResult>({ column, searchSelectOptions, arrayLength, idPosit, dataQuery, searchValue, selectOption, setSearchValue, setSelectOption }: DataTableType<QueryResult>) {
 
-export default function DataTable({ column }: DataTableType) {
-
-    const [searchValue, setSearchValue] = useState('')
-
-    const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
-    const [categoryData, setCategoryData] = useState<Category[]>([]);
-    const [companyData, setCompanyData] = useState<Company[]>([]);
-    const [manufacturerData, setManufacturerData] = useState<Manufacturer[]>([]);
-    const [departmentData, setDepartmentData] = useState<Department[]>([]);
-    const [situationData, setSituationData] = useState<Situation[]>([]);
+    const { delete: deleteRequest, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination } = useApi()
 
     function setSelectedOption(event: ChangeEvent<HTMLSelectElement>) {
 
@@ -81,23 +64,6 @@ export default function DataTable({ column }: DataTableType) {
 
         if (option) return setSelectOption(option)
     }
-
-    const [{ pageIndex, pageSize }, setPagination] =
-        useState<PaginationState>({
-            pageIndex: 0,
-            pageSize: 10,
-        })
-
-    const fetchDataOptions = {
-        pageIndex,
-        pageSize,
-    }
-
-    const dataQuery = useQuery(
-        ['data', fetchDataOptions],
-        () => fetchTableData(fetchDataOptions),
-        { keepPreviousData: true }
-    )
 
     const defaultData = useMemo(() => [], [])
 
@@ -109,75 +75,9 @@ export default function DataTable({ column }: DataTableType) {
         [pageIndex, pageSize]
     )
 
-
-    const [arrayLength, setArrayLength] = useState({
-        arrayLength: 0,
-        pageCount: 0
-    } as ArrayType)
-
-    async function fetchTableData(options: {
-        pageIndex: number
-        pageSize: number
-    }) {
-        try {
-            const response = await api.get(`/equipment?${selectOption.value}=${searchValue}&take=${options.pageSize}&skip=${options.pageIndex * options.pageSize}`)
-            const responseTyped: ReqData = response.data
-            setArrayLength({ arrayLength: responseTyped.data.length, pageCount: responseTyped.totalRecords } as ArrayType)
-            return { rows: responseTyped.data, pageCount: responseTyped.totalRecords }
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-    async function fetchTableDescriptionData() {
-
-        const urls = [
-            '/category',
-            '/company',
-            '/manufacturer',
-            '/department',
-            '/situation'
-        ]
-
-
-        const requests = urls.map((url) => api.get(url));
-
-        Promise.all(requests)
-            .then((responses) => {
-
-                const category = responses[0].data;
-                const company = responses[1].data;
-                const manufacturer = responses[2].data;
-                const department = responses[3].data;
-                const situation = responses[4].data;
-
-                setCategoryData(category);
-                setCompanyData(company);
-                setManufacturerData(manufacturer);
-                setDepartmentData(department);
-                setSituationData(situation);
-
-
-
-            })
-            .catch((error) => {
-                console.error('Erro nas requisições:', error);
-            });
-    }
-
-
-    useEffect(() => {
-
-        fetchTableDescriptionData();
-
-    }, [])
-
-
-    const [rowSelection, setRowSelection] = useState({})
-
-    const table = useReactTable({
-        data: dataQuery.data?.rows ?? defaultData, columns: column,
-        pageCount: dataQuery.data?.pageCount ?? -1,
+    const table = useReactTable<QueryResult>({
+        data: dataQuery.data?.data ?? defaultData, columns: column,
+        pageCount: dataQuery.data?.totalRecords ?? -1,
         getCoreRowModel: getCoreRowModel(),
         manualPagination: true,
         state: {
@@ -199,40 +99,19 @@ export default function DataTable({ column }: DataTableType) {
         if (object.arrayLength < object.pageCount) return false
         if (object.arrayLength = object.pageCount) return true
 
-
         return false
-
     }
-
 
     async function Rerender() {
         await dataQuery.refetch()
         setRowSelection({})
     }
 
-
-    const deleteIds: number[] = []
-
-
-    for (const key in rowSelection) {
-        deleteIds.push(Number(key))
-    }
-
-    const idsComBaseNaPosicao = deleteIds.map((posicao) => {
-        if (posicao >= 0 && posicao < arrayLength.arrayLength) {
-            return (`&equipments=${dataQuery.data?.rows[posicao].IdEquipamento}`)
-        }
-        return undefined;
-    });
-
-    const idsComBaseNaPosicaoStyled = idsComBaseNaPosicao.join('');
+    const idsComBaseNaPosicaoStyled = idPosit.join('');
 
     function renderDeleteButton(array: number[]) {
-
         if (array.length > 1) return 'auto'
-
         return 'none'
-
     }
 
     function dividirEArredondar(numero1: number, numero2: number) {
@@ -241,19 +120,12 @@ export default function DataTable({ column }: DataTableType) {
         return resultadoArredondado;
     }
 
-
     function setSelectedPageSizeOption(event: ChangeEvent<HTMLSelectElement>) {
-
         const option = selectResultsOptions.find(option => option.toString() === event.target.value)
-
         if (option) return table.setPageSize(option)
     }
 
     const deleteMultipleDataModal = useDisclosure()
-
-    const { post, delete: deleteRequest } = useApi();
-
-    console.log(`/equipment/delete?${idsComBaseNaPosicaoStyled}`)
 
     const handleDeleteMultiple = async () => {
         try {
