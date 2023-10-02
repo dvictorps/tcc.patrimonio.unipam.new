@@ -1,6 +1,6 @@
 'use client'
 import { useReactTable, getCoreRowModel, flexRender, PaginationState, ColumnDef, getPaginationRowModel } from "@tanstack/react-table";
-import { ChangeEvent, HTMLProps, useEffect, useMemo, useRef, useState } from "react";
+import { ChangeEvent, HTMLProps, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
     Table,
     Thead,
@@ -43,10 +43,12 @@ const searchSelectOptions = [
 
 ]
 
+
+
 export default function DataTable() {
 
-
     const [searchValue, setSearchValue] = useState('')
+
     const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
     const [categoryData, setCategoryData] = useState<Category[]>([]);
     const [companyData, setCompanyData] = useState<Company[]>([]);
@@ -88,13 +90,17 @@ export default function DataTable() {
         [pageIndex, pageSize]
     )
 
+
+    const [arrayLength, setArrayLength] = useState(0)
+
     async function fetchTableData(options: {
         pageIndex: number
         pageSize: number
     }) {
         try {
-            const response = await api.get(`/equipment?${selectOption.value}=${searchValue}&take=${options.pageSize}&skip=${options.pageIndex}`)
+            const response = await api.get(`/equipment?${selectOption.value}=${searchValue}&take=${options.pageSize}&skip=${options.pageIndex * options.pageSize}`)
             const responseTyped: ReqData = response.data
+            setArrayLength(responseTyped.data.length)
             return { rows: responseTyped.data, pageCount: responseTyped.pageCount }
         } catch (error) {
             console.log(error)
@@ -310,16 +316,42 @@ export default function DataTable() {
         return new Date(date).toLocaleDateString()
 
     }
+    const [rowSelection, setRowSelection] = useState({})
 
     const table = useReactTable({
-        data: dataQuery.data?.rows ?? defaultData, columns, pageCount: dataQuery.data?.pageCount ?? -1, getCoreRowModel: getCoreRowModel(), manualPagination: true, state: {
-
-            pagination
+        data: dataQuery.data?.rows ?? defaultData, columns,
+        pageCount: dataQuery.data?.pageCount ?? -1,
+        getCoreRowModel: getCoreRowModel(),
+        manualPagination: true,
+        state: {
+            pagination,
+            rowSelection
         },
-        onPaginationChange: setPagination,
+        onPaginationChange: setPaginationSetRowSelection,
+        onRowSelectionChange: setRowSelection,
+        enableRowSelection: true,
     })
 
-    const [rowSelection, setRowSelection] = useState({})
+    function setPaginationSetRowSelection(id: any) {
+        setPagination(id),
+            setRowSelection({})
+    }
+
+    function DisableButton(array: number) {
+        if (array < pagination.pageSize) return true
+
+        return false
+    }
+
+
+    async function Rerender() {
+        await dataQuery.refetch()
+        setRowSelection({})
+    }
+
+    console.log('rows selecionadas:', rowSelection, 'pagina:', pagination.pageIndex, 'dados:', dataQuery.data?.rows)
+
+
 
     return (
         <Box>
@@ -338,7 +370,7 @@ export default function DataTable() {
                                     )}
                                 </Select>
                                 <Input placeholder="Pesquisar" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
-                                <Button >Pesquisar</Button>
+                                <Button onClick={Rerender}>Pesquisar</Button>
                             </Box>
                         </Box>
                     </Box>
@@ -378,7 +410,10 @@ export default function DataTable() {
                     ))}
                 </Tfoot>
             </Table>
-            <Button onClick={() => table.setPageIndex(pagination.pageIndex + 1 * pagination.pageSize)} >Teste</Button>
+            <Button onClick={() => table.previousPage()} isDisabled={!table.getCanPreviousPage()}>Voltar</Button>
+            <Button onClick={() => table.nextPage()} isDisabled={DisableButton(arrayLength)}>Avançar</Button>
+            {dataQuery.isFetching ? 'Loading...' : null}
+
         </Box>
     )
 }
