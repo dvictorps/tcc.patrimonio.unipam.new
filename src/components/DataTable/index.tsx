@@ -20,12 +20,18 @@ import {
     Select,
     Text,
     Accordion,
+    ModalFooter,
+    ModalBody,
+    useDisclosure,
 } from '@chakra-ui/react'
 import { DeleteIcon, EditIcon, HamburgerIcon, ArrowForwardIcon, ArrowBackIcon } from "@chakra-ui/icons";
 import { api } from "@/api/api";
 import { Category, Company, Department, Manufacturer, Equipamento, Situation, ReqData } from "@/utils/types";
 import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
 import { useQuery } from "react-query";
+import React from "react";
+import { ModalStyled } from "../Modal";
+import { useApi } from "@/context/ApiContext";
 
 const searchSelectOptions = [
     {
@@ -40,7 +46,6 @@ const searchSelectOptions = [
         label: 'Descrição',
         value: 'searchDesc'
     },
-
 ]
 
 const selectResultsOptions = [
@@ -54,8 +59,6 @@ type ArrayType = {
     arrayLength: number,
     pageCount: number
 }
-
-
 
 export default function DataTable() {
 
@@ -122,14 +125,6 @@ export default function DataTable() {
         }
     }
 
-
-    console.log('Page Index:', pagination.pageIndex)
-    console.log('Page Size:', pagination.pageSize)
-
-
-    console.log('teste de input:', selectOption)
-    console.log('pesquisa teste:', searchValue)
-
     async function fetchTableDescriptionData() {
 
         const urls = [
@@ -173,25 +168,46 @@ export default function DataTable() {
 
     }, [])
 
+    const deleteUniqueModal = useDisclosure();
 
-    function ActionMenu() {
+    function ActionMenu(id: number) {
         return (
-            <Menu>
-                <MenuButton
-                    as={IconButton}
-                    aria-label='Options'
-                    icon={<HamburgerIcon />}
-                    variant='outline'
-                />
-                <MenuList>
-                    <MenuItem icon={<EditIcon />}>
-                        Editar
-                    </MenuItem>
-                    <MenuItem icon={<DeleteIcon />}>
-                        Remover
-                    </MenuItem>
-                </MenuList>
-            </Menu>
+            <>
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        aria-label='Options'
+                        icon={<HamburgerIcon />}
+                        variant='outline'
+                    />
+                    <MenuList>
+                        <MenuItem icon={<EditIcon />}>
+                            Editar
+                        </MenuItem>
+                        <MenuItem icon={<DeleteIcon />} onClick={deleteUniqueModal.onOpen}>
+                            Remover
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+                <ModalStyled title="Remover"
+                    onClose={deleteUniqueModal.onClose}
+                    open={deleteUniqueModal.isOpen}
+                    isCentered={true}
+                >
+                    <ModalBody>
+                        <Text>
+                            Você está prestes a remover este registro. Deseja prosseguir com a operação?
+                        </Text>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Box display={'inline-flex'} gap={'1rem'}>
+                            <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDeleteMultiple}>Confirmar remoção</Button>
+                            <Button onClick={deleteUniqueModal.onClose}>Cancel</Button>
+                        </Box>
+                    </ModalFooter>
+                </ModalStyled>
+            </>
+
         )
     }
 
@@ -217,6 +233,8 @@ export default function DataTable() {
             />
         )
     }
+
+    console.log(deleteUniqueModal.isOpen)
 
     const columns: ColumnDef<Equipamento>[] = [
         {
@@ -293,7 +311,8 @@ export default function DataTable() {
         },
         {
             header: 'Ações',
-            cell: () => ActionMenu()
+            accessorKey: 'IdEquipamento',
+            cell: info => ActionMenu(info.getValue<number>())
         }
     ]
 
@@ -367,15 +386,22 @@ export default function DataTable() {
         setRowSelection({})
     }
 
-    console.log('rows selecionadas:', rowSelection, 'pagina:', pagination.pageIndex, 'dados:', dataQuery.data?.rows)
 
     const deleteIds: number[] = []
 
-    console.log('AQUIIIII', arrayLength.arrayLength, arrayLength.pageCount, dataQuery.data?.pageCount, pagination.pageIndex)
 
     for (const key in rowSelection) {
         deleteIds.push(Number(key))
     }
+
+    const idsComBaseNaPosicao = deleteIds.map((posicao) => {
+        if (posicao >= 0 && posicao < arrayLength.arrayLength) {
+            return (`&equipments=${dataQuery.data?.rows[posicao].IdEquipamento}`)
+        }
+        return undefined;
+    });
+
+    const idsComBaseNaPosicaoStyled = idsComBaseNaPosicao.join('');
 
     function renderDeleteButton(array: number[]) {
 
@@ -399,6 +425,24 @@ export default function DataTable() {
         if (option) return table.setPageSize(option)
     }
 
+    const deleteMultipleDataModal = useDisclosure()
+
+    const { post, delete: deleteRequest } = useApi();
+
+    console.log(`/equipment/delete?${idsComBaseNaPosicaoStyled}`)
+
+    const handleDeleteMultiple = async () => {
+        try {
+            const response = await deleteRequest(`/equipment/delete?${idsComBaseNaPosicaoStyled}`);
+            console.log('Resposta DELETE:', response.data);
+            await dataQuery.refetch()
+            setRowSelection({})
+        } catch (error) {
+            console.log('Erro no DELETE:', error);
+        }
+
+        deleteMultipleDataModal.onClose()
+    };
 
     return (
         <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
@@ -418,7 +462,7 @@ export default function DataTable() {
                                 </Select>
                                 <Input placeholder="Pesquisar" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
                                 <Button onClick={Rerender}>Pesquisar</Button>
-                                <Button display={renderDeleteButton(deleteIds)} colorScheme="red" rightIcon={<DeleteIcon />}>Remover</Button>
+                                <Button display={renderDeleteButton(deleteIds)} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Remover</Button>
                             </Box>
                         </Box>
                     </Box>
@@ -482,7 +526,23 @@ export default function DataTable() {
                     </Box>
                 </Box>
             </Box>
-
+            <ModalStyled title="Remover"
+                onClose={deleteMultipleDataModal.onClose}
+                open={deleteMultipleDataModal.isOpen}
+                isCentered={true}
+            >
+                <ModalBody>
+                    <Text>
+                        Você está prestes a remover {deleteIds.length} registros. Deseja prosseguir com a operação?
+                    </Text>
+                </ModalBody>
+                <ModalFooter>
+                    <Box display={'inline-flex'} gap={'1rem'}>
+                        <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDeleteMultiple}>Confirmar remoção</Button>
+                        <Button onClick={deleteMultipleDataModal.onClose}>Cancel</Button>
+                    </Box>
+                </ModalFooter>
+            </ModalStyled>
         </Box>
     )
 }
