@@ -21,7 +21,7 @@ import {
     Text,
     Accordion,
 } from '@chakra-ui/react'
-import { DeleteIcon, EditIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon, HamburgerIcon, ArrowForwardIcon, ArrowBackIcon } from "@chakra-ui/icons";
 import { api } from "@/api/api";
 import { Category, Company, Department, Manufacturer, Equipamento, Situation, ReqData } from "@/utils/types";
 import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
@@ -42,6 +42,18 @@ const searchSelectOptions = [
     },
 
 ]
+
+const selectResultsOptions = [
+    10,
+    20,
+    30,
+    50
+]
+
+type ArrayType = {
+    arrayLength: number,
+    pageCount: number
+}
 
 
 
@@ -91,7 +103,10 @@ export default function DataTable() {
     )
 
 
-    const [arrayLength, setArrayLength] = useState(0)
+    const [arrayLength, setArrayLength] = useState({
+        arrayLength: 0,
+        pageCount: 0
+    } as ArrayType)
 
     async function fetchTableData(options: {
         pageIndex: number
@@ -100,8 +115,8 @@ export default function DataTable() {
         try {
             const response = await api.get(`/equipment?${selectOption.value}=${searchValue}&take=${options.pageSize}&skip=${options.pageIndex * options.pageSize}`)
             const responseTyped: ReqData = response.data
-            setArrayLength(responseTyped.data.length)
-            return { rows: responseTyped.data, pageCount: responseTyped.pageCount }
+            setArrayLength({ arrayLength: responseTyped.data.length, pageCount: responseTyped.totalRecords } as ArrayType)
+            return { rows: responseTyped.data, pageCount: responseTyped.totalRecords }
         } catch (error) {
             console.log(error)
         }
@@ -279,7 +294,6 @@ export default function DataTable() {
         {
             header: 'Ações',
             cell: () => ActionMenu()
-
         }
     ]
 
@@ -337,10 +351,14 @@ export default function DataTable() {
             setRowSelection({})
     }
 
-    function DisableButton(array: number) {
-        if (array < pagination.pageSize) return true
+    function DisableButton(object: ArrayType) {
+        if (object.arrayLength < pagination.pageSize) return true
+        if (object.arrayLength < object.pageCount) return false
+        if (object.arrayLength = object.pageCount) return true
+
 
         return false
+
     }
 
 
@@ -351,10 +369,39 @@ export default function DataTable() {
 
     console.log('rows selecionadas:', rowSelection, 'pagina:', pagination.pageIndex, 'dados:', dataQuery.data?.rows)
 
+    const deleteIds: number[] = []
+
+    console.log('AQUIIIII', arrayLength.arrayLength, arrayLength.pageCount, dataQuery.data?.pageCount, pagination.pageIndex)
+
+    for (const key in rowSelection) {
+        deleteIds.push(Number(key))
+    }
+
+    function renderDeleteButton(array: number[]) {
+
+        if (array.length > 1) return 'auto'
+
+        return 'none'
+
+    }
+
+    function dividirEArredondar(numero1: number, numero2: number) {
+        const resultado = numero1 / numero2;
+        const resultadoArredondado = Math.floor(resultado);
+        return resultadoArredondado;
+    }
+
+
+    function setSelectedPageSizeOption(event: ChangeEvent<HTMLSelectElement>) {
+
+        const option = selectResultsOptions.find(option => option.toString() === event.target.value)
+
+        if (option) return table.setPageSize(option)
+    }
 
 
     return (
-        <Box>
+        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
             <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
                 <AccordionItemStyled title='Filtros Avançados'>
                     <Box p='1rem'>
@@ -371,48 +418,70 @@ export default function DataTable() {
                                 </Select>
                                 <Input placeholder="Pesquisar" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
                                 <Button onClick={Rerender}>Pesquisar</Button>
+                                <Button display={renderDeleteButton(deleteIds)} colorScheme="red" rightIcon={<DeleteIcon />}>Remover</Button>
                             </Box>
                         </Box>
                     </Box>
                 </AccordionItemStyled>
             </Accordion>
-            <Table variant='simple' colorScheme='blue'>
-                <Thead>
-                    {table.getHeaderGroups().map(headerGroup => (
-                        <Tr key={headerGroup.id}>
-                            {headerGroup.headers.map(header => <Th key={header.id}>
-                                {flexRender(header.column.columnDef.header, header.getContext())}
-                            </Th>)}
-                        </Tr>
-                    ))}
-                </Thead>
-                <Tbody>
-                    {table.getRowModel().rows.map(row => (
-                        <Tr key={row.id}>
-                            {row.getVisibleCells().map(cell => (
-                                <Td key={cell.id}>
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-
-                                </Td>
-                            ))}
-                        </Tr>
-                    ))}
-                </Tbody>
-                <Tfoot>
-                    {table.getFooterGroups().map(footerGroup => (
-                        <Tr key={footerGroup.id}>
-                            {footerGroup.headers.map(header =>
-                                <Th key={header.id}>
+            <Box overflowX={'auto'} overflowY={'auto'}>
+                <Table variant='simple' colorScheme='blue'>
+                    <Thead>
+                        {table.getHeaderGroups().map(headerGroup => (
+                            <Tr key={headerGroup.id}>
+                                {headerGroup.headers.map(header => <Th key={header.id}>
                                     {flexRender(header.column.columnDef.header, header.getContext())}
-                                </Th>)
-                            }
-                        </Tr>
-                    ))}
-                </Tfoot>
-            </Table>
-            <Button onClick={() => table.previousPage()} isDisabled={!table.getCanPreviousPage()}>Voltar</Button>
-            <Button onClick={() => table.nextPage()} isDisabled={DisableButton(arrayLength)}>Avançar</Button>
-            {dataQuery.isFetching ? 'Loading...' : null}
+                                </Th>)}
+                            </Tr>
+                        ))}
+                    </Thead>
+                    <Tbody>
+                        {table.getRowModel().rows.map(row => (
+                            <Tr key={row.id}>
+                                {row.getVisibleCells().map(cell => (
+                                    <Td key={cell.id}>
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+
+                                    </Td>
+                                ))}
+                            </Tr>
+                        ))}
+                    </Tbody>
+                    <Tfoot>
+                        {table.getFooterGroups().map(footerGroup => (
+                            <Tr key={footerGroup.id}>
+                                {footerGroup.headers.map(header =>
+                                    <Th key={header.id}>
+                                        {flexRender(header.column.columnDef.header, header.getContext())}
+                                    </Th>)
+                                }
+                            </Tr>
+                        ))}
+                    </Tfoot>
+                </Table>
+            </Box>
+            <Box display={'flex'} gap={'0.4rem'} p={'1rem'}>
+                <Button colorScheme="teal" onClick={() => table.setPageIndex(0)}
+                    isDisabled={!table.getCanPreviousPage()}>{'<<'}</Button>
+                <IconButton colorScheme="teal" aria-label='back' onClick={() => table.previousPage()} isDisabled={!table.getCanPreviousPage()} icon={<ArrowBackIcon />} />
+                <IconButton colorScheme="teal" aria-label='foward' onClick={() => table.nextPage()} isDisabled={DisableButton(arrayLength)} icon={<ArrowForwardIcon />} />
+                <Button colorScheme="teal" onClick={() => table.setPageIndex(dividirEArredondar(table.getPageCount(), pagination.pageSize))}
+                    isDisabled={DisableButton(arrayLength)}>{'>>'}</Button>
+                {dataQuery.isFetching ? 'Loading...' : null}
+                <Box justifyContent={'space-between'} display={'flex'} width={'100%'} alignItems={'center'}>
+                    Página {table.getState().pagination.pageIndex + 1} de {dividirEArredondar(table.getPageCount(), pagination.pageSize) + 1}
+
+                    <Box display={'flex'} justifyContent={'auto'}>
+                        <Text>Resultados por página:</Text>
+                        <Select onChange={setSelectedPageSizeOption}>
+                            {selectResultsOptions.map(option =>
+                            (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
+                        </Select>
+                    </Box>
+                </Box>
+            </Box>
 
         </Box>
     )

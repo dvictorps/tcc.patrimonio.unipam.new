@@ -59,6 +59,6 @@ type DataTableType = {
 }
 
 export type ReqData = {
-    pageCount: number
+    totalRecords: number
     data: Equipamento[]
 }

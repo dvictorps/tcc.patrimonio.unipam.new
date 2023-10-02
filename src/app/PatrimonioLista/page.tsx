@@ -26,7 +26,7 @@ export default function PatrimonioLista() {
         <Text fontSize={'3xl'} color={'blue.700'}>Lista de Patrimonio</Text>
         <Box display={'flex'} width={'100%'} flexDirection={'column'}>
 
-          <Box borderRadius={'6px'} overflowX={'auto'} shadow={'outline'} m='1rem' overflowY={'auto'}>
+          <Box >
             <DataTable />
           </Box>
 
