@@ -60,7 +60,11 @@ type ArrayType = {
     pageCount: number
 }
 
-export default function DataTable() {
+type DataTableType = {
+    column: ColumnDef<Equipamento>[]
+}
+
+export default function DataTable({ column }: DataTableType) {
 
     const [searchValue, setSearchValue] = useState('')
 
@@ -168,191 +172,11 @@ export default function DataTable() {
 
     }, [])
 
-    const deleteUniqueModal = useDisclosure();
 
-    function ActionMenu(id: number) {
-        return (
-            <>
-                <Menu>
-                    <MenuButton
-                        as={IconButton}
-                        aria-label='Options'
-                        icon={<HamburgerIcon />}
-                        variant='outline'
-                    />
-                    <MenuList>
-                        <MenuItem icon={<EditIcon />}>
-                            Editar
-                        </MenuItem>
-                        <MenuItem icon={<DeleteIcon />} onClick={deleteUniqueModal.onOpen}>
-                            Remover
-                        </MenuItem>
-                    </MenuList>
-                </Menu>
-                <ModalStyled title="Remover"
-                    onClose={deleteUniqueModal.onClose}
-                    open={deleteUniqueModal.isOpen}
-                    isCentered={true}
-                >
-                    <ModalBody>
-                        <Text>
-                            Você está prestes a remover este registro. Deseja prosseguir com a operação?
-                        </Text>
-                    </ModalBody>
-                    <ModalFooter>
-                        <Box display={'inline-flex'} gap={'1rem'}>
-                            <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDeleteMultiple}>Confirmar remoção</Button>
-                            <Button onClick={deleteUniqueModal.onClose}>Cancel</Button>
-                        </Box>
-                    </ModalFooter>
-                </ModalStyled>
-            </>
-
-        )
-    }
-
-    function IndeterminateCheckbox({
-        indeterminate,
-        className = '',
-        ...rest
-    }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
-        const ref = useRef<HTMLInputElement>(null!)
-
-        useEffect(() => {
-            if (typeof indeterminate === 'boolean') {
-                ref.current.indeterminate = !rest.checked && indeterminate
-            }
-        }, [ref, indeterminate])
-
-        return (
-            <input
-                type="checkbox"
-                ref={ref}
-                className={className + ' cursor-pointer'}
-                {...rest}
-            />
-        )
-    }
-
-    console.log(deleteUniqueModal.isOpen)
-
-    const columns: ColumnDef<Equipamento>[] = [
-        {
-            id: 'select',
-            header: ({ table }) => (
-                <IndeterminateCheckbox
-                    {...{
-                        checked: table.getIsAllRowsSelected(),
-                        indeterminate: table.getIsSomeRowsSelected(),
-                        onChange: table.getToggleAllRowsSelectedHandler(),
-                    }}
-                />
-            ),
-            cell: ({ row }) => (
-                <div className="px-1">
-                    <IndeterminateCheckbox
-                        {...{
-                            checked: row.getIsSelected(),
-                            disabled: !row.getCanSelect(),
-                            indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler(),
-                        }}
-                    />
-                </div>
-            ),
-        },
-        {
-            header: 'Nº Patrimônio',
-            accessorKey: 'Patrimonio'
-        },
-        {
-            header: 'Tipo Equipamento',
-            accessorKey: 'IdCategoriaEquipamento',
-            cell: info => getCategory(info.getValue<number>()),
-        },
-        {
-            header: 'Situação Equipamento',
-            accessorKey: 'IdSituacaoEquipamento',
-            cell: info => getSituation(info.getValue<number>()),
-        },
-        {
-            header: 'Número Serial',
-            accessorKey: 'NumeroSerial'
-        },
-        {
-            header: 'Data Aquisição',
-            accessorKey: 'DataAquisicao',
-            cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
-        },
-        {
-            header: 'Data Cadastro',
-            accessorKey: 'DataCadastro',
-            cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
-        },
-        {
-            header: 'Data Modificação',
-            accessorKey: 'DataModificacao',
-            cell: info => formatDateTime(info.getValue<string>()),
-        },
-        {
-            header: 'Empresa',
-            accessorKey: 'IdEmpresa',
-            cell: info => getCompany(info.getValue<number>()),
-        },
-        {
-            header: 'Fabricante',
-            accessorKey: 'IdFabricante',
-            cell: info => getManufacturer(info.getValue<number>()),
-        },
-        {
-            header: 'Departamento',
-            accessorKey: 'IdDepartamento',
-            cell: info => getDepartment(info.getValue<number>()),
-        },
-        {
-            header: 'Ações',
-            accessorKey: 'IdEquipamento',
-            cell: info => ActionMenu(info.getValue<number>())
-        }
-    ]
-
-    function getCategory(id: number) {
-        const category = categoryData.find((category) => category.IdCategoriaEquipamento === id);
-        return category?.DescricaoCategoriaEquipamento
-    }
-
-    function getCompany(id: number) {
-        const company = companyData.find((company) => company.IdEmpresa === id);
-        return company?.NomeEmpresa
-    }
-
-    function getManufacturer(id: number) {
-        const manufacturer = manufacturerData.find((manufacturer) => manufacturer.IdFabricante === id);
-        return manufacturer?.NomeFabricante
-    }
-
-    function getDepartment(id: number) {
-        const department = departmentData.find((department) => department.IdDepartamento === id);
-        return department?.NomeDepartamento
-    }
-
-    function getSituation(id: number) {
-        const situation = situationData.find((situation) => situation.IdSituacaoEquipamento === id);
-        return situation?.DescricaoSituacaoEquipamento
-    }
-
-
-    function formatDateTime(date: Date | string | null) {
-
-        if (date === null) return 'Não modificado'
-
-        return new Date(date).toLocaleDateString()
-
-    }
     const [rowSelection, setRowSelection] = useState({})
 
     const table = useReactTable({
-        data: dataQuery.data?.rows ?? defaultData, columns,
+        data: dataQuery.data?.rows ?? defaultData, columns: column,
         pageCount: dataQuery.data?.pageCount ?? -1,
         getCoreRowModel: getCoreRowModel(),
         manualPagination: true,
