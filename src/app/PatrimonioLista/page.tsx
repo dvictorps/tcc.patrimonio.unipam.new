@@ -1,123 +1,183 @@
 'use client'
-import { Box, Text, Divider, Select, Input, Accordion, Button } from '@chakra-ui/react'
+import { Box, Text, Button, IconButton, Menu, MenuButton, MenuItem, MenuList, ModalBody, ModalFooter, useDisclosure, useQuery } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
-const DataTable = dynamic(() => import('@/components/DataTable'), { ssr: false })
+import { Equipamento } from '@/utils/types'
+const DataTable = dynamic<DataTableType<Equipamento>>(() => import('@/components/DataTable'), { ssr: false })
 import Sidebar from '@/components/Sidebar'
-import { AccordionItemStyled } from '@/components/Accordion/AccordionItemStyled'
 import { useAuth } from '@/context/AuthContext'
-import { ChangeEvent, useEffect, useState } from 'react'
-import { api } from '@/api/api'
-import { Category, Company, Manufacturer, Department, Equipamento, Situation } from '@/utils/types'
-import { DeleteIcon } from '@chakra-ui/icons'
-
-
-const searchSelectOptions = [
-  {
-    label: 'Nº de Patrimonio',
-    value: 'searchPatrim'
-  },
-  {
-    label: 'Serial',
-    value: 'searchSerial'
-  },
-  {
-    label: 'Descrição',
-    value: 'searchDesc'
-  },
-
-]
-
+import { HTMLProps, useEffect, useMemo, useRef, useState } from 'react'
+import { DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons'
+import { ColumnDef } from '@tanstack/react-table'
+import { ModalStyled } from '@/components/Modal'
+import { useApi } from '@/context/ApiContext'
+import { ActionMenu } from './ActionMenu'
+import { DataTableType } from '@/components/DataTable'
 
 export default function PatrimonioLista() {
 
-  const { user } = useAuth();
+  const { categoryData, companyData, manufacturerData, departmentData, situationData, arrayLength, deleteIds, fetchData } = useApi();
+
+  const searchSelectOptions = [
+    {
+      label: 'Nº de Patrimonio',
+      value: 'searchPatrim'
+    },
+    {
+      label: 'Serial',
+      value: 'searchSerial'
+    },
+    {
+      label: 'Descrição',
+      value: 'searchDesc'
+    },
+  ]
 
   const [searchValue, setSearchValue] = useState('')
   const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
-  const [categoryData, setCategoryData] = useState<Category[]>([]);
-  const [companyData, setCompanyData] = useState<Company[]>([]);
-  const [manufacturerData, setManufacturerData] = useState<Manufacturer[]>([]);
-  const [departmentData, setDepartmentData] = useState<Department[]>([]);
-  const [situationData, setSituationData] = useState<Situation[]>([]);
 
-  function setSelectedOption(event: ChangeEvent<HTMLSelectElement>) {
+  const dataQuery = fetchData<Equipamento>(selectOption, searchValue, 'equipment')
 
-    const option = searchSelectOptions.find(option => option.value === event.target.value)
+  function IndeterminateCheckbox({
+    indeterminate,
+    className = '',
+    ...rest
+  }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
+    const ref = useRef<HTMLInputElement>(null!)
 
-    if (option) return setSelectOption(option)
+    useEffect(() => {
+      if (typeof indeterminate === 'boolean') {
+        ref.current.indeterminate = !rest.checked && indeterminate
+      }
+    }, [ref, indeterminate])
+
+    return (
+      <input
+        type="checkbox"
+        ref={ref}
+        className={className + ' cursor-pointer'}
+        {...rest}
+      />
+    )
   }
 
-
-  const [pageIndex, setPageIndex] = useState(0)
-
-  const [pageSize, setPageSize] = useState(10)
-
-  async function fetchTableData() {
-    try {
-      const response = await api.get(`/equipment?${selectOption.value}=${searchValue}&take=${pageSize}&skip=${pageIndex}`)
-      setTableData(response.data.data)
-    } catch (error) {
-      console.log(error)
+  const columns: ColumnDef<Equipamento>[] = [
+    {
+      id: 'select',
+      header: ({ table }) => (
+        <IndeterminateCheckbox
+          {...{
+            checked: table.getIsAllRowsSelected(),
+            indeterminate: table.getIsSomeRowsSelected(),
+            onChange: table.getToggleAllRowsSelectedHandler(),
+          }}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="px-1">
+          <IndeterminateCheckbox
+            {...{
+              checked: row.getIsSelected(),
+              disabled: !row.getCanSelect(),
+              indeterminate: row.getIsSomeSelected(),
+              onChange: row.getToggleSelectedHandler(),
+            }}
+          />
+        </div>
+      ),
+    },
+    {
+      header: 'Nº Patrimônio',
+      accessorKey: 'Patrimonio'
+    },
+    {
+      header: 'Tipo Equipamento',
+      accessorKey: 'IdCategoriaEquipamento',
+      cell: info => getCategory(info.getValue<number>()),
+    },
+    {
+      header: 'Situação Equipamento',
+      accessorKey: 'IdSituacaoEquipamento',
+      cell: info => getSituation(info.getValue<number>()),
+    },
+    {
+      header: 'Número Serial',
+      accessorKey: 'NumeroSerial'
+    },
+    {
+      header: 'Data Aquisição',
+      accessorKey: 'DataAquisicao',
+      cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
+    },
+    {
+      header: 'Data Cadastro',
+      accessorKey: 'DataCadastro',
+      cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
+    },
+    {
+      header: 'Data Modificação',
+      accessorKey: 'DataModificacao',
+      cell: info => formatDateTime(info.getValue<string>()),
+    },
+    {
+      header: 'Empresa',
+      accessorKey: 'IdEmpresa',
+      cell: info => getCompany(info.getValue<number>()),
+    },
+    {
+      header: 'Fabricante',
+      accessorKey: 'IdFabricante',
+      cell: info => getManufacturer(info.getValue<number>()),
+    },
+    {
+      header: 'Departamento',
+      accessorKey: 'IdDepartamento',
+      cell: info => getDepartment(info.getValue<number>()),
+    },
+    {
+      header: 'Ações',
+      accessorKey: 'IdEquipamento',
+      cell: info => ActionMenu(info.getValue<number>())
     }
+  ]
+
+  function getCategory(id: number) {
+    const category = categoryData.find((category) => category.IdCategoriaEquipamento === id);
+    return category?.DescricaoCategoriaEquipamento
   }
 
-  function handleButton() {
-    setPageIndex(pageIndex + 1 * pageSize)
-    console.log('PAGEINDEX:', pageIndex)
+  function getCompany(id: number) {
+    const company = companyData.find((company) => company.IdEmpresa === id);
+    return company?.NomeEmpresa
   }
 
-
-  console.log('teste de input:', selectOption)
-  console.log('pesquisa teste:', searchValue)
-
-
-  const [tableData, setTableData] = useState<Equipamento[]>([]);
-
-  async function fetchTableDescriptionData() {
-
-    const urls = [
-      '/category',
-      '/company',
-      '/manufacturer',
-      '/department',
-      '/situation'
-    ]
-
-
-    const requests = urls.map((url) => api.get(url));
-
-    Promise.all(requests)
-      .then((responses) => {
-
-        const category = responses[0].data;
-        const company = responses[1].data;
-        const manufacturer = responses[2].data;
-        const department = responses[3].data;
-        const situation = responses[4].data;
-
-        setCategoryData(category);
-        setCompanyData(company);
-        setManufacturerData(manufacturer);
-        setDepartmentData(department);
-        setSituationData(situation);
-
-
-
-      })
-      .catch((error) => {
-        console.error('Erro nas requisições:', error);
-      });
+  function getManufacturer(id: number) {
+    const manufacturer = manufacturerData.find((manufacturer) => manufacturer.IdFabricante === id);
+    return manufacturer?.NomeFabricante
   }
 
+  function getDepartment(id: number) {
+    const department = departmentData.find((department) => department.IdDepartamento === id);
+    return department?.NomeDepartamento
+  }
 
-  useEffect(() => {
+  function getSituation(id: number) {
+    const situation = situationData.find((situation) => situation.IdSituacaoEquipamento === id);
+    return situation?.DescricaoSituacaoEquipamento
+  }
 
-    fetchTableData();
-    fetchTableDescriptionData();
+  function formatDateTime(date: Date | string | null) {
 
-  }, [pageIndex])
+    if (date === null) return 'Não modificado'
 
+    return new Date(date).toLocaleDateString()
+  }
 
+  const idsComBaseNaPosicao = deleteIds.map((posicao) => {
+    if (posicao >= 0 && posicao < arrayLength.arrayLength) {
+      return (`&equipments=${dataQuery.data?.data[posicao].IdEquipamento}`)
+    }
+    return '';
+  });
 
   return (
     <Box display={'flex'} minHeight={'100vh'}>
@@ -127,41 +187,22 @@ export default function PatrimonioLista() {
       }}>
         <Text fontSize={'3xl'} color={'blue.700'}>Lista de Patrimonio</Text>
         <Box display={'flex'} width={'100%'} flexDirection={'column'}>
-          <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
-            <AccordionItemStyled title='Filtros Avançados'>
-              <Box p='1rem'>
-                <Box display={'flex'} flexDirection={'column'}>
-                  <Text>Selecione uma opção para busca</Text>
-                  <Box display={'flex'} flexDirection={'row'} gap={'1rem'}>
-                    <Select placeholder='Selecionar opção' width={'250px'} onChange={setSelectedOption} defaultValue={selectOption.value}>
-                      {searchSelectOptions.map(
-                        selectOption =>
-                          <option value={selectOption.value} key={selectOption.value}>
-                            {selectOption.label}
-                          </option>
-                      )}
-                    </Select>
-                    <Input placeholder="Pesquisar" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
-                    <Button onClick={fetchTableData}>Pesquisar</Button>
-                  </Box>
-                </Box>
-              </Box>
-            </AccordionItemStyled>
-          </Accordion>
-          <Button onClick={handleButton}>teste</Button>
-          <Box borderRadius={'6px'} overflowX={'auto'} shadow={'outline'} m='1rem' overflowY={'auto'}>
+          <Box >
             <DataTable
-              tableData={tableData}
-              categoryData={categoryData}
-              companyData={companyData}
-              departmentData={departmentData}
-              manufacturerData={manufacturerData}
-              situationData={situationData}
+              idPosit={idsComBaseNaPosicao}
+              column={columns}
+              searchSelectOptions={searchSelectOptions}
+              arrayLength={arrayLength}
+              dataQuery={dataQuery}
+              searchValue={searchValue}
+              selectOption={selectOption}
+              setSearchValue={setSearchValue}
+              setSelectOption={setSelectOption}
             />
           </Box>
-
         </Box>
       </Box >
     </Box>
   )
 }
+

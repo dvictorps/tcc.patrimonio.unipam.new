@@ -48,3 +48,25 @@ export type Equipamento = {
     IdFabricante: number
     IdDepartamento: number
 }
+
+export type ReqData<QueryResult> = {
+    totalRecords: number
+    data: QueryResult[]
+}
+
+export type SelectOptions = {
+    label: string
+    value: string
+}
+
+export type ArrayType = {
+    arrayLength: number,
+    pageCount: number
+}
+
+export type FetchDataOptions = {
+    pageIndex: number;
+    pageSize: number;
+};
+
+
