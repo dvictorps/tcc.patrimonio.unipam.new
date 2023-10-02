@@ -1,6 +1,6 @@
 'use client'
-import { useReactTable, getCoreRowModel, flexRender, PaginationState, ColumnDef, getPaginationRowModel } from "@tanstack/react-table";
-import { ChangeEvent, HTMLProps, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useReactTable, getCoreRowModel, flexRender, PaginationState, ColumnDef } from "@tanstack/react-table";
+import { ChangeEvent, Dispatch, HTMLProps, SetStateAction, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import {
     Table,
     Thead,
@@ -12,49 +12,51 @@ import {
     Box,
     IconButton,
     Input,
-    Menu,
-    MenuButton,
-    MenuList,
-    MenuItem,
     Button,
     Select,
     Text,
     Accordion,
+    ModalFooter,
+    ModalBody,
+    useDisclosure,
 } from '@chakra-ui/react'
-import { DeleteIcon, EditIcon, HamburgerIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon, HamburgerIcon, ArrowForwardIcon, ArrowBackIcon } from "@chakra-ui/icons";
 import { api } from "@/api/api";
-import { Category, Company, Department, Manufacturer, Equipamento, Situation, ReqData } from "@/utils/types";
+import { Category, Company, Department, Manufacturer, Equipamento, Situation, ReqData, SelectOptions, ArrayType } from "@/utils/types";
 import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
-import { useQuery } from "react-query";
+import { UseQueryResult, useQuery } from "react-query";
+import React from "react";
+import { ModalStyled } from "../Modal";
+import { useApi } from "@/context/ApiContext";
 
-const searchSelectOptions = [
-    {
-        label: 'Nº de Patrimonio',
-        value: 'searchPatrim'
-    },
-    {
-        label: 'Serial',
-        value: 'searchSerial'
-    },
-    {
-        label: 'Descrição',
-        value: 'searchDesc'
-    },
-
+const selectResultsOptions = [
+    10,
+    20,
+    30,
+    50
 ]
 
+export type DataTableType<QueryResult> = {
+    column: ColumnDef<QueryResult>[]
+    searchSelectOptions: SelectOptions[]
+    arrayLength: ArrayType
+    idPosit: string[]
+    dataQuery: UseQueryResult<{
+        data: QueryResult[];
+        totalRecords: number;
+    }, unknown>
+    selectOption: SelectOptions
+    setSelectOption: Dispatch<SetStateAction<{
+        label: string;
+        value: string;
+    }>>
+    searchValue: string
+    setSearchValue: Dispatch<SetStateAction<string>>
+}
 
+export default function DataTable<QueryResult>({ column, searchSelectOptions, arrayLength, idPosit, dataQuery, searchValue, selectOption, setSearchValue, setSelectOption }: DataTableType<QueryResult>) {
 
-export default function DataTable() {
-
-    const [searchValue, setSearchValue] = useState('')
-
-    const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
-    const [categoryData, setCategoryData] = useState<Category[]>([]);
-    const [companyData, setCompanyData] = useState<Company[]>([]);
-    const [manufacturerData, setManufacturerData] = useState<Manufacturer[]>([]);
-    const [departmentData, setDepartmentData] = useState<Department[]>([]);
-    const [situationData, setSituationData] = useState<Situation[]>([]);
+    const { delete: deleteRequest, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination } = useApi()
 
     function setSelectedOption(event: ChangeEvent<HTMLSelectElement>) {
 
@@ -62,23 +64,6 @@ export default function DataTable() {
 
         if (option) return setSelectOption(option)
     }
-
-    const [{ pageIndex, pageSize }, setPagination] =
-        useState<PaginationState>({
-            pageIndex: 0,
-            pageSize: 10,
-        })
-
-    const fetchDataOptions = {
-        pageIndex,
-        pageSize,
-    }
-
-    const dataQuery = useQuery(
-        ['data', fetchDataOptions],
-        () => fetchTableData(fetchDataOptions),
-        { keepPreviousData: true }
-    )
 
     const defaultData = useMemo(() => [], [])
 
@@ -90,237 +75,9 @@ export default function DataTable() {
         [pageIndex, pageSize]
     )
 
-
-    const [arrayLength, setArrayLength] = useState(0)
-
-    async function fetchTableData(options: {
-        pageIndex: number
-        pageSize: number
-    }) {
-        try {
-            const response = await api.get(`/equipment?${selectOption.value}=${searchValue}&take=${options.pageSize}&skip=${options.pageIndex * options.pageSize}`)
-            const responseTyped: ReqData = response.data
-            setArrayLength(responseTyped.data.length)
-            return { rows: responseTyped.data, pageCount: responseTyped.pageCount }
-        } catch (error) {
-            console.log(error)
-        }
-    }
-
-
-    console.log('Page Index:', pagination.pageIndex)
-    console.log('Page Size:', pagination.pageSize)
-
-
-    console.log('teste de input:', selectOption)
-    console.log('pesquisa teste:', searchValue)
-
-    async function fetchTableDescriptionData() {
-
-        const urls = [
-            '/category',
-            '/company',
-            '/manufacturer',
-            '/department',
-            '/situation'
-        ]
-
-
-        const requests = urls.map((url) => api.get(url));
-
-        Promise.all(requests)
-            .then((responses) => {
-
-                const category = responses[0].data;
-                const company = responses[1].data;
-                const manufacturer = responses[2].data;
-                const department = responses[3].data;
-                const situation = responses[4].data;
-
-                setCategoryData(category);
-                setCompanyData(company);
-                setManufacturerData(manufacturer);
-                setDepartmentData(department);
-                setSituationData(situation);
-
-
-
-            })
-            .catch((error) => {
-                console.error('Erro nas requisições:', error);
-            });
-    }
-
-
-    useEffect(() => {
-
-        fetchTableDescriptionData();
-
-    }, [])
-
-
-    function ActionMenu() {
-        return (
-            <Menu>
-                <MenuButton
-                    as={IconButton}
-                    aria-label='Options'
-                    icon={<HamburgerIcon />}
-                    variant='outline'
-                />
-                <MenuList>
-                    <MenuItem icon={<EditIcon />}>
-                        Editar
-                    </MenuItem>
-                    <MenuItem icon={<DeleteIcon />}>
-                        Remover
-                    </MenuItem>
-                </MenuList>
-            </Menu>
-        )
-    }
-
-    function IndeterminateCheckbox({
-        indeterminate,
-        className = '',
-        ...rest
-    }: { indeterminate?: boolean } & HTMLProps<HTMLInputElement>) {
-        const ref = useRef<HTMLInputElement>(null!)
-
-        useEffect(() => {
-            if (typeof indeterminate === 'boolean') {
-                ref.current.indeterminate = !rest.checked && indeterminate
-            }
-        }, [ref, indeterminate])
-
-        return (
-            <input
-                type="checkbox"
-                ref={ref}
-                className={className + ' cursor-pointer'}
-                {...rest}
-            />
-        )
-    }
-
-    const columns: ColumnDef<Equipamento>[] = [
-        {
-            id: 'select',
-            header: ({ table }) => (
-                <IndeterminateCheckbox
-                    {...{
-                        checked: table.getIsAllRowsSelected(),
-                        indeterminate: table.getIsSomeRowsSelected(),
-                        onChange: table.getToggleAllRowsSelectedHandler(),
-                    }}
-                />
-            ),
-            cell: ({ row }) => (
-                <div className="px-1">
-                    <IndeterminateCheckbox
-                        {...{
-                            checked: row.getIsSelected(),
-                            disabled: !row.getCanSelect(),
-                            indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler(),
-                        }}
-                    />
-                </div>
-            ),
-        },
-        {
-            header: 'Nº Patrimônio',
-            accessorKey: 'Patrimonio'
-        },
-        {
-            header: 'Tipo Equipamento',
-            accessorKey: 'IdCategoriaEquipamento',
-            cell: info => getCategory(info.getValue<number>()),
-        },
-        {
-            header: 'Situação Equipamento',
-            accessorKey: 'IdSituacaoEquipamento',
-            cell: info => getSituation(info.getValue<number>()),
-        },
-        {
-            header: 'Número Serial',
-            accessorKey: 'NumeroSerial'
-        },
-        {
-            header: 'Data Aquisição',
-            accessorKey: 'DataAquisicao',
-            cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
-        },
-        {
-            header: 'Data Cadastro',
-            accessorKey: 'DataCadastro',
-            cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
-        },
-        {
-            header: 'Data Modificação',
-            accessorKey: 'DataModificacao',
-            cell: info => formatDateTime(info.getValue<string>()),
-        },
-        {
-            header: 'Empresa',
-            accessorKey: 'IdEmpresa',
-            cell: info => getCompany(info.getValue<number>()),
-        },
-        {
-            header: 'Fabricante',
-            accessorKey: 'IdFabricante',
-            cell: info => getManufacturer(info.getValue<number>()),
-        },
-        {
-            header: 'Departamento',
-            accessorKey: 'IdDepartamento',
-            cell: info => getDepartment(info.getValue<number>()),
-        },
-        {
-            header: 'Ações',
-            cell: () => ActionMenu()
-
-        }
-    ]
-
-    function getCategory(id: number) {
-        const category = categoryData.find((category) => category.IdCategoriaEquipamento === id);
-        return category?.DescricaoCategoriaEquipamento
-    }
-
-    function getCompany(id: number) {
-        const company = companyData.find((company) => company.IdEmpresa === id);
-        return company?.NomeEmpresa
-    }
-
-    function getManufacturer(id: number) {
-        const manufacturer = manufacturerData.find((manufacturer) => manufacturer.IdFabricante === id);
-        return manufacturer?.NomeFabricante
-    }
-
-    function getDepartment(id: number) {
-        const department = departmentData.find((department) => department.IdDepartamento === id);
-        return department?.NomeDepartamento
-    }
-
-    function getSituation(id: number) {
-        const situation = situationData.find((situation) => situation.IdSituacaoEquipamento === id);
-        return situation?.DescricaoSituacaoEquipamento
-    }
-
-
-    function formatDateTime(date: Date | string | null) {
-
-        if (date === null) return 'Não modificado'
-
-        return new Date(date).toLocaleDateString()
-
-    }
-    const [rowSelection, setRowSelection] = useState({})
-
-    const table = useReactTable({
-        data: dataQuery.data?.rows ?? defaultData, columns,
-        pageCount: dataQuery.data?.pageCount ?? -1,
+    const table = useReactTable<QueryResult>({
+        data: dataQuery.data?.data ?? defaultData, columns: column,
+        pageCount: dataQuery.data?.totalRecords ?? -1,
         getCoreRowModel: getCoreRowModel(),
         manualPagination: true,
         state: {
@@ -337,24 +94,54 @@ export default function DataTable() {
             setRowSelection({})
     }
 
-    function DisableButton(array: number) {
-        if (array < pagination.pageSize) return true
+    function DisableButton(object: ArrayType) {
+        if (object.arrayLength < pagination.pageSize) return true
+        if (object.arrayLength < object.pageCount) return false
+        if (object.arrayLength = object.pageCount) return true
 
         return false
     }
-
 
     async function Rerender() {
         await dataQuery.refetch()
         setRowSelection({})
     }
 
-    console.log('rows selecionadas:', rowSelection, 'pagina:', pagination.pageIndex, 'dados:', dataQuery.data?.rows)
+    const idsComBaseNaPosicaoStyled = idPosit.join('');
 
+    function renderDeleteButton(array: number[]) {
+        if (array.length > 1) return 'auto'
+        return 'none'
+    }
 
+    function dividirEArredondar(numero1: number, numero2: number) {
+        const resultado = numero1 / numero2;
+        const resultadoArredondado = Math.floor(resultado);
+        return resultadoArredondado;
+    }
+
+    function setSelectedPageSizeOption(event: ChangeEvent<HTMLSelectElement>) {
+        const option = selectResultsOptions.find(option => option.toString() === event.target.value)
+        if (option) return table.setPageSize(option)
+    }
+
+    const deleteMultipleDataModal = useDisclosure()
+
+    const handleDeleteMultiple = async () => {
+        try {
+            const response = await deleteRequest(`/equipment/delete?${idsComBaseNaPosicaoStyled}`);
+            console.log('Resposta DELETE:', response.data);
+            await dataQuery.refetch()
+            setRowSelection({})
+        } catch (error) {
+            console.log('Erro no DELETE:', error);
+        }
+
+        deleteMultipleDataModal.onClose()
+    };
 
     return (
-        <Box>
+        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
             <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
                 <AccordionItemStyled title='Filtros Avançados'>
                     <Box p='1rem'>
@@ -371,49 +158,87 @@ export default function DataTable() {
                                 </Select>
                                 <Input placeholder="Pesquisar" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
                                 <Button onClick={Rerender}>Pesquisar</Button>
+                                <Button display={renderDeleteButton(deleteIds)} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Remover</Button>
                             </Box>
                         </Box>
                     </Box>
                 </AccordionItemStyled>
             </Accordion>
-            <Table variant='simple' colorScheme='blue'>
-                <Thead>
-                    {table.getHeaderGroups().map(headerGroup => (
-                        <Tr key={headerGroup.id}>
-                            {headerGroup.headers.map(header => <Th key={header.id}>
-                                {flexRender(header.column.columnDef.header, header.getContext())}
-                            </Th>)}
-                        </Tr>
-                    ))}
-                </Thead>
-                <Tbody>
-                    {table.getRowModel().rows.map(row => (
-                        <Tr key={row.id}>
-                            {row.getVisibleCells().map(cell => (
-                                <Td key={cell.id}>
-                                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-
-                                </Td>
-                            ))}
-                        </Tr>
-                    ))}
-                </Tbody>
-                <Tfoot>
-                    {table.getFooterGroups().map(footerGroup => (
-                        <Tr key={footerGroup.id}>
-                            {footerGroup.headers.map(header =>
-                                <Th key={header.id}>
+            <Box overflowX={'auto'} overflowY={'auto'}>
+                <Table variant='simple' colorScheme='blue'>
+                    <Thead>
+                        {table.getHeaderGroups().map(headerGroup => (
+                            <Tr key={headerGroup.id}>
+                                {headerGroup.headers.map(header => <Th key={header.id}>
                                     {flexRender(header.column.columnDef.header, header.getContext())}
-                                </Th>)
-                            }
-                        </Tr>
-                    ))}
-                </Tfoot>
-            </Table>
-            <Button onClick={() => table.previousPage()} isDisabled={!table.getCanPreviousPage()}>Voltar</Button>
-            <Button onClick={() => table.nextPage()} isDisabled={DisableButton(arrayLength)}>Avançar</Button>
-            {dataQuery.isFetching ? 'Loading...' : null}
+                                </Th>)}
+                            </Tr>
+                        ))}
+                    </Thead>
+                    <Tbody>
+                        {table.getRowModel().rows.map(row => (
+                            <Tr key={row.id}>
+                                {row.getVisibleCells().map(cell => (
+                                    <Td key={cell.id}>
+                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
 
+                                    </Td>
+                                ))}
+                            </Tr>
+                        ))}
+                    </Tbody>
+                    <Tfoot>
+                        {table.getFooterGroups().map(footerGroup => (
+                            <Tr key={footerGroup.id}>
+                                {footerGroup.headers.map(header =>
+                                    <Th key={header.id}>
+                                        {flexRender(header.column.columnDef.header, header.getContext())}
+                                    </Th>)
+                                }
+                            </Tr>
+                        ))}
+                    </Tfoot>
+                </Table>
+            </Box>
+            <Box display={'flex'} gap={'0.4rem'} p={'1rem'}>
+                <Button colorScheme="teal" onClick={() => table.setPageIndex(0)}
+                    isDisabled={!table.getCanPreviousPage()}>{'<<'}</Button>
+                <IconButton colorScheme="teal" aria-label='back' onClick={() => table.previousPage()} isDisabled={!table.getCanPreviousPage()} icon={<ArrowBackIcon />} />
+                <IconButton colorScheme="teal" aria-label='foward' onClick={() => table.nextPage()} isDisabled={DisableButton(arrayLength)} icon={<ArrowForwardIcon />} />
+                <Button colorScheme="teal" onClick={() => table.setPageIndex(dividirEArredondar(table.getPageCount(), pagination.pageSize))}
+                    isDisabled={DisableButton(arrayLength)}>{'>>'}</Button>
+                {dataQuery.isFetching ? 'Loading...' : null}
+                <Box justifyContent={'space-between'} display={'flex'} width={'100%'} alignItems={'center'}>
+                    Página {table.getState().pagination.pageIndex + 1} de {dividirEArredondar(table.getPageCount(), pagination.pageSize) + 1}
+
+                    <Box display={'flex'} justifyContent={'auto'}>
+                        <Text>Resultados por página:</Text>
+                        <Select onChange={setSelectedPageSizeOption}>
+                            {selectResultsOptions.map(option =>
+                            (
+                                <option key={option} value={option}>{option}</option>
+                            ))}
+                        </Select>
+                    </Box>
+                </Box>
+            </Box>
+            <ModalStyled title="Remover"
+                onClose={deleteMultipleDataModal.onClose}
+                open={deleteMultipleDataModal.isOpen}
+                isCentered={true}
+            >
+                <ModalBody>
+                    <Text>
+                        Você está prestes a remover {deleteIds.length} registros. Deseja prosseguir com a operação?
+                    </Text>
+                </ModalBody>
+                <ModalFooter>
+                    <Box display={'inline-flex'} gap={'1rem'}>
+                        <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDeleteMultiple}>Confirmar remoção</Button>
+                        <Button onClick={deleteMultipleDataModal.onClose}>Cancel</Button>
+                    </Box>
+                </ModalFooter>
+            </ModalStyled>
         </Box>
     )
 }

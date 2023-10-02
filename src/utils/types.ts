@@ -49,16 +49,24 @@ export type Equipamento = {
     IdDepartamento: number
 }
 
-type DataTableType = {
-    // tableData: Equipamento[]
-    // categoryData: Category[]
-    // companyData: Company[]
-    // departmentData: Department[]
-    // manufacturerData: Manufacturer[]
-    // situationData: Situation[]
+export type ReqData<QueryResult> = {
+    totalRecords: number
+    data: QueryResult[]
 }
 
-export type ReqData = {
-    pageCount: number
-    data: Equipamento[]
+export type SelectOptions = {
+    label: string
+    value: string
 }
+
+export type ArrayType = {
+    arrayLength: number,
+    pageCount: number
+}
+
+export type FetchDataOptions = {
+    pageIndex: number;
+    pageSize: number;
+};
+
+
