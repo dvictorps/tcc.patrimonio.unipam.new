@@ -114,6 +114,11 @@ export default function PatrimonioLista() {
       cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
     },
     {
+      header: 'Vencimento Garantia',
+      accessorKey: 'VencimentoGarantia',
+      cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
+    },
+    {
       header: 'Data Modificação',
       accessorKey: 'DataModificacao',
       cell: info => formatDateTime(info.getValue<string>()),
@@ -136,7 +141,7 @@ export default function PatrimonioLista() {
     {
       header: 'Ações',
       accessorKey: 'IdEquipamento',
-      cell: info => ActionMenu(info.getValue<number>())
+      cell: info => ActionMenu<Equipamento>(info.getValue<number>(), dataQuery)
     }
   ]
 
@@ -178,6 +183,10 @@ export default function PatrimonioLista() {
     }
     return '';
   });
+
+  useEffect(() => {
+    dataQuery.refetch()
+  }, [])
 
   return (
     <Box display={'flex'} minHeight={'100vh'}>

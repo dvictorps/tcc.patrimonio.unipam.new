@@ -1,9 +1,31 @@
 import { ModalStyled } from "@/components/Modal";
+import { useApi } from "@/context/ApiContext";
 import { HamburgerIcon, EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import { useDisclosure, Menu, MenuButton, IconButton, MenuList, MenuItem, ModalBody, ModalFooter, Button, Box, Text } from "@chakra-ui/react";
+import { UseQueryResult } from "react-query";
 
-export function ActionMenu(id: number) {
+export function ActionMenu<QueryResult>(id: number, dataQuery: UseQueryResult<{
+    data: QueryResult[];
+    totalRecords: number;
+}, unknown>) {
+
     const deleteUniqueModal = useDisclosure();
+    const { delete: deleteRequest, setRowSelection } = useApi()
+
+    const handleDelete = async () => {
+        try {
+            const response = await deleteRequest(`/equipment/delete/${id}`);
+            console.log('Resposta DELETE:', response.data);
+            await dataQuery.refetch()
+            setRowSelection({})
+
+        } catch (error) {
+            console.log('Erro no DELETE:', error);
+        }
+        deleteUniqueModal.onClose()
+
+    }
+
     return (
         <>
             <Menu>
@@ -34,7 +56,7 @@ export function ActionMenu(id: number) {
                 </ModalBody>
                 <ModalFooter>
                     <Box display={'inline-flex'} gap={'1rem'}>
-                        <Button colorScheme="red" rightIcon={<DeleteIcon />}>Confirmar remoção</Button>
+                        <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDelete} >Confirmar remoção</Button>
                         <Button onClick={deleteUniqueModal.onClose}>Cancel</Button>
                     </Box>
                 </ModalFooter>
