@@ -1,6 +1,6 @@
 'use client'
-import { useReactTable, getCoreRowModel, flexRender, PaginationState, ColumnDef } from "@tanstack/react-table";
-import { ChangeEvent, Dispatch, HTMLProps, SetStateAction, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useReactTable, getCoreRowModel, flexRender, ColumnDef } from "@tanstack/react-table";
+import { ChangeEvent, Dispatch, SetStateAction, useMemo, useState } from "react";
 import {
     Table,
     Thead,
@@ -20,11 +20,10 @@ import {
     ModalBody,
     useDisclosure,
 } from '@chakra-ui/react'
-import { DeleteIcon, EditIcon, HamburgerIcon, ArrowForwardIcon, ArrowBackIcon } from "@chakra-ui/icons";
-import { api } from "@/api/api";
-import { Category, Company, Department, Manufacturer, Equipamento, Situation, ReqData, SelectOptions, ArrayType } from "@/utils/types";
+import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon } from "@chakra-ui/icons";
+import { SelectOptions, ArrayType } from "@/utils/types";
 import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
-import { UseQueryResult, useQuery } from "react-query";
+import { UseQueryResult } from "react-query";
 import React from "react";
 import { ModalStyled } from "../Modal";
 import { useApi } from "@/context/ApiContext";
@@ -57,6 +56,7 @@ export type DataTableType<QueryResult> = {
 export default function DataTable<QueryResult>({ column, searchSelectOptions, arrayLength, idPosit, dataQuery, searchValue, selectOption, setSearchValue, setSelectOption }: DataTableType<QueryResult>) {
 
     const { delete: deleteRequest, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination } = useApi()
+
 
     function setSelectedOption(event: ChangeEvent<HTMLSelectElement>) {
 
@@ -127,9 +127,9 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     const deleteMultipleDataModal = useDisclosure()
 
-    const handleDeleteMultiple = async () => {
+    async function handleDeleteMultiple() {
         try {
-            const response = await deleteRequest(`/equipment/delete?${idsComBaseNaPosicaoStyled}`);
+            const response = await deleteRequest<QueryResult>(`/equipment/delete?${idsComBaseNaPosicaoStyled}`);
             console.log('Resposta DELETE:', response.data);
             await dataQuery.refetch()
             setRowSelection({})
