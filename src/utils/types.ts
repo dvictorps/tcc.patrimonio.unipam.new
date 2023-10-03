@@ -47,6 +47,15 @@ export type Equipamento = {
     IdSituacaoEquipamento?: number
     IdFabricante?: number
     IdDepartamento?: number
+    IdSala?: number
+}
+
+export type Room = {
+    IdSala: number
+    DescricaoSala: string
+    IdBlocoDepartamento: number
+    IdTipoSala: number
+    IdSituacaoSala: number
 }
 
 export type ReqData<QueryResult> = {

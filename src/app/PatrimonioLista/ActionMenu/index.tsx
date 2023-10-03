@@ -24,13 +24,13 @@ export function ActionMenu(
 
     async function handleDelete() {
         try {
-            const response = await deleteRequest<Equipamento>(`/${route}/delete/${id}`);
-            console.log('Resposta DELETE:', response.data);
+            const response = await patch<Equipamento>(`/${route}/disable/${id}`, '2');
+            console.log('Resposta Patch:', response.data);
             await dataQuery.refetch()
             setRowSelection({})
 
         } catch (error) {
-            console.log('Erro no DELETE:', error);
+            console.log('Erro no Patch:', error);
         }
         deleteUniqueModal.onClose()
     }
@@ -82,9 +82,6 @@ export function ActionMenu(
         editButtonRefetch();
 
     }
-
-
-
     return (
         <>
             <Menu>
@@ -110,7 +107,7 @@ export function ActionMenu(
             >
                 <ModalBody>
                     <Text>
-                        Você está prestes o reistro de patrimônio {componentData?.Patrimonio}. Deseja prosseguir com a operação?
+                        Você está prestes a desativar o patrimônio de registro {componentData?.Patrimonio}. Deseja prosseguir com a operação?
                     </Text>
                 </ModalBody>
                 <ModalFooter>

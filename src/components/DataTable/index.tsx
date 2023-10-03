@@ -21,7 +21,7 @@ import {
     useDisclosure,
 } from '@chakra-ui/react'
 import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon } from "@chakra-ui/icons";
-import { SelectOptions, ArrayType } from "@/utils/types";
+import { SelectOptions, ArrayType, Situation } from "@/utils/types";
 import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
 import { UseQueryResult } from "react-query";
 import React from "react";
@@ -51,11 +51,16 @@ export type DataTableType<QueryResult> = {
     }>>
     searchValue: string
     setSearchValue: Dispatch<SetStateAction<string>>
+    situationValue: Situation
+    setSituationValue: Dispatch<SetStateAction<Situation>>
+    situationData: Situation[]
 }
 
-export default function DataTable<QueryResult>({ column, searchSelectOptions, arrayLength, idPosit, dataQuery, searchValue, selectOption, setSearchValue, setSelectOption }: DataTableType<QueryResult>) {
+export default function DataTable<QueryResult>({ column, searchSelectOptions, arrayLength, idPosit, dataQuery, searchValue, selectOption, setSearchValue,
+    setSelectOption, situationValue, setSituationValue, situationData
+}: DataTableType<QueryResult>) {
 
-    const { delete: deleteRequest, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination } = useApi()
+    const { patch, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination } = useApi()
 
 
     function setSelectedOption(event: ChangeEvent<HTMLSelectElement>) {
@@ -63,6 +68,13 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         const option = searchSelectOptions.find(option => option.value === event.target.value)
 
         if (option) return setSelectOption(option)
+    }
+
+    function setSelectedSituation(event: ChangeEvent<HTMLSelectElement>) {
+
+        const option = situationData.find(situation => situation.IdSituacaoEquipamento.toString() === event.target.value)
+
+        if (option) return setSituationValue(option)
     }
 
     const defaultData = useMemo(() => [], [])
@@ -109,8 +121,13 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     const idsComBaseNaPosicaoStyled = idPosit.join('');
 
-    function renderDeleteButton(array: number[]) {
-        if (array.length > 1) return 'auto'
+    function renderDeleteButton(array: number[], situation: number) {
+        if (array.length > 1 && situation === 1) return 'auto'
+        return 'none'
+    }
+
+    function renderEnableButton(array: number[], situation: number) {
+        if (array.length > 1 && situation === 2) return 'auto'
         return 'none'
     }
 
@@ -129,12 +146,12 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     async function handleDeleteMultiple() {
         try {
-            const response = await deleteRequest<QueryResult>(`/equipment/delete?${idsComBaseNaPosicaoStyled}`);
-            console.log('Resposta DELETE:', response.data);
+            const response = await patch<QueryResult>(`/equipment/disable?${idsComBaseNaPosicaoStyled}`, '2');
+            console.log('Resposta Disable:', response.data);
             await dataQuery.refetch()
             setRowSelection({})
         } catch (error) {
-            console.log('Erro no DELETE:', error);
+            console.log('Erro no Disable:', error);
         }
 
         deleteMultipleDataModal.onClose()
@@ -144,23 +161,39 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
             <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
                 <AccordionItemStyled title='Filtros Avançados'>
-                    <Box p='1rem'>
-                        <Box display={'flex'} flexDirection={'column'}>
-                            <Text>Selecione uma opção para busca</Text>
-                            <Box display={'flex'} flexDirection={'row'} gap={'1rem'}>
-                                <Select placeholder='Selecionar opção' width={'250px'} onChange={setSelectedOption} defaultValue={selectOption.value}>
-                                    {searchSelectOptions.map(
-                                        selectOption =>
-                                            <option value={selectOption.value} key={selectOption.value}>
-                                                {selectOption.label}
+                    <Box display={'flex'} flexDirection={'column'}>
+                        <Box p='1rem' display={'flex'} flexDirection={'row'} gap={'2rem'}>
+                            <Box display={'flex'} flexDirection={'column'}>
+                                <Text>Selecione uma opção para filtrar</Text>
+                                <Box display={'flex'} flexDirection={'row'} gap={'1rem'}>
+                                    <Select placeholder='Selecionar opção' width={'250px'} onChange={setSelectedOption} defaultValue={selectOption.value}>
+                                        {searchSelectOptions.map(
+                                            selectOption =>
+                                                <option value={selectOption.value} key={selectOption.value}>
+                                                    {selectOption.label}
+                                                </option>
+                                        )}
+                                    </Select>
+                                    <Input placeholder="Pesquisar" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
+                                </Box>
+                            </Box>
+
+
+                            <Box display={'flex'} flexDirection={'column'}>
+                                <Text>Selecionar situação equipamento</Text>
+                                <Select placeholder='Selecionar Situação' width={'250px'} onChange={setSelectedSituation} defaultValue={situationValue.IdSituacaoEquipamento}>
+                                    {situationData.map(
+                                        situation =>
+                                            <option value={situation.IdSituacaoEquipamento} key={situation.IdSituacaoEquipamento}>
+                                                {situation.DescricaoSituacaoEquipamento}
                                             </option>
                                     )}
                                 </Select>
-                                <Input placeholder="Pesquisar" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
-                                <Button onClick={Rerender}>Pesquisar</Button>
-                                <Button display={renderDeleteButton(deleteIds)} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Remover</Button>
                             </Box>
                         </Box>
+                        <Button display={renderDeleteButton(deleteIds, situationValue.IdSituacaoEquipamento)} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
+                        <Button display={renderEnableButton(deleteIds, situationValue.IdSituacaoEquipamento)} colorScheme="teal" onClick={deleteMultipleDataModal.onOpen}>Reativar</Button>
+                        <Button onClick={Rerender}>Pesquisar</Button>
                     </Box>
                 </AccordionItemStyled>
             </Accordion>
@@ -205,11 +238,11 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                     isDisabled={!table.getCanPreviousPage()}>{'<<'}</Button>
                 <IconButton colorScheme="teal" aria-label='back' onClick={() => table.previousPage()} isDisabled={!table.getCanPreviousPage()} icon={<ArrowBackIcon />} />
                 <IconButton colorScheme="teal" aria-label='foward' onClick={() => table.nextPage()} isDisabled={DisableButton(arrayLength)} icon={<ArrowForwardIcon />} />
-                <Button colorScheme="teal" onClick={() => table.setPageIndex(dividirEArredondar(table.getPageCount(), pagination.pageSize))}
+                <Button colorScheme="teal" onClick={() => table.setPageIndex(dividirEArredondar(arrayLength.arrayLength, pagination.pageSize))}
                     isDisabled={DisableButton(arrayLength)}>{'>>'}</Button>
                 {dataQuery.isFetching ? 'Loading...' : null}
                 <Box justifyContent={'space-between'} display={'flex'} width={'100%'} alignItems={'center'}>
-                    Página {table.getState().pagination.pageIndex + 1} de {dividirEArredondar(table.getPageCount(), pagination.pageSize) + 1}
+                    Página {table.getState().pagination.pageIndex + 1} de {dividirEArredondar(arrayLength.arrayLength, pagination.pageSize) + 1}
 
                     <Box display={'flex'} justifyContent={'auto'}>
                         <Text>Resultados por página:</Text>
@@ -229,7 +262,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
             >
                 <ModalBody>
                     <Text>
-                        Você está prestes a remover {deleteIds.length} registros. Deseja prosseguir com a operação?
+                        Você está prestes a desativar {deleteIds.length} registros. Deseja prosseguir com a operação?
                     </Text>
                 </ModalBody>
                 <ModalFooter>

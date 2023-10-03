@@ -1,7 +1,7 @@
 'use client'
 import { Box, Text, useDisclosure } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
-import { Equipamento } from '@/utils/types'
+import { Equipamento, Situation } from '@/utils/types'
 const DataTable = dynamic<DataTableType<Equipamento>>(() => import('@/components/DataTable'), { ssr: false })
 import Sidebar from '@/components/Sidebar'
 import { HTMLProps, useEffect, useRef, useState } from 'react'
@@ -12,7 +12,9 @@ import { DataTableType } from '@/components/DataTable'
 
 export default function PatrimonioLista() {
 
-  const { categoryData, companyData, manufacturerData, departmentData, situationData, arrayLength, deleteIds, useFetchData } = useApi();
+  const { categoryData, companyData, manufacturerData, departmentData, situationData, arrayLength, deleteIds, useFetchData, roomData } = useApi();
+
+  console.log(categoryData)
   const route = 'equipment'
 
   const searchSelectOptions = [
@@ -32,8 +34,12 @@ export default function PatrimonioLista() {
 
   const [searchValue, setSearchValue] = useState('')
   const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
+  const [situationValue, setSituationValue] = useState<Situation>({
+    IdSituacaoEquipamento: 1,
+    DescricaoSituacaoEquipamento: "Ativo"
+  })
 
-  const dataQuery = useFetchData<Equipamento>(selectOption, searchValue, route)
+  const dataQuery = useFetchData<Equipamento>(selectOption, searchValue, route, situationValue.IdSituacaoEquipamento)
 
   function IndeterminateCheckbox({
     indeterminate,
@@ -93,6 +99,16 @@ export default function PatrimonioLista() {
       accessorKey: 'Patrimonio'
     },
     {
+      header: 'Departamento',
+      accessorKey: 'IdDepartamento',
+      cell: info => getDepartment(info.getValue<number>()),
+    },
+    {
+      header: 'Sala Associada',
+      accessorKey: 'IdSala',
+      cell: info => getRoom(info.getValue<number>()),
+    },
+    {
       header: 'Tipo Equipamento',
       accessorKey: 'IdCategoriaEquipamento',
       cell: info => getCategory(info.getValue<number>()),
@@ -136,11 +152,6 @@ export default function PatrimonioLista() {
       accessorKey: 'IdFabricante',
       cell: info => getManufacturer(info.getValue<number>()),
     },
-    {
-      header: 'Departamento',
-      accessorKey: 'IdDepartamento',
-      cell: info => getDepartment(info.getValue<number>()),
-    },
   ]
 
   function getCategory(id: number) {
@@ -167,6 +178,12 @@ export default function PatrimonioLista() {
     const situation = situationData.find((situation) => situation.IdSituacaoEquipamento === id);
     return situation?.DescricaoSituacaoEquipamento
   }
+
+  function getRoom(id: number) {
+    const room = roomData.find((room) => room.IdSala === id);
+    return room?.DescricaoSala
+  }
+
 
   function formatDateTime(date: Date | string | null) {
 
@@ -205,6 +222,9 @@ export default function PatrimonioLista() {
               selectOption={selectOption}
               setSearchValue={setSearchValue}
               setSelectOption={setSelectOption}
+              setSituationValue={setSituationValue}
+              situationData={situationData}
+              situationValue={situationValue}
             />
           </Box>
         </Box>

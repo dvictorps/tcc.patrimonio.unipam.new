@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AxiosResponse } from 'axios';
 import { api } from '@/api/api';
-import { AllRequestTypes, ArrayType, Category, Company, Department, Equipamento, Manufacturer, ReqData, Situation } from '@/utils/types';
+import { AllRequestTypes, ArrayType, Category, Company, Department, Equipamento, Manufacturer, ReqData, Room, Situation } from '@/utils/types';
 import { UseQueryResult, useQuery } from 'react-query';
 import { SelectOptions, FetchDataOptions } from '@/utils/types';
 import { PaginationState } from '@tanstack/react-table';
@@ -19,14 +19,16 @@ type ApiContextType = {
     fetchTableData: <Type>(
         selectOption: SelectOptions,
         searchValue: string,
-        route: string
+        route: string,
+        situation: number
     ) => Promise<{ data: Type[]; totalRecords: number }>;
     rowSelection: Record<string, never>
     setRowSelection: React.Dispatch<React.SetStateAction<{}>>
     useFetchData: <QueryResult>(
         selectOption: SelectOptions,
         searchValue: string,
-        route: string
+        route: string,
+        situation: number
     ) => UseQueryResult<{ data: QueryResult[]; totalRecords: number; }, unknown>;
     deleteIds: number[],
     pageIndex: number,
@@ -35,6 +37,7 @@ type ApiContextType = {
     getOne: <Type>(route: string, id: string) => Promise<Type | undefined>
     useModalData: <Type>() => (Type | React.Dispatch<React.SetStateAction<Type | undefined>> | undefined)[]
     patch: <Type>(path: string, data: any) => Promise<AxiosResponse<Type>>
+    roomData: Room[]
 };
 
 
@@ -51,6 +54,7 @@ export function ApiProvider({ children }: ApiProviderType) {
     const [manufacturerData, setManufacturerData] = useState<Manufacturer[]>([]);
     const [departmentData, setDepartmentData] = useState<Department[]>([]);
     const [situationData, setSituationData] = useState<Situation[]>([]);
+    const [roomData, setRoomData] = useState<Room[]>([]);
     const [rowSelection, setRowSelection] = useState({})
 
     const [{ pageIndex, pageSize }, setPagination] =
@@ -82,7 +86,7 @@ export function ApiProvider({ children }: ApiProviderType) {
     };
 
     async function fetchTableDescriptionData() {
-        const urls = ['/category', '/company', '/manufacturer', '/department', '/situation'];
+        const urls = ['/category', '/company', '/manufacturer', '/department', '/equipmentSituation', '/room'];
         const requests = urls.map((url) => api.get(url));
 
         try {
@@ -93,12 +97,18 @@ export function ApiProvider({ children }: ApiProviderType) {
             const manufacturer = responses[2].data;
             const department = responses[3].data;
             const situation = responses[4].data;
+            const room = responses[5].data;
+
+            console.log('OIE', situation)
 
             setCategoryData(category);
             setCompanyData(company);
             setManufacturerData(manufacturer);
             setDepartmentData(department);
             setSituationData(situation);
+            setRoomData(room);
+
+            console.log('aqui agora', roomData)
         } catch (error) {
             console.error('Erro nas requisições:', error);
         }
@@ -109,9 +119,9 @@ export function ApiProvider({ children }: ApiProviderType) {
         pageCount: 0
     } as ArrayType)
 
-    async function fetchTableData<Type>(selectOption: SelectOptions, searchValue: string, route: string) {
+    async function fetchTableData<Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: number) {
         try {
-            const response = await api.get(`/${route}?${selectOption.value}=${searchValue}&take=${fetchDataOptions.pageSize}&skip=${fetchDataOptions.pageIndex * fetchDataOptions.pageSize}`)
+            const response = await api.get(`/${route}?${selectOption.value}=${searchValue}&take=${fetchDataOptions.pageSize}&skip=${fetchDataOptions.pageIndex * fetchDataOptions.pageSize}&situation=${situation}`)
             const responseTyped: ReqData<Type> = response.data
             setArrayLength({ arrayLength: responseTyped.data.length, pageCount: responseTyped.totalRecords } as ArrayType)
             return { data: responseTyped.data, totalRecords: responseTyped.totalRecords }
@@ -133,10 +143,10 @@ export function ApiProvider({ children }: ApiProviderType) {
         }
     }
 
-    function useFetchData<QueryResult>(selectOption: SelectOptions, searchValue: string, route: string) {
+    function useFetchData<QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: number) {
         const dataQuery = useQuery(
             ['data', fetchDataOptions],
-            () => fetchTableData<QueryResult>(selectOption, searchValue, route),
+            () => fetchTableData<QueryResult>(selectOption, searchValue, route, situation),
             { keepPreviousData: true }
         )
         return dataQuery
@@ -173,7 +183,8 @@ export function ApiProvider({ children }: ApiProviderType) {
         setPagination,
         getOne,
         useModalData,
-        patch
+        patch,
+        roomData
 
     };
 
