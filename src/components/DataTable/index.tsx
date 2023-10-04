@@ -74,6 +74,13 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         const option = situationData.find(situation => situation.IdSituacaoEquipamento.toString() === event.target.value)
 
         if (option) return setSituationValue(option)
+
+        const all: Situation = {
+            DescricaoSituacaoEquipamento: 'Todos',
+            IdSituacaoEquipamento: ''
+        }
+
+        return setSituationValue(all)
     }
 
     const defaultData = useMemo(() => [], [])
@@ -122,13 +129,13 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
     const idsComBaseNaPosicaoStyled = idPosit.join('');
 
     function disableDeleteButton(array: number[], situation: number) {
-        if (array.length > 1 && situation === 1) return false
-        return true
+        if (array.length > 1 && situation === 1) return 'auto'
+        return 'none'
     }
 
     function disableEnableButton(array: number[], situation: number) {
-        if (array.length > 1 && situation === 2) return false
-        return true
+        if (array.length > 1 && situation === 2) return 'auto'
+        return 'none'
     }
 
     function dividirEArredondar(numero1: number, numero2: number) {
@@ -171,8 +178,6 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         enableMultipleDataModal.onClose()
     };
 
-    console.log('quantidade paginas:', dividirEArredondar(arrayLength.pageCount, pagination.pageSize) + 1, 'arrayLength:', arrayLength.arrayLength, 'pa', pagination.pageSize)
-
     return (
         <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
             <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
@@ -202,14 +207,17 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                                                 {situation.DescricaoSituacaoEquipamento}
                                             </option>
                                     )}
+                                    <option value=''>
+                                        Todos
+                                    </option>
                                 </Select>
                             </Box>
 
                         </Box>
                         <Box justifyContent={'flex-end'} display={'flex'} gap={'1rem'}>
                             <Button colorScheme={'cyan'} onClick={Rerender}>Aplicar filtro</Button>
-                            <Button isDisabled={disableDeleteButton(deleteIds, situationValue.IdSituacaoEquipamento)} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
-                            <Button isDisabled={disableEnableButton(deleteIds, situationValue.IdSituacaoEquipamento)} colorScheme="teal" onClick={enableMultipleDataModal.onOpen}>Reativar</Button>
+                            <Button display={disableDeleteButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento))} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
+                            <Button display={disableEnableButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento))} colorScheme="teal" onClick={enableMultipleDataModal.onOpen}>Reativar</Button>
 
                         </Box>
                     </Box>

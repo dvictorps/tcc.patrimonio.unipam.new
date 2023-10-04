@@ -1,24 +1,25 @@
 import { ModalStyled } from "@/components/Modal";
 import { useApi } from "@/context/ApiContext";
-import { HamburgerIcon, EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { HamburgerIcon, EditIcon, DeleteIcon, ChevronRightIcon } from "@chakra-ui/icons";
 import { useDisclosure, Menu, MenuButton, IconButton, MenuList, MenuItem, ModalBody, ModalFooter, Button, Box, Text, FormControl, Input, FormLabel, FormErrorMessage } from "@chakra-ui/react";
 import { UseQueryResult } from "react-query";
 import { AllRequestTypes, Equipamento } from "@/utils/types";
 import { useEffect, useState } from "react";
 import { useForm } from 'react-hook-form'
-import { EquipmentInputModal } from "@/components/EquipmentInputModal";
+import { EquipmentInputModal } from "@/app/PatrimonioLista/ActionMenu/EquipmentInputModal";
 
 export function ActionMenu(
     id: number,
-    dataQuery: UseQueryResult<{ data: Equipamento[]; totalRecords: number; }, unknown>
+    dataQuery: UseQueryResult<{ data: Equipamento[]; totalRecords: number; }, unknown>,
+
 ) {
 
     const deleteUniqueModal = useDisclosure();
+    const enableUniqueModal = useDisclosure();
     const editUniqueModal = useDisclosure();
-    const { delete: deleteRequest, setRowSelection, getOne, patch } = useApi()
+    const { setRowSelection, getOne, patch } = useApi()
+
     const [componentData, setComponentData] = useState<Equipamento>()
-
-
 
     const route = 'equipment';
 
@@ -35,10 +36,24 @@ export function ActionMenu(
         deleteUniqueModal.onClose()
     }
 
+    async function handleEnable() {
+        try {
+            const response = await patch<Equipamento>(`/${route}/enable/${id}`, '1');
+            console.log('Resposta Patch:', response.data);
+            await dataQuery.refetch()
+            setRowSelection({})
+
+        } catch (error) {
+            console.log('Erro no Patch:', error);
+        }
+        deleteUniqueModal.onClose()
+    }
+
     async function handleGet() {
         try {
             const response = await getOne<Equipamento>(route, id.toString())
             setComponentData(response)
+
 
         } catch (error) {
             console.log('erro get ', error)
@@ -46,17 +61,19 @@ export function ActionMenu(
     }
 
     function handleEditButton() {
-        handleGet();
         editUniqueModal.onOpen();
 
     }
 
     function handleDeleteButton() {
-        handleGet();
         deleteUniqueModal.onOpen()
 
     }
 
+    function handleEnableButton() {
+        enableUniqueModal.onOpen()
+
+    }
     async function editButtonRefetch() {
         await dataQuery.refetch();
     }
@@ -77,14 +94,17 @@ export function ActionMenu(
     } = useForm()
 
     const onSubmit = async (data: Equipamento) => {
+
         await handlePatch(data);
         console.log('aqui', data);
         editButtonRefetch();
 
     }
+
+
     return (
         <>
-            <Menu>
+            <Menu onOpen={handleGet}>
                 <MenuButton
                     as={IconButton}
                     aria-label='Options'
@@ -92,15 +112,18 @@ export function ActionMenu(
                     variant='outline'
                 />
                 <MenuList>
+                    <MenuItem icon={<DeleteIcon />} onClick={handleDeleteButton}>
+                        Desativar
+                    </MenuItem>
+                    <MenuItem icon={<ChevronRightIcon />} onClick={handleEnableButton}>
+                        Reativar
+                    </MenuItem>
                     <MenuItem icon={<EditIcon />} onClick={handleEditButton}>
                         Editar
                     </MenuItem>
-                    <MenuItem icon={<DeleteIcon />} onClick={handleDeleteButton}>
-                        Remover
-                    </MenuItem>
                 </MenuList>
             </Menu>
-            <ModalStyled title="Remover"
+            <ModalStyled title="Desativar"
                 onClose={deleteUniqueModal.onClose}
                 open={deleteUniqueModal.isOpen}
                 isCentered={true}
@@ -114,6 +137,24 @@ export function ActionMenu(
                     <Box display={'inline-flex'} gap={'1rem'}>
                         <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDelete} >Confirmar remoção</Button>
                         <Button onClick={deleteUniqueModal.onClose}>Cancel</Button>
+                    </Box>
+                </ModalFooter>
+            </ModalStyled>
+
+            <ModalStyled title="Reativar"
+                onClose={enableUniqueModal.onClose}
+                open={enableUniqueModal.isOpen}
+                isCentered={true}
+            >
+                <ModalBody>
+                    <Text>
+                        Você está prestes a reativar o patrimônio de registro {componentData?.Patrimonio}. Deseja prosseguir com a operação?
+                    </Text>
+                </ModalBody>
+                <ModalFooter>
+                    <Box display={'inline-flex'} gap={'1rem'}>
+                        <Button colorScheme="teal" onClick={handleEnable} >Confirmar reativação</Button>
+                        <Button onClick={enableUniqueModal.onClose}>Cancel</Button>
                     </Box>
                 </ModalFooter>
             </ModalStyled>

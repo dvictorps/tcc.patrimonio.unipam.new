@@ -20,7 +20,7 @@ type ApiContextType = {
         selectOption: SelectOptions,
         searchValue: string,
         route: string,
-        situation: number
+        situation: string
     ) => Promise<{ data: Type[]; totalRecords: number }>;
     rowSelection: Record<string, never>
     setRowSelection: React.Dispatch<React.SetStateAction<{}>>
@@ -28,7 +28,7 @@ type ApiContextType = {
         selectOption: SelectOptions,
         searchValue: string,
         route: string,
-        situation: number
+        situation: string
     ) => UseQueryResult<{ data: QueryResult[]; totalRecords: number; }, unknown>;
     deleteIds: number[],
     pageIndex: number,
@@ -56,6 +56,8 @@ export function ApiProvider({ children }: ApiProviderType) {
     const [situationData, setSituationData] = useState<Situation[]>([]);
     const [roomData, setRoomData] = useState<Room[]>([]);
     const [rowSelection, setRowSelection] = useState({})
+
+    const [componentData, setComponentData] = useState<Equipamento>()
 
     const [{ pageIndex, pageSize }, setPagination] =
         useState<PaginationState>({
@@ -99,8 +101,6 @@ export function ApiProvider({ children }: ApiProviderType) {
             const situation = responses[4].data;
             const room = responses[5].data;
 
-            console.log('OIE', situation)
-
             setCategoryData(category);
             setCompanyData(company);
             setManufacturerData(manufacturer);
@@ -108,7 +108,6 @@ export function ApiProvider({ children }: ApiProviderType) {
             setSituationData(situation);
             setRoomData(room);
 
-            console.log('aqui agora', roomData)
         } catch (error) {
             console.error('Erro nas requisições:', error);
         }
@@ -119,9 +118,10 @@ export function ApiProvider({ children }: ApiProviderType) {
         pageCount: 0
     } as ArrayType)
 
-    async function fetchTableData<Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: number) {
+    async function fetchTableData<Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string) {
         try {
-            const response = await api.get(`/${route}?${selectOption.value}=${searchValue}&take=${fetchDataOptions.pageSize}&skip=${fetchDataOptions.pageIndex * fetchDataOptions.pageSize}&situation=${situation}`)
+            const url = `/${route}?${selectOption.value}=${searchValue}&take=${fetchDataOptions.pageSize}&skip=${fetchDataOptions.pageIndex * fetchDataOptions.pageSize}&situation=${situation}`
+            const response = await api.get(url)
             const responseTyped: ReqData<Type> = response.data
             setArrayLength({ arrayLength: responseTyped.data.length, pageCount: responseTyped.totalRecords } as ArrayType)
             return { data: responseTyped.data, totalRecords: responseTyped.totalRecords }
@@ -143,7 +143,7 @@ export function ApiProvider({ children }: ApiProviderType) {
         }
     }
 
-    function useFetchData<QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: number) {
+    function useFetchData<QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: string) {
         const dataQuery = useQuery(
             ['data', fetchDataOptions],
             () => fetchTableData<QueryResult>(selectOption, searchValue, route, situation),

@@ -1,7 +1,7 @@
 import { Equipamento } from "@/utils/types"
 import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
-import { UseFormRegister, FieldValues, UseFormHandleSubmit, FormState, FieldErrors } from "react-hook-form"
+import { UseFormRegister, FieldValues, UseFormHandleSubmit, FormState, FieldErrors, UseFormSetValue } from "react-hook-form"
 
 type EquipmentModal = {
     register: UseFormRegister<FieldValues>
@@ -13,10 +13,36 @@ type EquipmentModal = {
 }
 
 export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, componentData, onClose }: EquipmentModal) {
+    const isDataUnchanged = (formData: Equipamento, originalData?: Equipamento) => {
+        const filteredData: Partial<Equipamento> = {};
+
+        if (formData.Patrimonio !== originalData?.Patrimonio) {
+            filteredData.Patrimonio = formData.Patrimonio;
+        }
+        if (formData.DescricaoEquipamento !== originalData?.DescricaoEquipamento) {
+            filteredData.DescricaoEquipamento = formData.DescricaoEquipamento;
+        }
+
+        if (formData.NumeroSerial !== originalData?.NumeroSerial) {
+            filteredData.NumeroSerial = formData.NumeroSerial;
+        }
+
+        return filteredData;
+    };
+
+    const handleFormSubmit = (data: Equipamento) => {
+        const changedFields = isDataUnchanged(data, componentData);
+
+        if (Object.keys(changedFields).length === 0) {
+            onClose();
+        } else {
+            onSubmit(changedFields);
+        };
+    }
 
     return (
         <>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(handleFormSubmit)}>
                 <ModalBody>
                     <FormControl isInvalid={!!errors.Patrimonio} isRequired>
                         <FormLabel>Patrimônio</FormLabel>
@@ -49,7 +75,7 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                             defaultValue={componentData?.NumeroSerial}
                         />
                         {errors.NumeroSerial && errors.NumeroSerial.type === "maxLength" && (
-                            <FormErrorMessage>A descrição pode ter no máximo 20 caracteres</FormErrorMessage>
+                            <FormErrorMessage>O numero de serial pode ter no máximo 20 caracteres</FormErrorMessage>
                         )}
                     </FormControl>
                 </ModalBody>

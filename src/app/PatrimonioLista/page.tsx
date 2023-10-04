@@ -14,7 +14,6 @@ export default function PatrimonioLista() {
 
   const { categoryData, companyData, manufacturerData, departmentData, situationData, arrayLength, deleteIds, useFetchData, roomData } = useApi();
 
-  console.log(categoryData)
   const route = 'equipment'
 
   const searchSelectOptions = [
@@ -35,7 +34,7 @@ export default function PatrimonioLista() {
   const [searchValue, setSearchValue] = useState('')
   const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
   const [situationValue, setSituationValue] = useState<Situation>({
-    IdSituacaoEquipamento: 1,
+    IdSituacaoEquipamento: '1',
     DescricaoSituacaoEquipamento: "Ativo"
   })
 
@@ -175,7 +174,7 @@ export default function PatrimonioLista() {
   }
 
   function getSituation(id: number) {
-    const situation = situationData.find((situation) => situation.IdSituacaoEquipamento === id);
+    const situation = situationData.find((situation) => parseInt(situation.IdSituacaoEquipamento) === id);
     return situation?.DescricaoSituacaoEquipamento
   }
 
