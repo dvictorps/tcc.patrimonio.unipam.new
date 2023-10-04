@@ -135,7 +135,7 @@ export function ActionMenu(
                 </ModalBody>
                 <ModalFooter>
                     <Box display={'inline-flex'} gap={'1rem'}>
-                        <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDelete} >Confirmar remoção</Button>
+                        <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDelete} >Confirmar desativação</Button>
                         <Button onClick={deleteUniqueModal.onClose}>Cancel</Button>
                     </Box>
                 </ModalFooter>
