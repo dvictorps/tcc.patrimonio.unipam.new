@@ -2,7 +2,6 @@ import { Equipamento } from "@/utils/types"
 import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box } from "@chakra-ui/react"
 import { useEffect, useState } from "react"
 import { UseFormRegister, FieldValues, UseFormHandleSubmit, FormState, FieldErrors, UseFormSetValue } from "react-hook-form"
-
 type EquipmentModal = {
     register: UseFormRegister<FieldValues>
     handleSubmit: UseFormHandleSubmit<FieldValues, undefined>
@@ -27,6 +26,15 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
             filteredData.NumeroSerial = formData.NumeroSerial;
         }
 
+        if (formData.DataAquisicao !== originalData?.DataAquisicao) {
+            filteredData.DataAquisicao = formData.DataAquisicao += 'Z';
+        }
+
+        if (formData.VencimentoGarantia !== originalData?.VencimentoGarantia) {
+            filteredData.VencimentoGarantia = formData.VencimentoGarantia += 'Z';
+        }
+
+
         return filteredData;
     };
 
@@ -39,6 +47,9 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
             onSubmit(changedFields);
         };
     }
+
+    const dataAquisicaoFormatada = componentData?.DataAquisicao ? componentData?.DataAquisicao.toString().slice(0, -1) : ''
+    const dataVencimentoGarantiaFormatada = componentData?.VencimentoGarantia ? componentData?.VencimentoGarantia.toString().slice(0, -1) : ''
 
     return (
         <>
@@ -78,6 +89,25 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                             <FormErrorMessage>O numero de serial pode ter no máximo 20 caracteres</FormErrorMessage>
                         )}
                     </FormControl>
+                    <FormControl isInvalid={!!errors.DataAquisicao} isRequired>
+                        <FormLabel>Data da Aquisição</FormLabel>
+                        <Input
+                            id="DataAquisicao"
+                            {...register("DataAquisicao")}
+                            defaultValue={dataAquisicaoFormatada}
+                            type="datetime-local"
+                        />
+                    </FormControl>
+                    <FormControl isInvalid={!!errors.VencimentoGarantia} isRequired>
+                        <FormLabel>Vencimento da Garantia</FormLabel>
+                        <Input
+                            id="VencimentoGarantia"
+                            {...register("VencimentoGarantia")}
+                            defaultValue={dataVencimentoGarantiaFormatada}
+                            type="datetime-local"
+                        />
+                    </FormControl>
+
                 </ModalBody>
                 <ModalFooter>
                     <Box display={'inline-flex'} gap={'1rem'}>

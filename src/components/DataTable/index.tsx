@@ -1,6 +1,6 @@
 'use client'
 import { useReactTable, getCoreRowModel, flexRender, ColumnDef } from "@tanstack/react-table";
-import { ChangeEvent, Dispatch, SetStateAction, useMemo, useState } from "react";
+import { ChangeEvent, Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import {
     Table,
     Thead,
@@ -19,8 +19,9 @@ import {
     ModalFooter,
     ModalBody,
     useDisclosure,
+    Divider,
 } from '@chakra-ui/react'
-import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon } from "@chakra-ui/icons";
+import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon, AddIcon, CheckIcon } from "@chakra-ui/icons";
 import { SelectOptions, ArrayType, Situation } from "@/utils/types";
 import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
 import { UseQueryResult } from "react-query";
@@ -73,14 +74,14 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
         const option = situationData.find(situation => situation.IdSituacaoEquipamento.toString() === event.target.value)
 
-        if (option) return setSituationValue(option)
+        if (option) return (setSituationValue(option), setRowSelection({}))
 
         const all: Situation = {
             DescricaoSituacaoEquipamento: 'Todos',
             IdSituacaoEquipamento: ''
         }
 
-        return setSituationValue(all)
+        return (setSituationValue(all), setRowSelection({}))
     }
 
     const defaultData = useMemo(() => [], [])
@@ -121,9 +122,14 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         return false
     }
 
-    async function Rerender() {
-        await dataQuery.refetch()
+    function Rerender() {
+        restartPageIndex()
         setRowSelection({})
+        dataQuery.refetch()
+    }
+
+    function restartPageIndex() {
+        if (arrayLength.arrayLength < pagination.pageSize) table.setPageIndex(0)
     }
 
     const idsComBaseNaPosicaoStyled = idPosit.join('');
@@ -212,18 +218,20 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                                     </option>
                                 </Select>
                             </Box>
-
                         </Box>
-                        <Box justifyContent={'flex-end'} display={'flex'} gap={'1rem'}>
-                            <Button colorScheme={'cyan'} onClick={Rerender}>Aplicar filtro</Button>
-                            <Button display={disableDeleteButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento))} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
-                            <Button display={disableEnableButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento))} colorScheme="teal" onClick={enableMultipleDataModal.onOpen}>Reativar</Button>
+                        <Box justifyContent={'space-between'} display={'flex'} mt={'0.5rem'}>
+                            <Box gap={'1rem'} display={'flex'}>
+                                <Button colorScheme={'green'} onClick={Rerender} rightIcon={<CheckIcon />}>Aplicar filtro</Button>
+                                <Button display={disableDeleteButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento))} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
+                                <Button display={disableEnableButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento))} colorScheme="teal" onClick={enableMultipleDataModal.onOpen}>Reativar</Button>
+                            </Box>
+                            <Button colorScheme={'blue'} onClick={Rerender} rightIcon={<AddIcon />}>Adicionar Registro</Button>
 
                         </Box>
                     </Box>
                 </AccordionItemStyled>
             </Accordion>
-            <Box overflowX={'auto'} overflowY={'auto'}>
+            <Box overflowX={'auto'} overflowY={'auto'} >
                 <Table variant='simple' colorScheme='blue'>
                     <Thead>
                         {table.getHeaderGroups().map(headerGroup => (

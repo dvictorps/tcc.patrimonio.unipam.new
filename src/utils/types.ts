@@ -38,10 +38,10 @@ export type Equipamento = {
     Patrimonio?: string
     DescricaoEquipamento?: string
     NumeroSerial?: string
-    DataAquisicao?: string
-    VencimentoGarantia?: Date
-    DataCadastro?: Date
-    DataModificacao?: Date
+    DataAquisicao?: Date | string
+    VencimentoGarantia?: Date | string
+    DataCadastro?: Date | string
+    DataModificacao?: Date | string
     IdEmpresa?: number
     IdCategoriaEquipamento?: number
     IdSituacaoEquipamento?: number
