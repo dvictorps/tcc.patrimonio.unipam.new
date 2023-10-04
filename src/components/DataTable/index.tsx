@@ -22,12 +22,14 @@ import {
     Divider,
 } from '@chakra-ui/react'
 import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon, AddIcon, CheckIcon } from "@chakra-ui/icons";
-import { SelectOptions, ArrayType, Situation } from "@/utils/types";
+import { SelectOptions, ArrayType, Situation, Equipamento } from "@/utils/types";
 import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
 import { UseQueryResult } from "react-query";
 import React from "react";
 import { ModalStyled } from "../Modal";
 import { useApi } from "@/context/ApiContext";
+import { EquipmentInputModal } from "./EquipmentInputModal";
+import { useForm } from "react-hook-form";
 
 const selectResultsOptions = [
     10,
@@ -60,7 +62,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
     setSelectOption, situationValue, setSituationValue, situationData
 }: DataTableType<QueryResult>) {
 
-    const { patch, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination } = useApi()
+    const { patch, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination, companyData, categoryData, manufacturerData, departmentData, roomData, post } = useApi()
 
 
     function setSelectedOption(event: ChangeEvent<HTMLSelectElement>) {
@@ -78,7 +80,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
         const all: Situation = {
             DescricaoSituacaoEquipamento: 'Todos',
-            IdSituacaoEquipamento: ''
+            IdSituacaoEquipamento: '' as unknown as number
         }
 
         return (setSituationValue(all), setRowSelection({}))
@@ -157,6 +159,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     const deleteMultipleDataModal = useDisclosure()
     const enableMultipleDataModal = useDisclosure()
+    const createDataModal = useDisclosure()
 
     async function handleDeleteMultiple() {
         try {
@@ -184,6 +187,33 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         enableMultipleDataModal.onClose()
     };
 
+    async function handlePost(data: Equipamento) {
+        try {
+            const response = await post<Equipamento>(`equipment/register`, data)
+            console.log('Resposta add:', response)
+            await dataQuery.refetch()
+            setRowSelection({})
+
+        } catch (error) {
+            console.log('Erro no add', error);
+        }
+        createDataModal.onClose()
+    }
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        reset
+    } = useForm()
+
+    const onSubmit = async (data: any) => {
+
+        console.log('teste:', data)
+        await handlePost(data);
+        reset();
+
+    }
     return (
         <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
             <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
@@ -222,10 +252,10 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                         <Box justifyContent={'space-between'} display={'flex'} mt={'0.5rem'}>
                             <Box gap={'1rem'} display={'flex'}>
                                 <Button colorScheme={'green'} onClick={Rerender} rightIcon={<CheckIcon />}>Aplicar filtro</Button>
-                                <Button display={disableDeleteButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento))} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
-                                <Button display={disableEnableButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento))} colorScheme="teal" onClick={enableMultipleDataModal.onOpen}>Reativar</Button>
+                                <Button display={disableDeleteButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento.toString()))} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
+                                <Button display={disableEnableButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento.toString()))} colorScheme="teal" onClick={enableMultipleDataModal.onOpen}>Reativar</Button>
                             </Box>
-                            <Button colorScheme={'blue'} onClick={Rerender} rightIcon={<AddIcon />}>Adicionar Registro</Button>
+                            <Button colorScheme={'blue'} onClick={createDataModal.onOpen} rightIcon={<AddIcon />}>Adicionar Registro</Button>
 
                         </Box>
                     </Box>
@@ -301,7 +331,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                 </ModalBody>
                 <ModalFooter>
                     <Box display={'inline-flex'} gap={'1rem'}>
-                        <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDeleteMultiple}>Confirmar remoção</Button>
+                        <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDeleteMultiple}>Confirmar desativação</Button>
                         <Button onClick={deleteMultipleDataModal.onClose}>Cancel</Button>
                     </Box>
                 </ModalFooter>
@@ -323,6 +353,26 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                         <Button onClick={enableMultipleDataModal.onClose}>Cancel</Button>
                     </Box>
                 </ModalFooter>
+            </ModalStyled>
+
+            <ModalStyled title={`Adicionar patrimônio`}
+                onClose={createDataModal.onClose}
+                open={createDataModal.isOpen}
+                isCentered={true}
+            >
+                <EquipmentInputModal
+                    errors={errors}
+                    handleSubmit={handleSubmit}
+                    onClose={createDataModal.onClose}
+                    onSubmit={onSubmit}
+                    register={register}
+                    companyData={companyData}
+                    categoryData={categoryData}
+                    departmentData={departmentData}
+                    manufacturerData={manufacturerData}
+                    roomData={roomData}
+                    situationData={situationData}
+                />
             </ModalStyled>
         </Box>
     )

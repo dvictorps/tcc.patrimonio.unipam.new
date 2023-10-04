@@ -57,7 +57,7 @@ export function ApiProvider({ children }: ApiProviderType) {
     const [roomData, setRoomData] = useState<Room[]>([]);
     const [rowSelection, setRowSelection] = useState({})
 
-    const [componentData, setComponentData] = useState<Equipamento>()
+
 
     const [{ pageIndex, pageSize }, setPagination] =
         useState<PaginationState>({

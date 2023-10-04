@@ -7,7 +7,6 @@ type EquipmentModal = {
     handleSubmit: UseFormHandleSubmit<FieldValues, undefined>
     onSubmit: (data: Equipamento) => Promise<void>
     errors: FieldErrors<FieldValues>
-    componentData?: Equipamento
     onClose: () => void
     companyData: Company[]
     categoryData: Category[]
@@ -17,30 +16,42 @@ type EquipmentModal = {
     roomData: Room[]
 }
 
-export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, componentData, onClose, companyData,
+export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, onClose, companyData,
     categoryData, manufacturerData, departmentData, situationData, roomData }: EquipmentModal) {
+
+    const checkData = (data: Equipamento) => {
+        const formData: Partial<Equipamento> = {};
+
+        formData.Patrimonio = data.Patrimonio;
+        formData.DescricaoEquipamento = data.DescricaoEquipamento;
+        formData.NumeroSerial = data.NumeroSerial;
+        formData.DataAquisicao = data.DataAquisicao;
+        formData.VencimentoGarantia = data.VencimentoGarantia;
+        formData.IdEmpresa = selectedCompanyOption;
+        formData.IdCategoriaEquipamento = selectedCategoryOption;
+        formData.IdFabricante = selectedManufacturerOption;
+        formData.IdDepartamento = selectedDepartmentOption;
+        formData.IdSituacaoEquipamento = selectedSituationOption;
+        formData.IdSala = selectedRoomOption;
+
+        return formData;
+    };
 
 
     const handleFormSubmit = (data: Equipamento) => {
-        const changedFields = isDataUnchanged(data, componentData);
+        const fields = checkData(data);
 
-        if (Object.keys(changedFields).length === 0) {
-            onClose();
-        } else {
-            onSubmit(changedFields);
-        };
+        onSubmit(fields);
+
+
     }
 
-    const dataAquisicaoFormatada = componentData?.DataAquisicao ? componentData?.DataAquisicao.toString().slice(0, -1) : ''
-    const dataVencimentoGarantiaFormatada = componentData?.VencimentoGarantia ? componentData?.VencimentoGarantia.toString().slice(0, -1) : ''
-
-
-    const [selectedCompanyOption, setselectedCompanyOption] = useState<number | undefined>(componentData?.IdEmpresa)
-    const [selectedCategoryOption, setselectedCategoryOption] = useState<number | undefined>(componentData?.IdCategoriaEquipamento)
-    const [selectedManufacturerOption, setselectedManufacturerOption] = useState<number | undefined>(componentData?.IdFabricante)
-    const [selectedDepartmentOption, setselectedDepartmentOption] = useState<number | undefined>(componentData?.IdDepartamento)
-    const [selectedSituationOption, setselectedSituationOption] = useState<number | undefined>(componentData?.IdSituacaoEquipamento)
-    const [selectedRoomOption, setselectedRoomOption] = useState<number | undefined>(componentData?.IdSala)
+    const [selectedCompanyOption, setselectedCompanyOption] = useState<number>()
+    const [selectedCategoryOption, setselectedCategoryOption] = useState<number>()
+    const [selectedManufacturerOption, setselectedManufacturerOption] = useState<number>()
+    const [selectedDepartmentOption, setselectedDepartmentOption] = useState<number>()
+    const [selectedSituationOption, setselectedSituationOption] = useState<number>()
+    const [selectedRoomOption, setselectedRoomOption] = useState<number>()
 
 
     function setSelectCompanyOption(event: ChangeEvent<HTMLSelectElement>) {
@@ -68,63 +79,10 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
         if (option) return setselectedSituationOption(option.IdSituacaoEquipamento)
     }
 
-
     function setSelectRoomOption(event: ChangeEvent<HTMLSelectElement>) {
         const option = roomData.find(option => option.IdSala.toString() === event.target.value)
         if (option) return setselectedRoomOption(option.IdSala)
     }
-
-
-
-    const isDataUnchanged = (formData: Equipamento, originalData?: Equipamento) => {
-        const filteredData: Partial<Equipamento> = {};
-
-        if (formData.Patrimonio !== originalData?.Patrimonio) {
-            filteredData.Patrimonio = formData.Patrimonio;
-        }
-        if (formData.DescricaoEquipamento !== originalData?.DescricaoEquipamento) {
-            filteredData.DescricaoEquipamento = formData.DescricaoEquipamento;
-        }
-
-        if (formData.NumeroSerial !== originalData?.NumeroSerial) {
-            filteredData.NumeroSerial = formData.NumeroSerial;
-        }
-
-        if (formData.DataAquisicao !== originalData?.DataAquisicao) {
-            filteredData.DataAquisicao = formData.DataAquisicao += 'Z';
-        }
-
-        if (formData.VencimentoGarantia !== originalData?.VencimentoGarantia) {
-            filteredData.VencimentoGarantia = formData.VencimentoGarantia += 'Z';
-        }
-
-        if (selectedCompanyOption !== originalData?.IdEmpresa) {
-            filteredData.IdEmpresa = selectedCompanyOption;
-        }
-
-        if (selectedCategoryOption !== originalData?.IdCategoriaEquipamento) {
-            filteredData.IdCategoriaEquipamento = selectedCategoryOption;
-        }
-
-        if (selectedManufacturerOption !== originalData?.IdFabricante) {
-            filteredData.IdFabricante = selectedManufacturerOption;
-        }
-
-        if (selectedDepartmentOption !== originalData?.IdDepartamento) {
-            filteredData.IdDepartamento = selectedDepartmentOption;
-        }
-
-        if (selectedSituationOption !== originalData?.IdSituacaoEquipamento) {
-            filteredData.IdSituacaoEquipamento = selectedSituationOption;
-        }
-
-        if (selectedRoomOption !== originalData?.IdSala) {
-            filteredData.IdSala = selectedRoomOption;
-        }
-
-        return filteredData;
-    };
-
 
     return (
         <>
@@ -135,8 +93,6 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                         <Input
                             id="Patrimonio"
                             {...register("Patrimonio", { maxLength: 20 })}
-                            defaultValue={componentData?.Patrimonio}
-
                         />
                         {errors.Patrimonio && errors.Patrimonio.type === "maxLength" && (
                             <FormErrorMessage>O número de patrimônio pode ter no máximo 20 caracteres</FormErrorMessage>
@@ -147,7 +103,6 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                         <Input
                             id="DescricaoEquipamento"
                             {...register("DescricaoEquipamento", { maxLength: 50 })}
-                            defaultValue={componentData?.DescricaoEquipamento}
                         />
                         {errors.DescricaoEquipamento && errors.DescricaoEquipamento.type === "maxLength" && (
                             <FormErrorMessage>A descrição pode ter no máximo 20 caracteres</FormErrorMessage>
@@ -158,7 +113,6 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                         <Input
                             id="NumeroSerial"
                             {...register("NumeroSerial", { maxLength: 50 })}
-                            defaultValue={componentData?.NumeroSerial}
                         />
                         {errors.NumeroSerial && errors.NumeroSerial.type === "maxLength" && (
                             <FormErrorMessage>O numero de serial pode ter no máximo 20 caracteres</FormErrorMessage>
@@ -169,7 +123,6 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                         <Input
                             id="DataAquisicao"
                             {...register("DataAquisicao")}
-                            defaultValue={dataAquisicaoFormatada}
                             type="datetime-local"
                         />
                     </FormControl>
@@ -178,7 +131,6 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                         <Input
                             id="VencimentoGarantia"
                             {...register("VencimentoGarantia")}
-                            defaultValue={dataVencimentoGarantiaFormatada}
                             type="datetime-local"
                         />
                     </FormControl>
@@ -228,7 +180,7 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                     </FormControl>
                     <FormControl isInvalid={!!errors.IdSituacaoEquipamento} isRequired>
                         <FormLabel>Situação equipamento</FormLabel>
-                        <Select placeholder='Selecionar situação' value={selectedCompanyOption} onChange={setSelectSituationOption}>
+                        <Select placeholder='Selecionar situação' value={selectedSituationOption} onChange={setSelectSituationOption}>
                             {situationData.map(
                                 situation =>
                                     <option value={situation.IdSituacaoEquipamento} key={situation.IdSituacaoEquipamento}>
@@ -251,7 +203,7 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                 </ModalBody>
                 <ModalFooter>
                     <Box display={'inline-flex'} gap={'1rem'}>
-                        <Button colorScheme={"cyan"} type="submit">Editar</Button>
+                        <Button colorScheme={"green"} type="submit">Adicionar</Button>
                         <Button onClick={onClose}>Cancel</Button>
                     </Box>
                 </ModalFooter>

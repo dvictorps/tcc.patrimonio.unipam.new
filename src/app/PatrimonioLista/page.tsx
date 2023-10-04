@@ -29,16 +29,17 @@ export default function PatrimonioLista() {
       label: 'Descrição',
       value: 'searchDesc'
     },
+
   ]
 
   const [searchValue, setSearchValue] = useState('')
   const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
   const [situationValue, setSituationValue] = useState<Situation>({
-    IdSituacaoEquipamento: '1',
+    IdSituacaoEquipamento: 1,
     DescricaoSituacaoEquipamento: "Ativo"
   })
 
-  const dataQuery = useFetchData<Equipamento>(selectOption, searchValue, route, situationValue.IdSituacaoEquipamento)
+  const dataQuery = useFetchData<Equipamento>(selectOption, searchValue, route, situationValue.IdSituacaoEquipamento.toString())
 
   function IndeterminateCheckbox({
     indeterminate,
@@ -174,7 +175,7 @@ export default function PatrimonioLista() {
   }
 
   function getSituation(id: number) {
-    const situation = situationData.find((situation) => parseInt(situation.IdSituacaoEquipamento) === id);
+    const situation = situationData.find((situation) => situation.IdSituacaoEquipamento === id);
     return situation?.DescricaoSituacaoEquipamento
   }
 

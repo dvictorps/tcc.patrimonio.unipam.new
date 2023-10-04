@@ -20,7 +20,7 @@ export type Manufacturer = {
 }
 
 export type Situation = {
-    IdSituacaoEquipamento: string,
+    IdSituacaoEquipamento: number,
     DescricaoSituacaoEquipamento: string
 }
 

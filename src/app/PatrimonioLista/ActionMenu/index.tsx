@@ -17,7 +17,7 @@ export function ActionMenu(
     const deleteUniqueModal = useDisclosure();
     const enableUniqueModal = useDisclosure();
     const editUniqueModal = useDisclosure();
-    const { setRowSelection, getOne, patch } = useApi()
+    const { setRowSelection, getOne, patch, companyData, categoryData, manufacturerData, departmentData, situationData, roomData } = useApi()
 
     const [componentData, setComponentData] = useState<Equipamento>()
 
@@ -159,7 +159,7 @@ export function ActionMenu(
                 </ModalFooter>
             </ModalStyled>
 
-            <ModalStyled title="Editar"
+            <ModalStyled title={`Editar patrimônio nº ${componentData?.Patrimonio}.`}
                 onClose={editUniqueModal.onClose}
                 open={editUniqueModal.isOpen}
                 isCentered={true}
@@ -171,6 +171,12 @@ export function ActionMenu(
                     onSubmit={onSubmit}
                     register={register}
                     componentData={componentData}
+                    companyData={companyData}
+                    categoryData={categoryData}
+                    departmentData={departmentData}
+                    manufacturerData={manufacturerData}
+                    roomData={roomData}
+                    situationData={situationData}
                 />
             </ModalStyled>
         </>
