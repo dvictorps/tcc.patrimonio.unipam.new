@@ -49,14 +49,13 @@ export type DataTableType<QueryResult> = {
         label: string;
         value: string;
     }>>
-    searchValue: string
     setSearchValue: Dispatch<SetStateAction<string>>
     situationValue: Situation
     setSituationValue: Dispatch<SetStateAction<Situation>>
     situationData: Situation[]
 }
 
-export default function DataTable<QueryResult>({ column, searchSelectOptions, arrayLength, idPosit, dataQuery, searchValue, selectOption, setSearchValue,
+export default function DataTable<QueryResult>({ column, searchSelectOptions, arrayLength, idPosit, dataQuery, selectOption, setSearchValue,
     setSelectOption, situationValue, setSituationValue, situationData
 }: DataTableType<QueryResult>) {
 
@@ -111,6 +110,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         if (object.arrayLength < object.pageCount) return false
         if (object.arrayLength = object.pageCount) return true
 
+
         return false
     }
 
@@ -121,14 +121,14 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     const idsComBaseNaPosicaoStyled = idPosit.join('');
 
-    function renderDeleteButton(array: number[], situation: number) {
-        if (array.length > 1 && situation === 1) return 'auto'
-        return 'none'
+    function disableDeleteButton(array: number[], situation: number) {
+        if (array.length > 1 && situation === 1) return false
+        return true
     }
 
-    function renderEnableButton(array: number[], situation: number) {
-        if (array.length > 1 && situation === 2) return 'auto'
-        return 'none'
+    function disableEnableButton(array: number[], situation: number) {
+        if (array.length > 1 && situation === 2) return false
+        return true
     }
 
     function dividirEArredondar(numero1: number, numero2: number) {
@@ -143,6 +143,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
     }
 
     const deleteMultipleDataModal = useDisclosure()
+    const enableMultipleDataModal = useDisclosure()
 
     async function handleDeleteMultiple() {
         try {
@@ -157,6 +158,21 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         deleteMultipleDataModal.onClose()
     };
 
+    async function handleEnableMultiple() {
+        try {
+            const response = await patch<QueryResult>(`/equipment/enable?${idsComBaseNaPosicaoStyled}`, '1');
+            console.log('Resposta Enable:', response.data);
+            await dataQuery.refetch()
+            setRowSelection({})
+        } catch (error) {
+            console.log('Erro no Enable:', error);
+        }
+
+        enableMultipleDataModal.onClose()
+    };
+
+    console.log('quantidade paginas:', dividirEArredondar(arrayLength.pageCount, pagination.pageSize) + 1, 'arrayLength:', arrayLength.arrayLength, 'pa', pagination.pageSize)
+
     return (
         <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
             <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
@@ -165,7 +181,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                         <Box p='1rem' display={'flex'} flexDirection={'row'} gap={'2rem'}>
                             <Box display={'flex'} flexDirection={'column'}>
                                 <Text>Selecione uma opção para filtrar</Text>
-                                <Box display={'flex'} flexDirection={'row'} gap={'1rem'}>
+                                <Box display={'flex'} flexDirection={'column'} gap={'1rem'}>
                                     <Select placeholder='Selecionar opção' width={'250px'} onChange={setSelectedOption} defaultValue={selectOption.value}>
                                         {searchSelectOptions.map(
                                             selectOption =>
@@ -174,11 +190,9 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                                                 </option>
                                         )}
                                     </Select>
-                                    <Input placeholder="Pesquisar" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
+                                    <Input placeholder="Pesquisar selecionado" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
                                 </Box>
                             </Box>
-
-
                             <Box display={'flex'} flexDirection={'column'}>
                                 <Text>Selecionar situação equipamento</Text>
                                 <Select placeholder='Selecionar Situação' width={'250px'} onChange={setSelectedSituation} defaultValue={situationValue.IdSituacaoEquipamento}>
@@ -190,10 +204,14 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                                     )}
                                 </Select>
                             </Box>
+
                         </Box>
-                        <Button display={renderDeleteButton(deleteIds, situationValue.IdSituacaoEquipamento)} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
-                        <Button display={renderEnableButton(deleteIds, situationValue.IdSituacaoEquipamento)} colorScheme="teal" onClick={deleteMultipleDataModal.onOpen}>Reativar</Button>
-                        <Button onClick={Rerender}>Pesquisar</Button>
+                        <Box justifyContent={'flex-end'} display={'flex'} gap={'1rem'}>
+                            <Button colorScheme={'cyan'} onClick={Rerender}>Aplicar filtro</Button>
+                            <Button isDisabled={disableDeleteButton(deleteIds, situationValue.IdSituacaoEquipamento)} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
+                            <Button isDisabled={disableEnableButton(deleteIds, situationValue.IdSituacaoEquipamento)} colorScheme="teal" onClick={enableMultipleDataModal.onOpen}>Reativar</Button>
+
+                        </Box>
                     </Box>
                 </AccordionItemStyled>
             </Accordion>
@@ -242,7 +260,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                     isDisabled={DisableButton(arrayLength)}>{'>>'}</Button>
                 {dataQuery.isFetching ? 'Loading...' : null}
                 <Box justifyContent={'space-between'} display={'flex'} width={'100%'} alignItems={'center'}>
-                    Página {table.getState().pagination.pageIndex + 1} de {dividirEArredondar(arrayLength.arrayLength, pagination.pageSize) + 1}
+                    Página {table.getState().pagination.pageIndex + 1} de {dividirEArredondar(arrayLength.pageCount, pagination.pageSize) + 1}
 
                     <Box display={'flex'} justifyContent={'auto'}>
                         <Text>Resultados por página:</Text>
@@ -269,6 +287,24 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                     <Box display={'inline-flex'} gap={'1rem'}>
                         <Button colorScheme="red" rightIcon={<DeleteIcon />} onClick={handleDeleteMultiple}>Confirmar remoção</Button>
                         <Button onClick={deleteMultipleDataModal.onClose}>Cancel</Button>
+                    </Box>
+                </ModalFooter>
+            </ModalStyled>
+
+            <ModalStyled title="Remover"
+                onClose={enableMultipleDataModal.onClose}
+                open={enableMultipleDataModal.isOpen}
+                isCentered={true}
+            >
+                <ModalBody>
+                    <Text>
+                        Você está prestes a reativar {deleteIds.length} registros. Deseja prosseguir com a operação?
+                    </Text>
+                </ModalBody>
+                <ModalFooter>
+                    <Box display={'inline-flex'} gap={'1rem'}>
+                        <Button colorScheme="teal" rightIcon={<DeleteIcon />} onClick={handleEnableMultiple}>Confirmar reativação</Button>
+                        <Button onClick={enableMultipleDataModal.onClose}>Cancel</Button>
                     </Box>
                 </ModalFooter>
             </ModalStyled>

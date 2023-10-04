@@ -218,7 +218,6 @@ export default function PatrimonioLista() {
               searchSelectOptions={searchSelectOptions}
               arrayLength={arrayLength}
               dataQuery={dataQuery}
-              searchValue={searchValue}
               selectOption={selectOption}
               setSearchValue={setSearchValue}
               setSelectOption={setSelectOption}
