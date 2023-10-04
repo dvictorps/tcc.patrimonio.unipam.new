@@ -34,19 +34,28 @@ export type Department = {
 }
 
 export type Equipamento = {
-    IdEquipamento: number
-    Patrimonio: string
-    DescricaoEquipamento: string
-    NumeroSerial: string
-    DataAquisicao: string
-    VencimentoGarantia: Date
-    DataCadastro: Date
-    DataModificacao: Date
-    IdEmpresa: number
-    IdCategoriaEquipamento: number
-    IdSituacaoEquipamento: number
-    IdFabricante: number
-    IdDepartamento: number
+    IdEquipamento?: number
+    Patrimonio?: string
+    DescricaoEquipamento?: string
+    NumeroSerial?: string
+    DataAquisicao?: Date | string
+    VencimentoGarantia?: Date | string
+    DataCadastro?: Date | string
+    DataModificacao?: Date | string
+    IdEmpresa?: number
+    IdCategoriaEquipamento?: number
+    IdSituacaoEquipamento?: number
+    IdFabricante?: number
+    IdDepartamento?: number
+    IdSala?: number
+}
+
+export type Room = {
+    IdSala: number
+    DescricaoSala: string
+    IdBlocoDepartamento: number
+    IdTipoSala: number
+    IdSituacaoSala: number
 }
 
 export type ReqData<QueryResult> = {
@@ -69,4 +78,4 @@ export type FetchDataOptions = {
     pageSize: number;
 };
 
-
+export type AllRequestTypes = (Equipamento | Department)

@@ -4,14 +4,14 @@ import { api } from '@/api/api';
 import jwt from 'jsonwebtoken'
 import { useRouter } from 'next/navigation';
 
-interface User {
+type User = {
     id: number
     user: string
     role: number
     name: string
 }
 
-interface AuthContextType {
+type AuthContextType = {
     user: User | null;
     login: (username: string, password: string) => Promise<boolean>;
     logout: () => void;
@@ -19,7 +19,10 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+type AuthProviderType = {
+    children: React.ReactNode
+}
+export function AuthProvider({ children }: AuthProviderType) {
     const [user, setUser] = useState<User | null>(null);
     const router = useRouter();
 
@@ -39,7 +42,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     }, [router]);
 
-    const login = async (username: string, password: string): Promise<boolean> => {
+    async function login(username: string, password: string): Promise<boolean> {
         try {
             const response = await api.post('auth/signin', {
                 Usuario: username,
@@ -65,13 +68,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                     console.error('Erro na validação do token:', error);
                 }
             }
-            return true; // Indique que o login foi bem-sucedido
+            return true;
         } catch (error) {
-            return false; // Indique que o login falhou
+            return false;
         }
     };
 
-    const logout = (): void => {
+    function logout() {
         Cookies.remove('token');
         setUser(null);
         router.push('/login');
@@ -84,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 };
 
-export const useAuth = (): AuthContextType => {
+export function useAuth(): AuthContextType {
     const context = useContext(AuthContext);
     if (!context) {
         throw new Error('useAuth must be used within an AuthProvider');

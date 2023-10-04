@@ -1,21 +1,20 @@
 'use client'
-import { Box, Text, Button, IconButton, Menu, MenuButton, MenuItem, MenuList, ModalBody, ModalFooter, useDisclosure, useQuery } from '@chakra-ui/react'
+import { Box, Text, useDisclosure } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
-import { Equipamento } from '@/utils/types'
+import { Equipamento, Situation } from '@/utils/types'
 const DataTable = dynamic<DataTableType<Equipamento>>(() => import('@/components/DataTable'), { ssr: false })
 import Sidebar from '@/components/Sidebar'
-import { useAuth } from '@/context/AuthContext'
-import { HTMLProps, useEffect, useMemo, useRef, useState } from 'react'
-import { DeleteIcon, EditIcon, HamburgerIcon } from '@chakra-ui/icons'
+import { HTMLProps, useEffect, useRef, useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
-import { ModalStyled } from '@/components/Modal'
 import { useApi } from '@/context/ApiContext'
 import { ActionMenu } from './ActionMenu'
 import { DataTableType } from '@/components/DataTable'
 
 export default function PatrimonioLista() {
 
-  const { categoryData, companyData, manufacturerData, departmentData, situationData, arrayLength, deleteIds, fetchData } = useApi();
+  const { categoryData, companyData, manufacturerData, departmentData, situationData, arrayLength, deleteIds, useFetchData, roomData } = useApi();
+
+  const route = 'equipment'
 
   const searchSelectOptions = [
     {
@@ -30,12 +29,17 @@ export default function PatrimonioLista() {
       label: 'Descrição',
       value: 'searchDesc'
     },
+
   ]
 
   const [searchValue, setSearchValue] = useState('')
   const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
+  const [situationValue, setSituationValue] = useState<Situation>({
+    IdSituacaoEquipamento: 1,
+    DescricaoSituacaoEquipamento: "Ativo"
+  })
 
-  const dataQuery = fetchData<Equipamento>(selectOption, searchValue, 'equipment')
+  const dataQuery = useFetchData<Equipamento>(selectOption, searchValue, route, situationValue.IdSituacaoEquipamento.toString())
 
   function IndeterminateCheckbox({
     indeterminate,
@@ -86,8 +90,23 @@ export default function PatrimonioLista() {
       ),
     },
     {
+      header: 'Ações',
+      accessorKey: 'IdEquipamento',
+      cell: info => ActionMenu(info.getValue<number>(), dataQuery)
+    },
+    {
       header: 'Nº Patrimônio',
       accessorKey: 'Patrimonio'
+    },
+    {
+      header: 'Departamento',
+      accessorKey: 'IdDepartamento',
+      cell: info => getDepartment(info.getValue<number>()),
+    },
+    {
+      header: 'Sala Associada',
+      accessorKey: 'IdSala',
+      cell: info => getRoom(info.getValue<number>()),
     },
     {
       header: 'Tipo Equipamento',
@@ -114,6 +133,11 @@ export default function PatrimonioLista() {
       cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
     },
     {
+      header: 'Vencimento Garantia',
+      accessorKey: 'VencimentoGarantia',
+      cell: info => new Date(info.getValue<string>()).toLocaleDateString(),
+    },
+    {
       header: 'Data Modificação',
       accessorKey: 'DataModificacao',
       cell: info => formatDateTime(info.getValue<string>()),
@@ -128,16 +152,6 @@ export default function PatrimonioLista() {
       accessorKey: 'IdFabricante',
       cell: info => getManufacturer(info.getValue<number>()),
     },
-    {
-      header: 'Departamento',
-      accessorKey: 'IdDepartamento',
-      cell: info => getDepartment(info.getValue<number>()),
-    },
-    {
-      header: 'Ações',
-      accessorKey: 'IdEquipamento',
-      cell: info => ActionMenu(info.getValue<number>())
-    }
   ]
 
   function getCategory(id: number) {
@@ -165,6 +179,12 @@ export default function PatrimonioLista() {
     return situation?.DescricaoSituacaoEquipamento
   }
 
+  function getRoom(id: number) {
+    const room = roomData.find((room) => room.IdSala === id);
+    return room?.DescricaoSala
+  }
+
+
   function formatDateTime(date: Date | string | null) {
 
     if (date === null) return 'Não modificado'
@@ -178,6 +198,10 @@ export default function PatrimonioLista() {
     }
     return '';
   });
+
+  useEffect(() => {
+    dataQuery.refetch()
+  }, [])
 
   return (
     <Box display={'flex'} minHeight={'100vh'}>
@@ -194,10 +218,12 @@ export default function PatrimonioLista() {
               searchSelectOptions={searchSelectOptions}
               arrayLength={arrayLength}
               dataQuery={dataQuery}
-              searchValue={searchValue}
               selectOption={selectOption}
               setSearchValue={setSearchValue}
               setSelectOption={setSelectOption}
+              setSituationValue={setSituationValue}
+              situationData={situationData}
+              situationValue={situationValue}
             />
           </Box>
         </Box>
