@@ -200,9 +200,10 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
     }
 
     async function Rerender() {
+        await dataQuery.refetch()
+        await dataQueryFull.refetch()
         table.setPageIndex(0)
         setRowSelection({})
-        await dataQuery.refetch()
     }
 
 
@@ -299,7 +300,8 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     }
 
-    const generateExcel = () => {
+    const generateExcel = async () => {
+        await Rerender();
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Planilha de Dados');
         const dataFull = dataQueryFull.data?.data as EquipamentoFormated[]
@@ -343,7 +345,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
             <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
                 <AccordionItemStyled title='Filtros Avançados'>
                     <Box display={'flex'} flexDirection={'column'}>
-                        <Box p='1rem' display={'flex'} flexDirection={'row'} gap={'2rem'} flexWrap={'wrap'}>
+                        <Box p='1rem' display={'flex'} flexDirection={'row'} gap={'2rem'}>
                             <Box display={'flex'} flexDirection={'column'}>
                                 <Text>Selecione uma opção para filtrar</Text>
                                 <Box display={'flex'} flexDirection={'column'} gap={'1rem'}>
@@ -358,61 +360,68 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                                     <Input placeholder="Pesquisar selecionado" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
                                 </Box>
                             </Box>
-                            <Box display={'flex'} flexDirection={'column'}>
-                                <Text>Selecionar situação equipamento</Text>
-                                <Select placeholder='Selecionar Situação' width={'250px'} onChange={setSelectedSituation} defaultValue={situationValue.IdSituacaoEquipamento}>
-                                    {situationData.map(
-                                        situation =>
-                                            <option value={situation.IdSituacaoEquipamento} key={situation.IdSituacaoEquipamento}>
-                                                {situation.DescricaoSituacaoEquipamento}
-                                            </option>
-                                    )}
+                            <Box display={'flex'} flexDirection={'row'} flexWrap={'wrap'}>
+                                <Box display={'flex'} flexDirection={'column'}>
+                                    <Text>Selecionar situação equipamento</Text>
+                                    <Select placeholder='Selecionar Situação' width={'250px'} onChange={setSelectedSituation} defaultValue={situationValue.IdSituacaoEquipamento}>
+                                        {situationData.map(
+                                            situation =>
+                                                <option value={situation.IdSituacaoEquipamento} key={situation.IdSituacaoEquipamento}>
+                                                    {situation.DescricaoSituacaoEquipamento}
+                                                </option>
+                                        )}
 
-                                </Select>
-                                <Text>Selecionar Empresa</Text>
-                                <Select placeholder='Selecionar empresa' width={'250px'} onChange={setSelectedCompany} defaultValue={companyValue.IdEmpresa}>
-                                    {companyData.map(
-                                        company =>
-                                            <option value={company.IdEmpresa} key={company.IdEmpresa}>
-                                                {company.NomeEmpresa}
-                                            </option>
-                                    )}
+                                    </Select>
 
-                                </Select>
-                            </Box>
-                            <Box display={'flex'} flexDirection={'column'}>
-                                <Text>Selecionar Categoria</Text>
-                                <Select placeholder='Selecionar categoria' width={'250px'} onChange={setSelectedCategory} defaultValue={categoryValue.IdCategoriaEquipamento}>
-                                    {categoryData.map(
-                                        category =>
-                                            <option value={category.IdCategoriaEquipamento} key={category.IdCategoriaEquipamento}>
-                                                {category.DescricaoCategoriaEquipamento}
-                                            </option>
-                                    )}
+                                </Box>
+                                <Box display={'flex'} flexDirection={'column'}>
+                                    <Text>Selecionar Empresa</Text>
+                                    <Select placeholder='Selecionar empresa' width={'250px'} onChange={setSelectedCompany} defaultValue={companyValue.IdEmpresa}>
+                                        {companyData.map(
+                                            company =>
+                                                <option value={company.IdEmpresa} key={company.IdEmpresa}>
+                                                    {company.NomeEmpresa}
+                                                </option>
+                                        )}
 
-                                </Select>
-                                <Text>Selecionar Fabricante</Text>
-                                <Select placeholder='Selecionar fabricante' width={'250px'} onChange={setSelectedManufacturer} defaultValue={manufacturerValue.IdFabricante}>
-                                    {manufacturerData.map(
-                                        manufacturer =>
-                                            <option value={manufacturer.IdFabricante} key={manufacturer.IdFabricante}>
-                                                {manufacturer.NomeFabricante}
-                                            </option>
-                                    )}
+                                    </Select>
+                                </Box>
+                                <Box display={'flex'} flexDirection={'column'}>
+                                    <Text>Selecionar Fabricante</Text>
+                                    <Select placeholder='Selecionar fabricante' width={'250px'} onChange={setSelectedManufacturer} defaultValue={manufacturerValue.IdFabricante}>
+                                        {manufacturerData.map(
+                                            manufacturer =>
+                                                <option value={manufacturer.IdFabricante} key={manufacturer.IdFabricante}>
+                                                    {manufacturer.NomeFabricante}
+                                                </option>
+                                        )}
 
-                                </Select>
-                            </Box>
-                            <Box display={'flex'} flexDirection={'column'}>
-                                <Text>Selecionar Departamento</Text>
-                                <Select placeholder='Selecionar departamento' width={'250px'} onChange={setSelectedDepartment} defaultValue={manufacturerValue.IdFabricante}>
-                                    {departmentData.map(
-                                        department =>
-                                            <option value={department.IdDepartamento} key={department.IdDepartamento}>
-                                                {department.NomeDepartamento}
-                                            </option>
-                                    )}
+                                    </Select>
+                                </Box>
+                                <Box display={'flex'} flexDirection={'column'}>
+                                    <Text>Selecionar Departamento</Text>
+                                    <Select placeholder='Selecionar departamento' width={'250px'} onChange={setSelectedDepartment} defaultValue={manufacturerValue.IdFabricante}>
+                                        {departmentData.map(
+                                            department =>
+                                                <option value={department.IdDepartamento} key={department.IdDepartamento}>
+                                                    {department.NomeDepartamento}
+                                                </option>
+                                        )}
 
-                                </Select>
+                                    </Select>
+                                </Box>
+                                <Box display={'flex'} flexDirection={'column'}>
+                                    <Text>Selecionar Categoria</Text>
+                                    <Select placeholder='Selecionar categoria' width={'250px'} onChange={setSelectedCategory} defaultValue={categoryValue.IdCategoriaEquipamento}>
+                                        {categoryData.map(
+                                            category =>
+                                                <option value={category.IdCategoriaEquipamento} key={category.IdCategoriaEquipamento}>
+                                                    {category.DescricaoCategoriaEquipamento}
+                                                </option>
+                                        )}
+
+                                    </Select>
+                                </Box>
                             </Box>
                         </Box>
                         <Box justifyContent={'space-between'} display={'flex'} mt={'0.5rem'}>
