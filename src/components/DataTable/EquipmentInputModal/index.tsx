@@ -92,7 +92,7 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                         <FormLabel>Patrimônio</FormLabel>
                         <Input
                             id="Patrimonio"
-                            {...register("Patrimonio", { maxLength: 20 })}
+                            {...register("Patrimonio", { maxLength: 20, required: true })}
                         />
                         {errors.Patrimonio && errors.Patrimonio.type === "maxLength" && (
                             <FormErrorMessage>O número de patrimônio pode ter no máximo 20 caracteres</FormErrorMessage>
@@ -102,7 +102,7 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                         <FormLabel>Descricao Equipamento</FormLabel>
                         <Input
                             id="DescricaoEquipamento"
-                            {...register("DescricaoEquipamento", { maxLength: 50 })}
+                            {...register("DescricaoEquipamento", { maxLength: 50, required: true })}
                         />
                         {errors.DescricaoEquipamento && errors.DescricaoEquipamento.type === "maxLength" && (
                             <FormErrorMessage>A descrição pode ter no máximo 20 caracteres</FormErrorMessage>
@@ -112,7 +112,7 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                         <FormLabel>Numero Serial</FormLabel>
                         <Input
                             id="NumeroSerial"
-                            {...register("NumeroSerial", { maxLength: 50 })}
+                            {...register("NumeroSerial", { maxLength: 30, required: true })}
                         />
                         {errors.NumeroSerial && errors.NumeroSerial.type === "maxLength" && (
                             <FormErrorMessage>O numero de serial pode ter no máximo 20 caracteres</FormErrorMessage>
@@ -122,17 +122,23 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
                         <FormLabel>Data da Aquisição</FormLabel>
                         <Input
                             id="DataAquisicao"
-                            {...register("DataAquisicao")}
+                            {...register("DataAquisicao", { required: true })}
                             type="datetime-local"
                         />
+                        {errors.DataAquisicao && errors.DataAquisicao.type === "required" && (
+                            <FormErrorMessage>Preencha corretamente o campo de data</FormErrorMessage>
+                        )}
                     </FormControl>
                     <FormControl isInvalid={!!errors.VencimentoGarantia} isRequired>
                         <FormLabel>Vencimento da Garantia</FormLabel>
                         <Input
                             id="VencimentoGarantia"
-                            {...register("VencimentoGarantia")}
+                            {...register("VencimentoGarantia", { required: true })}
                             type="datetime-local"
                         />
+                        {errors.VencimentoGarantia && errors.VencimentoGarantia.type === "required" && (
+                            <FormErrorMessage>Preencha corretamente o campo de data</FormErrorMessage>
+                        )}
                     </FormControl>
                     <FormControl isInvalid={!!errors.IdEmpresa} isRequired>
                         <FormLabel>Empresa</FormLabel>

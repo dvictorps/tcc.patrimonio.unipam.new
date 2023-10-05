@@ -1,6 +1,6 @@
 import { ModalStyled } from "@/components/Modal";
 import { useApi } from "@/context/ApiContext";
-import { HamburgerIcon, EditIcon, DeleteIcon, ChevronRightIcon } from "@chakra-ui/icons";
+import { HamburgerIcon, EditIcon, DeleteIcon, CheckIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { useDisclosure, Menu, MenuButton, IconButton, MenuList, MenuItem, ModalBody, ModalFooter, Button, Box, Text, FormControl, Input, FormLabel, FormErrorMessage } from "@chakra-ui/react";
 import { UseQueryResult } from "react-query";
 import { AllRequestTypes, Equipamento } from "@/utils/types";
@@ -17,6 +17,7 @@ export function ActionMenu(
     const deleteUniqueModal = useDisclosure();
     const enableUniqueModal = useDisclosure();
     const editUniqueModal = useDisclosure();
+    const viewModal = useDisclosure();
     const { setRowSelection, getOne, patch, companyData, categoryData, manufacturerData, departmentData, situationData, roomData } = useApi()
 
     const [componentData, setComponentData] = useState<Equipamento>()
@@ -74,6 +75,12 @@ export function ActionMenu(
         enableUniqueModal.onOpen()
 
     }
+
+    function handleViewButton() {
+        viewModal.onOpen()
+
+    }
+
     async function editButtonRefetch() {
         await dataQuery.refetch();
     }
@@ -101,6 +108,93 @@ export function ActionMenu(
 
     }
 
+    function getCategory(id: number) {
+        const category = categoryData.find((category) => category.IdCategoriaEquipamento === id);
+        return category?.DescricaoCategoriaEquipamento
+    }
+
+    function getCompany(id: number) {
+        const company = companyData.find((company) => company.IdEmpresa === id);
+        return company?.NomeEmpresa
+    }
+
+    function getManufacturer(id: number) {
+        const manufacturer = manufacturerData.find((manufacturer) => manufacturer.IdFabricante === id);
+        return manufacturer?.NomeFabricante
+    }
+
+    function getDepartment(id: number) {
+        const department = departmentData.find((department) => department.IdDepartamento === id);
+        return department?.NomeDepartamento
+    }
+
+    function getSituation(id: number) {
+        const situation = situationData.find((situation) => situation.IdSituacaoEquipamento === id);
+        return situation?.DescricaoSituacaoEquipamento
+    }
+
+    function getRoom(id: number) {
+        const room = roomData.find((room) => room.IdSala === id);
+        return room?.DescricaoSala
+    }
+
+    const inputArray = [
+        {
+            label: 'Nº Patrimônio',
+            defaultValue: componentData?.Patrimonio,
+        },
+        {
+            label: 'Serial',
+            defaultValue: componentData?.NumeroSerial,
+        },
+        {
+            label: 'Departamento',
+            defaultValue: getDepartment(componentData?.IdDepartamento || 0),
+        },
+        {
+            label: 'Sala',
+            defaultValue: getRoom(componentData?.IdSala || 0),
+        },
+        {
+            label: 'Situação Equipamento',
+            defaultValue: getSituation(componentData?.IdSituacaoEquipamento || 0),
+        },
+        {
+            label: 'Descrição Equipamento',
+            defaultValue: componentData?.DescricaoEquipamento,
+        },
+        {
+            label: 'Categoria',
+            defaultValue: getCategory(componentData?.IdCategoriaEquipamento || 0),
+        },
+        {
+            label: 'Data de Aquisição',
+            defaultValue: new Date(componentData?.DataAquisicao || '').toLocaleDateString(),
+        },
+        {
+            label: 'Data de Cadastro',
+            defaultValue: new Date(componentData?.DataCadastro || '').toLocaleDateString(),
+
+        },
+        {
+            label: 'Data de Vencimento',
+            defaultValue: new Date(componentData?.VencimentoGarantia || '').toLocaleDateString(),
+
+        },
+        {
+            label: 'Data de Modificação',
+            defaultValue: new Date(componentData?.DataModificacao || '').toLocaleDateString(),
+        },
+        {
+            label: 'Empresa Associada',
+            defaultValue: getCompany(componentData?.IdEmpresa || 0),
+        },
+        {
+            label: 'Fabricante',
+            defaultValue: getManufacturer(componentData?.IdFabricante || 0),
+        },
+    ]
+
 
     return (
         <>
@@ -112,10 +206,13 @@ export function ActionMenu(
                     variant='outline'
                 />
                 <MenuList>
+                    <MenuItem icon={<ExternalLinkIcon />} onClick={handleViewButton}>
+                        Visualizar
+                    </MenuItem>
                     <MenuItem icon={<DeleteIcon />} onClick={handleDeleteButton}>
                         Desativar
                     </MenuItem>
-                    <MenuItem icon={<ChevronRightIcon />} onClick={handleEnableButton}>
+                    <MenuItem icon={<CheckIcon />} onClick={handleEnableButton}>
                         Reativar
                     </MenuItem>
                     <MenuItem icon={<EditIcon />} onClick={handleEditButton}>
@@ -178,6 +275,34 @@ export function ActionMenu(
                     roomData={roomData}
                     situationData={situationData}
                 />
+            </ModalStyled>
+
+
+            <ModalStyled title="Visualizar"
+                onClose={viewModal.onClose}
+                open={viewModal.isOpen}
+                isCentered={true}
+            >
+                <ModalBody>
+                    <Box my={'10px'} display={'flex'} flexDirection={'column'}>
+                        {inputArray.map(input =>
+                            <>
+                                <FormLabel>{input.label}</FormLabel>
+                                <Input
+                                    value={input.defaultValue?.toString()}
+                                />
+                            </>
+                        )}
+
+
+                    </Box>
+
+                </ModalBody>
+                <ModalFooter>
+                    <Box display={'inline-flex'} gap={'1rem'}>
+                        <Button onClick={viewModal.onClose}>Fechar</Button>
+                    </Box>
+                </ModalFooter>
             </ModalStyled>
         </>
 

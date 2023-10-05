@@ -92,7 +92,7 @@ export default function Home() {
     labels: Object.keys(barGraphicsData),
     datasets: [
       {
-        label: 'Departamentos',
+        label: 'Equipamentos:',
         data: barDataValues,
         backgroundColor: barDataValues.map(() => randomColor()),
         borderColor: barDataValues.map(() => randomColor()),

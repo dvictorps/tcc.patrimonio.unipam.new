@@ -20,8 +20,9 @@ import {
     ModalBody,
     useDisclosure,
     Divider,
+    Spinner
 } from '@chakra-ui/react'
-import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon, AddIcon, CheckIcon } from "@chakra-ui/icons";
+import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon, AddIcon, CheckIcon, Search2Icon } from "@chakra-ui/icons";
 import { SelectOptions, ArrayType, Situation, Equipamento } from "@/utils/types";
 import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
 import { UseQueryResult } from "react-query";
@@ -115,24 +116,22 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
             setRowSelection({})
     }
 
-    function DisableButton(object: ArrayType) {
-        if (object.arrayLength < pagination.pageSize) return true
-        if (object.arrayLength < object.pageCount) return false
-        if (object.arrayLength = object.pageCount) return true
+    function DisableButton() {
+
+
+        const pageCounters = dividirEArredondar(arrayLength.pageCount, pagination.pageSize)
+        if (table.getState().pagination.pageIndex + 1 === pageCounters) return true
 
 
         return false
     }
 
-    function Rerender() {
-        restartPageIndex()
+    async function Rerender() {
+        table.setPageIndex(0)
         setRowSelection({})
-        dataQuery.refetch()
+        await dataQuery.refetch()
     }
 
-    function restartPageIndex() {
-        if (arrayLength.arrayLength < pagination.pageSize) table.setPageIndex(0)
-    }
 
     const idsComBaseNaPosicaoStyled = idPosit.join('');
 
@@ -148,8 +147,15 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     function dividirEArredondar(numero1: number, numero2: number) {
         const resultado = numero1 / numero2;
-        const resultadoArredondado = Math.floor(resultado);
-        return resultadoArredondado;
+        const sobra = resultado % 1;
+
+        if (sobra > 0) {
+
+            return Math.floor(resultado) + 1;
+        } else {
+
+            return Math.floor(resultado);
+        }
     }
 
     function setSelectedPageSizeOption(event: ChangeEvent<HTMLSelectElement>) {
@@ -165,8 +171,10 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         try {
             const response = await patch<QueryResult>(`/equipment/disable?${idsComBaseNaPosicaoStyled}`, '2');
             console.log('Resposta Disable:', response.data);
-            await dataQuery.refetch()
             setRowSelection({})
+            table.setPageIndex(0)
+            await dataQuery.refetch()
+
         } catch (error) {
             console.log('Erro no Disable:', error);
         }
@@ -178,8 +186,10 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         try {
             const response = await patch<QueryResult>(`/equipment/enable?${idsComBaseNaPosicaoStyled}`, '1');
             console.log('Resposta Enable:', response.data);
-            await dataQuery.refetch()
             setRowSelection({})
+            table.setPageIndex(0)
+            await dataQuery.refetch()
+
         } catch (error) {
             console.log('Erro no Enable:', error);
         }
@@ -191,8 +201,9 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         try {
             const response = await post<Equipamento>(`equipment/register`, data)
             console.log('Resposta add:', response)
-            await dataQuery.refetch()
             setRowSelection({})
+            await dataQuery.refetch()
+
 
         } catch (error) {
             console.log('Erro no add', error);
@@ -214,6 +225,8 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         reset();
 
     }
+
+    console.log(arrayLength.pageCount, arrayLength.arrayLength, pagination.pageIndex, pagination.pageSize)
     return (
         <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
             <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
@@ -251,7 +264,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                         </Box>
                         <Box justifyContent={'space-between'} display={'flex'} mt={'0.5rem'}>
                             <Box gap={'1rem'} display={'flex'}>
-                                <Button colorScheme={'green'} onClick={Rerender} rightIcon={<CheckIcon />}>Aplicar filtro</Button>
+                                <Button colorScheme={'green'} onClick={Rerender} rightIcon={<Search2Icon />}>Aplicar filtro</Button>
                                 <Button display={disableDeleteButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento.toString()))} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
                                 <Button display={disableEnableButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento.toString()))} colorScheme="teal" onClick={enableMultipleDataModal.onOpen}>Reativar</Button>
                             </Box>
@@ -301,13 +314,12 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                 <Button colorScheme="teal" onClick={() => table.setPageIndex(0)}
                     isDisabled={!table.getCanPreviousPage()}>{'<<'}</Button>
                 <IconButton colorScheme="teal" aria-label='back' onClick={() => table.previousPage()} isDisabled={!table.getCanPreviousPage()} icon={<ArrowBackIcon />} />
-                <IconButton colorScheme="teal" aria-label='foward' onClick={() => table.nextPage()} isDisabled={DisableButton(arrayLength)} icon={<ArrowForwardIcon />} />
+                <IconButton colorScheme="teal" aria-label='foward' onClick={() => table.nextPage()} isDisabled={DisableButton()} icon={<ArrowForwardIcon />} />
                 <Button colorScheme="teal" onClick={() => table.setPageIndex(dividirEArredondar(arrayLength.arrayLength, pagination.pageSize))}
-                    isDisabled={DisableButton(arrayLength)}>{'>>'}</Button>
-                {dataQuery.isFetching ? 'Loading...' : null}
+                    isDisabled={DisableButton()}>{'>>'}</Button>
                 <Box justifyContent={'space-between'} display={'flex'} width={'100%'} alignItems={'center'}>
-                    Página {table.getState().pagination.pageIndex + 1} de {dividirEArredondar(arrayLength.pageCount, pagination.pageSize) + 1}
-
+                    Página {table.getState().pagination.pageIndex + 1} de {dividirEArredondar(arrayLength.pageCount, pagination.pageSize)}
+                    {dataQuery.isFetching ? <Spinner /> : null}
                     <Box display={'flex'} justifyContent={'auto'}>
                         <Text>Resultados por página:</Text>
                         <Select onChange={setSelectedPageSizeOption}>
