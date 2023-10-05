@@ -19,6 +19,8 @@ export default function Dados() {
     return (
         <>
             <Box borderRadius={'6px'} shadow={'outline'} m='1rem'>
+
+
                 <DataTableDepartamento columns={DepartmentColumns()} data={departmentData} />
             </Box>
         </>
