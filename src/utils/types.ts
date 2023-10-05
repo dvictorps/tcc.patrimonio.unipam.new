@@ -50,6 +50,24 @@ export type Equipamento = {
     IdSala?: number
 }
 
+export type EquipamentoFormated = {
+    IdEquipamento?: number
+    Patrimonio?: string
+    NumeroSerial?: string
+    Sala?: string
+    Departamento?: string
+    SituacaoEquipamento?: string
+    DescricaoEquipamento?: string
+    DataAquisicao?: Date | string
+    VencimentoGarantia?: Date | string
+    DataCadastro?: Date | string
+    DataModificacao?: Date | string
+    Empresa?: string
+    CategoriaEquipamento?: string
+    Fabricante?: string
+    IdSituacaoEquipamento?: number
+}
+
 export type Room = {
     IdSala?: number
     DescricaoSala?: string

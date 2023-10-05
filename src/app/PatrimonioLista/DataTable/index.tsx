@@ -23,7 +23,7 @@ import {
     Spinner
 } from '@chakra-ui/react'
 import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon, AddIcon, CheckIcon, Search2Icon } from "@chakra-ui/icons";
-import { SelectOptions, ArrayType, Situation, Equipamento } from "@/utils/types";
+import { SelectOptions, ArrayType, Situation, Equipamento, EquipamentoFormated, Company, Category, Manufacturer, Department } from "@/utils/types";
 import { AccordionItemStyled } from "../../../components/Accordion/AccordionItemStyled";
 import { UseQueryResult } from "react-query";
 import React from "react";
@@ -31,6 +31,7 @@ import { ModalStyled } from "../../../components/Modal";
 import { useApi } from "@/context/ApiContext";
 import { EquipmentInputModal } from "./EquipmentInputModal";
 import { useForm } from "react-hook-form";
+import ExcelJS from 'exceljs'
 
 const selectResultsOptions = [
     10,
@@ -56,11 +57,24 @@ export type DataTableType<QueryResult> = {
     setSearchValue: Dispatch<SetStateAction<string>>
     situationValue: Situation
     setSituationValue: Dispatch<SetStateAction<Situation>>
+    setCompanyValue: Dispatch<SetStateAction<Company>>
+    setCategoryValue: Dispatch<SetStateAction<Category>>
+    setManufacturerValue: Dispatch<SetStateAction<Manufacturer>>
+    setDepartmentValue: Dispatch<SetStateAction<Department>>
+    companyValue: Company
+    categoryValue: Category
+    manufacturerValue: Manufacturer
+    departmentValue: Department
     situationData: Situation[]
+    dataQueryFull: UseQueryResult<{
+        data: QueryResult[];
+        totalRecords: number;
+    }, unknown>
 }
 
 export default function DataTable<QueryResult>({ column, searchSelectOptions, arrayLength, idPosit, dataQuery, selectOption, setSearchValue,
-    setSelectOption, situationValue, setSituationValue, situationData
+    setSelectOption, situationValue, setSituationValue, situationData, dataQueryFull, categoryValue, companyValue, departmentValue, manufacturerValue,
+    setCategoryValue, setCompanyValue, setDepartmentValue, setManufacturerValue
 }: DataTableType<QueryResult>) {
 
     const { patch, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination, companyData, categoryData, manufacturerData, departmentData, roomData, post } = useApi()
@@ -75,7 +89,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     function setSelectedSituation(event: ChangeEvent<HTMLSelectElement>) {
 
-        const option = situationData.find(situation => situation.IdSituacaoEquipamento.toString() === event.target.value)
+        const option = situationData.find(situation => situation.IdSituacaoEquipamento?.toString() === event.target.value)
 
         if (option) return (setSituationValue(option), setRowSelection({}))
 
@@ -85,6 +99,65 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         }
 
         return (setSituationValue(all), setRowSelection({}))
+    }
+
+    function setSelectedDepartment(event: ChangeEvent<HTMLSelectElement>) {
+
+        const option = departmentData.find(department => department.IdDepartamento?.toString() === event.target.value)
+
+        if (option) return (setDepartmentValue(option), setRowSelection({}))
+
+        const all: Department = {
+            NomeDepartamento: 'Todos',
+            IdDepartamento: '' as unknown as number
+        }
+
+        return (setDepartmentValue(all), setRowSelection({}))
+    }
+
+    function setSelectedManufacturer(event: ChangeEvent<HTMLSelectElement>) {
+
+        const option = manufacturerData.find(manufacturer => manufacturer.IdFabricante?.toString() === event.target.value)
+
+        if (option) return (setManufacturerValue(option), setRowSelection({}))
+
+        const all: Manufacturer = {
+            NomeFabricante: 'Todos',
+            IdFabricante: '' as unknown as number
+        }
+
+        return (setManufacturerValue(all), setRowSelection({}))
+    }
+
+
+
+    function setSelectedCategory(event: ChangeEvent<HTMLSelectElement>) {
+
+        const option = categoryData.find(category => category.IdCategoriaEquipamento?.toString() === event.target.value)
+
+        if (option) return (setCategoryValue(option), setRowSelection({}))
+
+        const all: Category = {
+            DescricaoCategoriaEquipamento: 'Todas',
+            IdCategoriaEquipamento: '' as unknown as number
+        }
+
+        return (setCategoryValue(all), setRowSelection({}))
+    }
+
+
+    function setSelectedCompany(event: ChangeEvent<HTMLSelectElement>) {
+
+        const option = companyData.find(company => company.IdEmpresa?.toString() === event.target.value)
+
+        if (option) return (setCompanyValue(option), setRowSelection({}))
+
+        const all: Company = {
+            NomeEmpresa: 'Todas',
+            IdEmpresa: '' as unknown as number
+        }
+
+        return (setCompanyValue(all), setRowSelection({}))
     }
 
     const defaultData = useMemo(() => [], [])
@@ -226,13 +299,51 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     }
 
+    const generateExcel = () => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Planilha de Dados');
+        const dataFull = dataQueryFull.data?.data as EquipamentoFormated[]
+
+
+
+        const headerRow = worksheet.addRow(['Patrimonio', 'NumeroSerial', 'Sala', 'Departamento'
+            , 'SituacaoEquipamento', 'DescricaoEquipamento', 'DataAquisicao', 'Vencimento Garantia', 'DataCadastro', 'DataModificacao', 'Empresa', 'CategoriaEquipamento', 'Fabricante']);
+
+
+        headerRow.eachCell((cell) => {
+            cell.font = { bold: true };
+            cell.alignment = { horizontal: 'center' };
+        });
+
+
+        dataFull.forEach((item) => {
+            const rowData = Object.values(item);
+            rowData.pop()
+            rowData.shift()
+            worksheet.addRow(rowData)
+
+        });
+
+
+        workbook.xlsx.writeBuffer().then((buffer) => {
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'planilha.xlsx';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+    };
+
+
     console.log(arrayLength.pageCount, arrayLength.arrayLength, pagination.pageIndex, pagination.pageSize)
     return (
         <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
             <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
                 <AccordionItemStyled title='Filtros Avançados'>
                     <Box display={'flex'} flexDirection={'column'}>
-                        <Box p='1rem' display={'flex'} flexDirection={'row'} gap={'2rem'}>
+                        <Box p='1rem' display={'flex'} flexDirection={'row'} gap={'2rem'} flexWrap={'wrap'}>
                             <Box display={'flex'} flexDirection={'column'}>
                                 <Text>Selecione uma opção para filtrar</Text>
                                 <Box display={'flex'} flexDirection={'column'} gap={'1rem'}>
@@ -256,17 +367,60 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                                                 {situation.DescricaoSituacaoEquipamento}
                                             </option>
                                     )}
-                                    <option value=''>
-                                        Todos
-                                    </option>
+
+                                </Select>
+                                <Text>Selecionar Empresa</Text>
+                                <Select placeholder='Selecionar empresa' width={'250px'} onChange={setSelectedCompany} defaultValue={companyValue.IdEmpresa}>
+                                    {companyData.map(
+                                        company =>
+                                            <option value={company.IdEmpresa} key={company.IdEmpresa}>
+                                                {company.NomeEmpresa}
+                                            </option>
+                                    )}
+
+                                </Select>
+                            </Box>
+                            <Box display={'flex'} flexDirection={'column'}>
+                                <Text>Selecionar Categoria</Text>
+                                <Select placeholder='Selecionar categoria' width={'250px'} onChange={setSelectedCategory} defaultValue={categoryValue.IdCategoriaEquipamento}>
+                                    {categoryData.map(
+                                        category =>
+                                            <option value={category.IdCategoriaEquipamento} key={category.IdCategoriaEquipamento}>
+                                                {category.DescricaoCategoriaEquipamento}
+                                            </option>
+                                    )}
+
+                                </Select>
+                                <Text>Selecionar Fabricante</Text>
+                                <Select placeholder='Selecionar fabricante' width={'250px'} onChange={setSelectedManufacturer} defaultValue={manufacturerValue.IdFabricante}>
+                                    {manufacturerData.map(
+                                        manufacturer =>
+                                            <option value={manufacturer.IdFabricante} key={manufacturer.IdFabricante}>
+                                                {manufacturer.NomeFabricante}
+                                            </option>
+                                    )}
+
+                                </Select>
+                            </Box>
+                            <Box display={'flex'} flexDirection={'column'}>
+                                <Text>Selecionar Departamento</Text>
+                                <Select placeholder='Selecionar departamento' width={'250px'} onChange={setSelectedDepartment} defaultValue={manufacturerValue.IdFabricante}>
+                                    {departmentData.map(
+                                        department =>
+                                            <option value={department.IdDepartamento} key={department.IdDepartamento}>
+                                                {department.NomeDepartamento}
+                                            </option>
+                                    )}
+
                                 </Select>
                             </Box>
                         </Box>
                         <Box justifyContent={'space-between'} display={'flex'} mt={'0.5rem'}>
                             <Box gap={'1rem'} display={'flex'}>
                                 <Button colorScheme={'green'} onClick={Rerender} rightIcon={<Search2Icon />}>Aplicar filtro</Button>
-                                <Button display={disableDeleteButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento.toString()))} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
-                                <Button display={disableEnableButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento.toString()))} colorScheme="teal" onClick={enableMultipleDataModal.onOpen}>Reativar</Button>
+                                <Button colorScheme="facebook" onClick={generateExcel}>Gerar relatório com base nos filtros</Button>
+                                <Button display={disableDeleteButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento?.toString() || ''))} colorScheme="red" onClick={deleteMultipleDataModal.onOpen} rightIcon={<DeleteIcon />}>Desativar</Button>
+                                <Button display={disableEnableButton(deleteIds, parseInt(situationValue.IdSituacaoEquipamento?.toString() || ''))} colorScheme="teal" onClick={enableMultipleDataModal.onOpen}>Reativar</Button>
                             </Box>
                             <Button colorScheme={'blue'} onClick={createDataModal.onOpen} rightIcon={<AddIcon />}>Adicionar Registro</Button>
 

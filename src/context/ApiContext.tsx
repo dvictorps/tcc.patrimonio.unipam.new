@@ -23,20 +23,18 @@ type ApiContextType = {
     departmentSituationData: DepartmentSituation[]
     fetchTableDescriptionData: () => void;
     arrayLength: ArrayType
-    fetchTableData: <Type>(
-        selectOption: SelectOptions,
-        searchValue: string,
-        route: string,
-        situation: string
-    ) => Promise<{ data: Type[]; totalRecords: number }>;
+    fetchTableData: <Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string,
+        company: string, category: string, manufacturer: string, department: string) => Promise<{
+            data: Type[];
+            totalRecords: number;
+        }>
     rowSelection: Record<string, never>
     setRowSelection: React.Dispatch<React.SetStateAction<{}>>
-    useFetchData: <QueryResult>(
-        selectOption: SelectOptions,
-        searchValue: string,
-        route: string,
-        situation: string
-    ) => UseQueryResult<{ data: QueryResult[]; totalRecords: number; }, unknown>;
+    useFetchData: <QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
+        manufacturer: string, department: string) => UseQueryResult<{
+            data: QueryResult[];
+            totalRecords: number;
+        }, unknown>
     deleteIds: number[],
     pageIndex: number,
     pageSize: number,
@@ -58,6 +56,16 @@ type ApiContextType = {
     getCity(id: number): string | undefined
     getState(id: number): string | undefined
     getDepartmentSituation(id: number): string | undefined
+    fetchTableFullData: <Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string,
+        company: string, category: string, manufacturer: string, department: string) => Promise<{
+            data: Type[];
+            totalRecords: number;
+        }>
+    useFetchFullData: <QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
+        manufacturer: string, department: string) => UseQueryResult<{
+            data: QueryResult[];
+            totalRecords: number;
+        }, unknown>
 
 };
 
@@ -168,18 +176,6 @@ export function ApiProvider({ children }: ApiProviderType) {
         pageCount: 0
     } as ArrayType)
 
-    async function fetchTableData<Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string) {
-        try {
-            const url = `/${route}?${selectOption.value}=${searchValue}&take=${fetchDataOptions.pageSize}&skip=${fetchDataOptions.pageIndex * fetchDataOptions.pageSize}&situation=${situation}`
-            const response = await api.get(url)
-            const responseTyped: ReqData<Type> = response.data
-            setArrayLength({ arrayLength: responseTyped.data.length, pageCount: responseTyped.totalRecords } as ArrayType)
-            return { data: responseTyped.data, totalRecords: responseTyped.totalRecords }
-        } catch (error) {
-            console.log(error)
-            return { data: [], totalRecords: 404 };
-        }
-    };
 
     async function getOne<Type>(route: string, id: string) {
         try {
@@ -193,10 +189,50 @@ export function ApiProvider({ children }: ApiProviderType) {
         }
     }
 
-    function useFetchData<QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: string) {
+    async function fetchTableData<Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
+        manufacturer: string, department: string) {
+        try {
+            const url = `/${route}?${selectOption.value}=${searchValue}&take=${fetchDataOptions.pageSize}&skip=${fetchDataOptions.pageIndex * fetchDataOptions.pageSize}&situation=${situation}&company=${company}&category=${category}&manufacturer=${manufacturer}&department=${department}`
+            const response = await api.get(url)
+            const responseTyped: ReqData<Type> = response.data
+            setArrayLength({ arrayLength: responseTyped.data.length, pageCount: responseTyped.totalRecords } as ArrayType)
+            return { data: responseTyped.data, totalRecords: responseTyped.totalRecords }
+        } catch (error) {
+            console.log(error)
+            return { data: [], totalRecords: 404 };
+        }
+    };
+
+
+    function useFetchData<QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
+        manufacturer: string, department: string) {
         const dataQuery = useQuery(
             ['data', fetchDataOptions],
-            () => fetchTableData<QueryResult>(selectOption, searchValue, route, situation),
+            () => fetchTableData<QueryResult>(selectOption, searchValue, route, situation, company, category, manufacturer, department),
+            { keepPreviousData: true }
+        )
+        return dataQuery
+    }
+
+    async function fetchTableFullData<Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
+        manufacturer: string, department: string) {
+        try {
+            const url = `/${route}?${selectOption.value}=${searchValue}&situation=${situation}&company=${company}&category=${category}&manufacturer=${manufacturer}&department=${department}`
+            const response = await api.get(url)
+            console.log('RESPOSTA DO RELATORIO', response)
+            const responseTyped: ReqData<Type> = response.data
+            return { data: responseTyped.data, totalRecords: responseTyped.totalRecords }
+        } catch (error) {
+            console.log(error)
+            return { data: [], totalRecords: 404 };
+        }
+    };
+
+    function useFetchFullData<QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
+        manufacturer: string, department: string) {
+        const dataQuery = useQuery(
+            ['data'],
+            () => fetchTableFullData<QueryResult>(selectOption, searchValue, route, situation, company, category, manufacturer, department),
             { keepPreviousData: true }
         )
         return dataQuery
@@ -310,7 +346,7 @@ export function ApiProvider({ children }: ApiProviderType) {
         getCategory, getBlock, getCity, getCompany,
         getDepartment, getDepartmentSituation, getDepType,
         getManufacturer, getRoom, getRoomSituation, getRoomType,
-        getSituation, getState
+        getSituation, getState, fetchTableFullData, useFetchFullData
 
     };
 

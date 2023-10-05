@@ -18,12 +18,6 @@ const menuOptions = [
         id: 2,
         link: '/PatrimonioLista'
     },
-    {
-        option: 'Cadastro de Patrimônio',
-        icon: LuPlus,
-        id: 3,
-        link: '/equipamento'
-    },
 ]
 
 

@@ -1,7 +1,7 @@
 'use client'
 import { Box, Text, useDisclosure } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
-import { Equipamento, Situation } from '@/utils/types'
+import { Category, Company, Department, Equipamento, EquipamentoFormated, Manufacturer, Situation } from '@/utils/types'
 const DataTable = dynamic<DataTableType<Equipamento>>(() => import('@/app/PatrimonioLista/DataTable'), { ssr: false })
 import Sidebar from '@/components/Sidebar'
 import { HTMLProps, useEffect, useRef, useState } from 'react'
@@ -13,7 +13,7 @@ import { DataTableType } from '@/app/PatrimonioLista/DataTable'
 export default function PatrimonioLista() {
 
   const { categoryData, companyData, manufacturerData, departmentData, situationData, arrayLength, deleteIds, useFetchData, roomData,
-    roomTypeData, roomSituationData, depTypeData, blockData, cityData, stateData, departmentSituationData } = useApi();
+    useFetchFullData } = useApi();
 
   const route = 'equipment'
 
@@ -30,17 +30,38 @@ export default function PatrimonioLista() {
       label: 'Descrição',
       value: 'searchDesc'
     },
-
   ]
 
   const [searchValue, setSearchValue] = useState('')
   const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
   const [situationValue, setSituationValue] = useState<Situation>({
-    IdSituacaoEquipamento: 1,
+    IdSituacaoEquipamento: undefined,
     DescricaoSituacaoEquipamento: "Ativo"
   })
+  const [companyValue, setCompanyValue] = useState<Company>({
+    IdEmpresa: undefined,
+    NomeEmpresa: undefined,
+  })
+  const [categoryValue, setCategoryValue] = useState<Category>({
+    IdCategoriaEquipamento: undefined,
+    DescricaoCategoriaEquipamento: undefined
+  })
+  const [manufacturerValue, setManufacturerValue] = useState<Manufacturer>({
+    IdFabricante: undefined,
+    NomeFabricante: undefined
+  })
+  const [departmentValue, setDepartmentValue] = useState<Department>({
+    IdDepartamento: undefined,
+    NomeDepartamento: undefined
+  })
 
-  const dataQuery = useFetchData<Equipamento>(selectOption, searchValue, route, situationValue.IdSituacaoEquipamento.toString())
+  const dataQuery = useFetchData<Equipamento>(selectOption, searchValue, route, situationValue.IdSituacaoEquipamento?.toString()
+    || '', companyValue.IdEmpresa?.toString() || '', categoryValue.IdCategoriaEquipamento?.toString() || ''
+    , manufacturerValue.IdFabricante?.toString() || '', departmentValue.IdDepartamento?.toString() || '')
+
+  const dataQueryFull = useFetchFullData<EquipamentoFormated>(selectOption, searchValue, 'equipment/formated/get', situationValue.IdSituacaoEquipamento?.toString()
+    || '', companyValue.IdEmpresa?.toString() || '', categoryValue.IdCategoriaEquipamento?.toString() || ''
+    , manufacturerValue.IdFabricante?.toString() || '', departmentValue.IdDepartamento?.toString() || '')
 
   function IndeterminateCheckbox({
     indeterminate,
@@ -223,6 +244,15 @@ export default function PatrimonioLista() {
               setSituationValue={setSituationValue}
               situationData={situationData}
               situationValue={situationValue}
+              dataQueryFull={dataQueryFull}
+              categoryValue={categoryValue}
+              companyValue={companyValue}
+              departmentValue={departmentValue}
+              manufacturerValue={manufacturerValue}
+              setCategoryValue={setCategoryValue}
+              setCompanyValue={setCompanyValue}
+              setDepartmentValue={setDepartmentValue}
+              setManufacturerValue={setManufacturerValue}
             />
           </Box>
         </Box>
