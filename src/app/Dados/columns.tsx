@@ -1,13 +1,43 @@
 import { Department } from "@/utils/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { ActionMenu } from "../PatrimonioLista/ActionMenu";
 import { useApi } from "@/context/ApiContext";
+import { useState } from "react";
+import { Button, IconButton } from "@chakra-ui/react";
+import { HamburgerIcon } from "@chakra-ui/icons";
 
-export function DepartmentColumns() {
 
-    const { getBlock, getDepartmentSituation, getDepType } = useApi()
+
+export function DepartmentColumns(onOpen: () => void) {
+
+    const { getBlock, getDepartmentSituation, getDepType, getOne } = useApi()
+
+    const [componentData, setComponentData] = useState<Department>()
+
+    async function handleGet(id: number) {
+        try {
+            const response = await getOne<Department>('department', id.toString())
+            setComponentData(response)
+
+
+        } catch (error) {
+            setComponentData({})
+            console.log('erro get ', error)
+        }
+    }
+
+    function drawButton(id: number) {
+        handleGet(id);
+        console.log(componentData)
+        return <IconButton onClick={onOpen} aria-label="edit" icon={<HamburgerIcon />} />
+    }
+
 
     const columns: ColumnDef<Department>[] = [
+        {
+            header: 'Ações',
+            accessorKey: 'IdDepartamento',
+            cell: info => drawButton(info.getValue<number>())
+        },
         {
             header: 'Nome Departamento',
             accessorKey: 'NomeDepartamento'

@@ -55,32 +55,32 @@ export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, 
 
 
     function setSelectCompanyOption(event: ChangeEvent<HTMLSelectElement>) {
-        const option = companyData.find(option => option.IdEmpresa.toString() === event.target.value)
+        const option = companyData.find(option => option.IdEmpresa?.toString() === event.target.value)
         if (option) return setselectedCompanyOption(option.IdEmpresa)
     }
 
     function setSelectCategoryOption(event: ChangeEvent<HTMLSelectElement>) {
-        const option = categoryData.find(option => option.IdCategoriaEquipamento.toString() === event.target.value)
+        const option = categoryData.find(option => option.IdCategoriaEquipamento?.toString() === event.target.value)
         if (option) return setselectedCategoryOption(option.IdCategoriaEquipamento)
     }
 
     function setSelectManufacturerOption(event: ChangeEvent<HTMLSelectElement>) {
-        const option = manufacturerData.find(option => option.IdFabricante.toString() === event.target.value)
+        const option = manufacturerData.find(option => option.IdFabricante?.toString() === event.target.value)
         if (option) return setselectedManufacturerOption(option.IdFabricante)
     }
 
     function setSelectDepartmentOption(event: ChangeEvent<HTMLSelectElement>) {
-        const option = departmentData.find(option => option.IdDepartamento.toString() === event.target.value)
+        const option = departmentData.find(option => option.IdDepartamento?.toString() === event.target.value)
         if (option) return setselectedDepartmentOption(option.IdDepartamento)
     }
 
     function setSelectSituationOption(event: ChangeEvent<HTMLSelectElement>) {
-        const option = situationData.find(option => option.IdSituacaoEquipamento.toString() === event.target.value)
+        const option = situationData.find(option => option.IdSituacaoEquipamento?.toString() === event.target.value)
         if (option) return setselectedSituationOption(option.IdSituacaoEquipamento)
     }
 
     function setSelectRoomOption(event: ChangeEvent<HTMLSelectElement>) {
-        const option = roomData.find(option => option.IdSala.toString() === event.target.value)
+        const option = roomData.find(option => option.IdSala?.toString() === event.target.value)
         if (option) return setselectedRoomOption(option.IdSala)
     }
 

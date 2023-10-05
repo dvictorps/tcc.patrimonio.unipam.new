@@ -3,7 +3,7 @@ import { useApi } from "@/context/ApiContext";
 import { HamburgerIcon, EditIcon, DeleteIcon, CheckIcon, ExternalLinkIcon } from "@chakra-ui/icons";
 import { useDisclosure, Menu, MenuButton, IconButton, MenuList, MenuItem, ModalBody, ModalFooter, Button, Box, Text, FormControl, Input, FormLabel, FormErrorMessage } from "@chakra-ui/react";
 import { UseQueryResult } from "react-query";
-import { AllRequestTypes, Equipamento } from "@/utils/types";
+import { Equipamento } from "@/utils/types";
 import { useEffect, useState } from "react";
 import { useForm } from 'react-hook-form'
 import { EquipmentInputModal } from "@/app/PatrimonioLista/ActionMenu/EquipmentInputModal";

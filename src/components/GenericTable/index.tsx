@@ -1,22 +1,22 @@
 'use client'
 import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import { Table, Thead, Tr, Th, Tbody, Td, Tfoot, Box, Button, IconButton, Select, Text, Input } from "@chakra-ui/react";
+import { UseQueryResult } from "react-query";
 import {
     Column,
     Table as ReactTable,
-    PaginationState,
     useReactTable,
     getCoreRowModel,
     getFilteredRowModel,
     getPaginationRowModel,
     ColumnDef,
-    OnChangeFn,
     flexRender,
 } from '@tanstack/react-table'
 
 export type GenericTableType<T> = {
     data: T[]
     columns: ColumnDef<T>[]
+    dataQuery: UseQueryResult<void, unknown>
 }
 
 const selectResultsOptions = [
@@ -52,7 +52,8 @@ function Filter({
         />
     )
 }
-export default function GenericTable<T>({ data, columns }: GenericTableType<T>) {
+export default function GenericTable<T>({ data, columns, dataQuery }: GenericTableType<T>) {
+
 
     const table = useReactTable({
         data,
@@ -62,6 +63,8 @@ export default function GenericTable<T>({ data, columns }: GenericTableType<T>) 
         getPaginationRowModel: getPaginationRowModel(),
         debugTable: true,
     })
+
+
 
     return (
         <Box>

@@ -1,36 +1,36 @@
 export type Category = {
-    IdCategoriaEquipamento: number,
-    DescricaoCategoriaEquipamento: string
+    IdCategoriaEquipamento?: number,
+    DescricaoCategoriaEquipamento?: string
 }
 
 export type Company = {
-    IdEmpresa: number,
-    NomeEmpresa: string
-    EmailEmpresa: string
-    NomeRepresentante: string
-    SiteEmpresa: string
-    TelefoneEmpresa: number
-    IdCidade: number
+    IdEmpresa?: number,
+    NomeEmpresa?: string
+    EmailEmpresa?: string
+    NomeRepresentante?: string
+    SiteEmpresa?: string
+    TelefoneEmpresa?: number
+    IdCidade?: number
 }
 
 
 export type Manufacturer = {
-    IdFabricante: number,
-    NomeFabricante: string
+    IdFabricante?: number,
+    NomeFabricante?: string
 }
 
 export type Situation = {
-    IdSituacaoEquipamento: number,
-    DescricaoSituacaoEquipamento: string
+    IdSituacaoEquipamento?: number,
+    DescricaoSituacaoEquipamento?: string
 }
 
 
 export type Department = {
-    IdDepartamento: number,
-    NomeDepartamento: string
-    IdBlocoDepartamento: number
-    IdTipoDepartamento: number
-    IdSituacaoDepartamento: number
+    IdDepartamento?: number,
+    NomeDepartamento?: string
+    IdBlocoDepartamento?: number
+    IdTipoDepartamento?: number
+    IdSituacaoDepartamento?: number
 }
 
 export type Equipamento = {
@@ -51,11 +51,11 @@ export type Equipamento = {
 }
 
 export type Room = {
-    IdSala: number
-    DescricaoSala: string
-    IdBlocoDepartamento: number
-    IdTipoSala: number
-    IdSituacaoSala: number
+    IdSala?: number
+    DescricaoSala?: string
+    IdBlocoDepartamento?: number
+    IdTipoSala?: number
+    IdSituacaoSala?: number
 }
 
 export type ReqData<QueryResult> = {
@@ -79,38 +79,38 @@ export type FetchDataOptions = {
 };
 
 export type Block = {
-    IdBlocoDepartamento: number
-    DescricaoBlocoDepartamento: string
+    IdBlocoDepartamento?: number
+    DescricaoBlocoDepartamento?: string
 }
 
 export type DepType = {
-    IdTipoDepartamento: number
-    TipoDepartamento: string
+    IdTipoDepartamento?: number
+    TipoDepartamento?: string
 }
 
 export type RoomSituation = {
-    IdSituacaoSala: number
-    DescricaoSituacaoSala: string
+    IdSituacaoSala?: number
+    DescricaoSituacaoSala?: string
 }
 
 export type RoomType = {
-    IdTipoSala: number
-    DescricaoTipoSala: string
+    IdTipoSala?: number
+    DescricaoTipoSala?: string
 }
 
 export type City = {
-    NomeCidade: string
-    IdCidade: number
-    IdEstado: number
+    NomeCidade?: string
+    IdCidade?: number
+    IdEstado?: number
 }
 
 export type State = {
-    IdEstado: number
-    NomeEstado: string
-    UF: string
+    IdEstado?: number
+    NomeEstado?: string
+    UF?: string
 }
 
 export type DepartmentSituation = {
-    IdSituacaoDepartamento: number
-    DescricaoSituacaoDepartamento: string
+    IdSituacaoDepartamento?: number
+    DescricaoSituacaoDepartamento?: string
 }
