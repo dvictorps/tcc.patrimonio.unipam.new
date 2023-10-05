@@ -2,17 +2,18 @@
 import { Box, Text, useDisclosure } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
 import { Equipamento, Situation } from '@/utils/types'
-const DataTable = dynamic<DataTableType<Equipamento>>(() => import('@/components/DataTable'), { ssr: false })
+const DataTable = dynamic<DataTableType<Equipamento>>(() => import('@/app/PatrimonioLista/DataTable'), { ssr: false })
 import Sidebar from '@/components/Sidebar'
 import { HTMLProps, useEffect, useRef, useState } from 'react'
 import { ColumnDef } from '@tanstack/react-table'
 import { useApi } from '@/context/ApiContext'
 import { ActionMenu } from './ActionMenu'
-import { DataTableType } from '@/components/DataTable'
+import { DataTableType } from '@/app/PatrimonioLista/DataTable'
 
 export default function PatrimonioLista() {
 
-  const { categoryData, companyData, manufacturerData, departmentData, situationData, arrayLength, deleteIds, useFetchData, roomData } = useApi();
+  const { categoryData, companyData, manufacturerData, departmentData, situationData, arrayLength, deleteIds, useFetchData, roomData,
+    roomTypeData, roomSituationData, depTypeData, blockData, cityData, stateData, departmentSituationData } = useApi();
 
   const route = 'equipment'
 
@@ -183,8 +184,6 @@ export default function PatrimonioLista() {
     const room = roomData.find((room) => room.IdSala === id);
     return room?.DescricaoSala
   }
-
-
   function formatDateTime(date: Date | string | null) {
 
     if (date === null) return 'Não modificado'

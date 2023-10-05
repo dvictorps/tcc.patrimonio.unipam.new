@@ -24,10 +24,10 @@ import {
 } from '@chakra-ui/react'
 import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon, AddIcon, CheckIcon, Search2Icon } from "@chakra-ui/icons";
 import { SelectOptions, ArrayType, Situation, Equipamento } from "@/utils/types";
-import { AccordionItemStyled } from "../Accordion/AccordionItemStyled";
+import { AccordionItemStyled } from "../../../components/Accordion/AccordionItemStyled";
 import { UseQueryResult } from "react-query";
 import React from "react";
-import { ModalStyled } from "../Modal";
+import { ModalStyled } from "../../../components/Modal";
 import { useApi } from "@/context/ApiContext";
 import { EquipmentInputModal } from "./EquipmentInputModal";
 import { useForm } from "react-hook-form";

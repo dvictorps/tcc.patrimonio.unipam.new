@@ -78,4 +78,39 @@ export type FetchDataOptions = {
     pageSize: number;
 };
 
-export type AllRequestTypes = (Equipamento | Department)
+export type Block = {
+    IdBlocoDepartamento: number
+    DescricaoBlocoDepartamento: string
+}
+
+export type DepType = {
+    IdTipoDepartamento: number
+    TipoDepartamento: string
+}
+
+export type RoomSituation = {
+    IdSituacaoSala: number
+    DescricaoSituacaoSala: string
+}
+
+export type RoomType = {
+    IdTipoSala: number
+    DescricaoTipoSala: string
+}
+
+export type City = {
+    NomeCidade: string
+    IdCidade: number
+    IdEstado: number
+}
+
+export type State = {
+    IdEstado: number
+    NomeEstado: string
+    UF: string
+}
+
+export type DepartmentSituation = {
+    IdSituacaoDepartamento: number
+    DescricaoSituacaoDepartamento: string
+}
