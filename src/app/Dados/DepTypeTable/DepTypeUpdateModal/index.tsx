@@ -1,21 +1,21 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
-import { RoomType } from "@/utils/types"
+import { DepType } from "@/utils/types"
 import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
 import { ChangeEvent, useState } from "react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
-type RoomTypeUpdateModal = {
+type DepTypeUpdateModal = {
 
     open: boolean
     onClose(): void
     isCentered?: boolean
     dataQuery: UseQueryResult<void, unknown>
-    componentData?: RoomType
+    componentData?: DepType
 
 }
 
-export function RoomTypeUpdateModal({ onClose, open, isCentered, dataQuery, componentData }: RoomTypeUpdateModal) {
+export function DepTypeUpdateModal({ onClose, open, isCentered, dataQuery, componentData }: DepTypeUpdateModal) {
 
     const { patch } = useApi()
 
@@ -26,7 +26,7 @@ export function RoomTypeUpdateModal({ onClose, open, isCentered, dataQuery, comp
         reset
     } = useForm()
 
-    const onSubmit = async (data: RoomType) => {
+    const onSubmit = async (data: DepType) => {
 
         await handlePost(data);
         await dataQuery.refetch()
@@ -34,9 +34,9 @@ export function RoomTypeUpdateModal({ onClose, open, isCentered, dataQuery, comp
 
     }
 
-    async function handlePost(data: RoomType) {
+    async function handlePost(data: DepType) {
         try {
-            const response = await patch<RoomType>(`RoomType/update/${componentData?.IdTipoSala}`, data)
+            const response = await patch<DepType>(`DepType/update/${componentData?.IdTipoDepartamento}`, data)
             console.log('Resposta update:', response)
 
         } catch (error) {
@@ -46,16 +46,16 @@ export function RoomTypeUpdateModal({ onClose, open, isCentered, dataQuery, comp
     }
 
 
-    const checkData = (formData: RoomType, originalData?: RoomType) => {
-        const filteredData: Partial<RoomType> = {};
+    const checkData = (formData: DepType, originalData?: DepType) => {
+        const filteredData: Partial<DepType> = {};
 
-        if (formData.DescricaoTipoSala !== originalData?.DescricaoTipoSala) {
-            filteredData.DescricaoTipoSala = formData?.DescricaoTipoSala;
+        if (formData.TipoDepartamento !== originalData?.TipoDepartamento) {
+            filteredData.TipoDepartamento = formData?.TipoDepartamento;
         }
         return filteredData;
     };
 
-    const handleFormSubmit = (data: RoomType) => {
+    const handleFormSubmit = (data: DepType) => {
 
         const fields = checkData(data, componentData);
 
@@ -69,18 +69,18 @@ export function RoomTypeUpdateModal({ onClose, open, isCentered, dataQuery, comp
 
     return (
 
-        <ModalStyled onClose={onClose} title="Editar Tipo Sala" open={open} isCentered={isCentered}>
+        <ModalStyled onClose={onClose} title="Editar Tipo de Departamento" open={open} isCentered={isCentered}>
             <form onSubmit={handleSubmit(handleFormSubmit)}>
                 <ModalBody>
-                    <FormControl isInvalid={!!errors.DescricaoTipoSala} isRequired>
-                        <FormLabel>Descrição</FormLabel>
+                    <FormControl isInvalid={!!errors.TipoDepartamento} isRequired>
+                        <FormLabel>Tipo de Departamento</FormLabel>
                         <Input
-                            defaultValue={componentData?.DescricaoTipoSala}
-                            id="DescricaoTipoSala"
-                            {...register("DescricaoTipoSala", { maxLength: 20, required: true })}
+                            defaultValue={componentData?.TipoDepartamento}
+                            id="TipoDepartamento"
+                            {...register("TipoDepartamento", { maxLength: 50, required: true })}
                         />
-                        {errors.DescricaoTipoSala && errors.DescricaoTipoSala.type === "maxLength" && (
-                            <FormErrorMessage>O tipo de sala pode ter no máximo 20 caracteres</FormErrorMessage>
+                        {errors.TipoDepartamento && errors.TipoDepartamento.type === "maxLength" && (
+                            <FormErrorMessage>O tipo de departamento pode ter no máximo 50 caracteres</FormErrorMessage>
                         )}
                     </FormControl>
                 </ModalBody>

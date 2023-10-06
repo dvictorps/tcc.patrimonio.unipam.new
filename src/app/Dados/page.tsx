@@ -8,6 +8,7 @@ import { CityTable } from "./CityTable";
 import { RoomTable } from "./RoomTable";
 import { RoomTypeTable } from "./RoomTypeTable";
 import { ManufacturerTable } from "./ManufacturerTable";
+import { DepTypeTable } from "./DepTypeTable";
 
 
 export default function Dados() {
@@ -40,7 +41,12 @@ export default function Dados() {
         {
             label: 'Fabricante',
             value: 'fabricante'
-        }
+        },
+        {
+            label: 'Tipo de Departamento',
+            value: 'tipodepartamento'
+        },
+
     ]
 
     const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
@@ -75,6 +81,7 @@ export default function Dados() {
                     {selectOption.value === 'sala' && (<RoomTable />)}
                     {selectOption.value === 'tiposala' && (<RoomTypeTable />)}
                     {selectOption.value === 'fabricante' && (<ManufacturerTable />)}
+                    {selectOption.value === 'tipodepartamento' && (<DepTypeTable />)}
 
                 </Box>
             </Box>
