@@ -1,22 +1,22 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
-import { Block, Category, Company, DepType, Department, DepartmentSituation, Equipamento, Manufacturer, Room, Situation } from "@/utils/types"
+import { Block, Room, RoomSituation, RoomType } from "@/utils/types"
 import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
-import { ChangeEvent, useEffect, useState } from "react"
-import { UseFormRegister, FieldValues, UseFormHandleSubmit, FormState, FieldErrors, UseFormSetValue, useForm } from "react-hook-form"
+import { ChangeEvent, useState } from "react"
+import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
-type DepartmentModal = {
+type RoomModal = {
 
     open: boolean
     onClose(): void
     isCentered?: boolean
     blockData: Block[]
-    departmentSituationData: DepartmentSituation[]
-    depTypeData: DepType[]
+    roomSituationData: RoomSituation[]
+    roomTypeData: RoomType[]
     dataQuery: UseQueryResult<void, unknown>
 }
 
-export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeData, departmentSituationData, dataQuery }: DepartmentModal) {
+export function RoomModal({ onClose, open, isCentered, blockData, roomTypeData, roomSituationData, dataQuery }: RoomModal) {
 
     const { post } = useApi()
 
@@ -27,7 +27,7 @@ export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeD
         reset
     } = useForm()
 
-    const onSubmit = async (data: Department) => {
+    const onSubmit = async (data: Room) => {
 
         console.log('teste:', data)
         await handlePost(data);
@@ -36,9 +36,9 @@ export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeD
 
     }
 
-    async function handlePost(data: Department) {
+    async function handlePost(data: Room) {
         try {
-            const response = await post<Department>(`department/register`, data)
+            const response = await post<Room>(`room/register`, data)
             console.log('Resposta add:', response)
 
         } catch (error) {
@@ -48,18 +48,18 @@ export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeD
     }
 
 
-    const checkData = (data: Department) => {
-        const formData: Partial<Department> = {};
+    const checkData = (data: Room) => {
+        const formData: Partial<Room> = {};
 
-        formData.NomeDepartamento = data.NomeDepartamento;
+        formData.DescricaoSala = data.DescricaoSala;
         formData.IdBlocoDepartamento = selectedBloco;
-        formData.IdSituacaoDepartamento = selectedSituacao;
-        formData.IdTipoDepartamento = selectedTipo;
+        formData.IdSituacaoSala = selectedSituacao;
+        formData.IdTipoSala = selectedTipo;
 
         return formData;
     };
 
-    const handleFormSubmit = (data: Department) => {
+    const handleFormSubmit = (data: Room) => {
         const fields = checkData(data);
 
         onSubmit(fields);
@@ -77,32 +77,32 @@ export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeD
     }
 
     function setSelectedSituacaoOption(event: ChangeEvent<HTMLSelectElement>) {
-        const option = departmentSituationData.find(option => option.IdSituacaoDepartamento?.toString() === event.target.value)
-        if (option) return setSelectedSituacao(option.IdSituacaoDepartamento)
+        const option = roomSituationData.find(option => option.IdSituacaoSala?.toString() === event.target.value)
+        if (option) return setSelectedSituacao(option.IdSituacaoSala)
     }
 
     function setSelectTipoOption(event: ChangeEvent<HTMLSelectElement>) {
-        const option = depTypeData.find(option => option.IdTipoDepartamento?.toString() === event.target.value)
-        if (option) return setSelectedTipo(option.IdTipoDepartamento)
+        const option = roomTypeData.find(option => option.IdTipoSala?.toString() === event.target.value)
+        if (option) return setSelectedTipo(option.IdTipoSala)
     }
 
     return (
 
-        <ModalStyled onClose={onClose} title="Adicionar Departamento" open={open} isCentered={isCentered}>
+        <ModalStyled onClose={onClose} title="Adicionar Sala" open={open} isCentered={isCentered}>
             <form onSubmit={handleSubmit(handleFormSubmit)}>
                 <ModalBody>
-                    <FormControl isInvalid={!!errors.NomeDepartamento} isRequired>
-                        <FormLabel>Nome Departamento</FormLabel>
+                    <FormControl isInvalid={!!errors.DescricaoSala} isRequired>
+                        <FormLabel>Descrição</FormLabel>
                         <Input
-                            id="NomeDepartamento"
-                            {...register("NomeDepartamento", { maxLength: 20, required: true })}
+                            id="DescricaoSala"
+                            {...register("DescricaoSala", { maxLength: 10, required: true })}
                         />
-                        {errors.NomeDepartamento && errors.NomeDepartamento.type === "maxLength" && (
-                            <FormErrorMessage>O Nome do Departamento pode ter no máximo 20 caracteres</FormErrorMessage>
+                        {errors.DescricaoSala && errors.DescricaoSala.type === "maxLength" && (
+                            <FormErrorMessage>A descrição da sala pode ter no máximo 10 caracteres</FormErrorMessage>
                         )}
                     </FormControl>
                     <FormControl isInvalid={!!errors.IdBlocoDepartamento} isRequired>
-                        <FormLabel>Bloco departamento</FormLabel>
+                        <FormLabel>Selecionar Bloco</FormLabel>
                         <Select placeholder='Selecionar Bloco' value={selectedBloco} onChange={setSelectedBlocoOption}>
                             {blockData.map(
                                 block =>
@@ -112,24 +112,24 @@ export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeD
                             )}
                         </Select>
                     </FormControl>
-                    <FormControl isInvalid={!!errors.IdSituacaoDepartamento} isRequired>
+                    <FormControl isInvalid={!!errors.IdSituacaoSala} isRequired>
                         <FormLabel>Situação</FormLabel>
                         <Select placeholder='Selecionar situação' value={selectedSituacao} onChange={setSelectedSituacaoOption}>
-                            {departmentSituationData.map(
-                                depSituation =>
-                                    <option value={depSituation.IdSituacaoDepartamento} key={depSituation.IdSituacaoDepartamento}>
-                                        {depSituation.DescricaoSituacaoDepartamento}
+                            {roomSituationData.map(
+                                roomSituation =>
+                                    <option value={roomSituation.IdSituacaoSala} key={roomSituation.IdSituacaoSala}>
+                                        {roomSituation.DescricaoSituacaoSala}
                                     </option>
                             )}
                         </Select>
                     </FormControl>
-                    <FormControl isInvalid={!!errors.IdFabricante} isRequired>
+                    <FormControl isInvalid={!!errors.IdTipoSala} isRequired>
                         <FormLabel>Fabricante</FormLabel>
                         <Select placeholder='Selecionar fabricante' value={selectedTipo} onChange={setSelectTipoOption}>
-                            {depTypeData.map(
-                                depType =>
-                                    <option value={depType.IdTipoDepartamento} key={depType.IdTipoDepartamento}>
-                                        {depType.TipoDepartamento}
+                            {roomTypeData.map(
+                                roomType =>
+                                    <option value={roomType.IdTipoSala} key={roomType.IdTipoSala}>
+                                        {roomType.DescricaoTipoSala}
                                     </option>
                             )}
                         </Select>

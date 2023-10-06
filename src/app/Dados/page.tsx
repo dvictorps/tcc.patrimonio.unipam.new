@@ -5,6 +5,7 @@ import { DepartmentTable } from "./DepartmentTable";
 import { ChangeEvent, useState } from "react";
 import { CompanyTable } from "./CompanyTable";
 import { CityTable } from "./CityTable";
+import { RoomTable } from "./RoomTable";
 
 
 export default function Dados() {
@@ -25,6 +26,10 @@ export default function Dados() {
         {
             label: 'Cidade',
             value: 'cidade'
+        },
+        {
+            label: 'Sala',
+            value: 'sala'
         }
     ]
 
@@ -40,8 +45,8 @@ export default function Dados() {
         <Box display={'flex'} minHeight={'100vh'}>
             <Sidebar />
 
-            <Box flexDirection={'column'} boxSizing='border-box' flex={1} padding={'1rem'} sx={{ maxWidth: 'calc(100% - 15rem)', }}>
-                <Text fontSize={'3xl'} color={'blue.700'}>Dados no sistema</Text>
+            <Box flexDirection={'column'} boxSizing='border-box' flex={1} padding={'1rem'} sx={{ maxWidth: 'calc(100% - 15rem)', }} m={'1rem'}>
+                <Text fontSize={'3xl'} color={'blue.700'}>Dados do sistema</Text>
                 <Box display={'flex'} width={'100%'} flexDirection={'column'}>
 
                     <Text>Selecione o tipo de dado</Text>
@@ -57,6 +62,7 @@ export default function Dados() {
                     {selectOption.value === 'departamento' && (<DepartmentTable />)}
                     {selectOption.value === 'empresa' && (<CompanyTable />)}
                     {selectOption.value === 'cidade' && (<CityTable />)}
+                    {selectOption.value === 'sala' && (<RoomTable />)}
 
                 </Box>
             </Box>

@@ -146,7 +146,7 @@ export function ApiProvider({ children }: ApiProviderType) {
             const depType = responses[7].data; // A fazer
             const roomSituation = responses[8].data; //----
             const roomType = responses[9].data; // A fazer
-            const city = responses[10].data; // Fazendo <--
+            const city = responses[10].data; //  ----
             const state = responses[11].data; //----
             const departmentSituations = responses[12].data; //----
 
