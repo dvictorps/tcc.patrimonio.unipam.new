@@ -9,6 +9,7 @@ import { RoomTable } from "./RoomTable";
 import { RoomTypeTable } from "./RoomTypeTable";
 import { ManufacturerTable } from "./ManufacturerTable";
 import { DepTypeTable } from "./DepTypeTable";
+import { BlockTable } from "./BlockTable";
 
 
 export default function Dados() {
@@ -46,6 +47,10 @@ export default function Dados() {
             label: 'Tipo de Departamento',
             value: 'tipodepartamento'
         },
+        {
+            label: 'Bloco',
+            value: 'bloco'
+        },
 
     ]
 
@@ -82,6 +87,7 @@ export default function Dados() {
                     {selectOption.value === 'tiposala' && (<RoomTypeTable />)}
                     {selectOption.value === 'fabricante' && (<ManufacturerTable />)}
                     {selectOption.value === 'tipodepartamento' && (<DepTypeTable />)}
+                    {selectOption.value === 'bloco' && (<BlockTable />)}
 
                 </Box>
             </Box>
