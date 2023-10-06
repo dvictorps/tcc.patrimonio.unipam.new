@@ -6,6 +6,7 @@ import { ChangeEvent, useState } from "react";
 import { CompanyTable } from "./CompanyTable";
 import { CityTable } from "./CityTable";
 import { RoomTable } from "./RoomTable";
+import { RoomTypeTable } from "./RoomTypeData";
 
 
 export default function Dados() {
@@ -30,6 +31,10 @@ export default function Dados() {
         {
             label: 'Sala',
             value: 'sala'
+        },
+        {
+            label: 'Tipo de Sala',
+            value: 'tiposala'
         }
     ]
 
@@ -63,6 +68,7 @@ export default function Dados() {
                     {selectOption.value === 'empresa' && (<CompanyTable />)}
                     {selectOption.value === 'cidade' && (<CityTable />)}
                     {selectOption.value === 'sala' && (<RoomTable />)}
+                    {selectOption.value === 'tiposala' && (<RoomTypeTable />)}
 
                 </Box>
             </Box>
