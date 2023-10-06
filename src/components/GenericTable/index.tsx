@@ -16,7 +16,6 @@ import {
 export type GenericTableType<T> = {
     data: T[]
     columns: ColumnDef<T>[]
-    dataQuery: UseQueryResult<void, unknown>
 }
 
 const selectResultsOptions = [
@@ -52,7 +51,7 @@ function Filter({
         />
     )
 }
-export default function GenericTable<T>({ data, columns, dataQuery }: GenericTableType<T>) {
+export default function GenericTable<T>({ data, columns }: GenericTableType<T>) {
 
 
     const table = useReactTable({

@@ -79,20 +79,14 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     const { patch, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination, companyData, categoryData, manufacturerData, departmentData, roomData, post } = useApi()
 
-
     function setSelectedOption(event: ChangeEvent<HTMLSelectElement>) {
-
         const option = searchSelectOptions.find(option => option.value === event.target.value)
-
         if (option) return setSelectOption(option)
     }
 
     function setSelectedSituation(event: ChangeEvent<HTMLSelectElement>) {
-
         const option = situationData.find(situation => situation.IdSituacaoEquipamento?.toString() === event.target.value)
-
         if (option) return (setSituationValue(option), setRowSelection({}))
-
         const all: Situation = {
             DescricaoSituacaoEquipamento: 'Todos',
             IdSituacaoEquipamento: '' as unknown as number
@@ -102,61 +96,42 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
     }
 
     function setSelectedDepartment(event: ChangeEvent<HTMLSelectElement>) {
-
         const option = departmentData.find(department => department.IdDepartamento?.toString() === event.target.value)
-
         if (option) return (setDepartmentValue(option), setRowSelection({}))
-
         const all: Department = {
             NomeDepartamento: 'Todos',
             IdDepartamento: '' as unknown as number
         }
-
         return (setDepartmentValue(all), setRowSelection({}))
     }
 
     function setSelectedManufacturer(event: ChangeEvent<HTMLSelectElement>) {
-
         const option = manufacturerData.find(manufacturer => manufacturer.IdFabricante?.toString() === event.target.value)
-
         if (option) return (setManufacturerValue(option), setRowSelection({}))
-
         const all: Manufacturer = {
             NomeFabricante: 'Todos',
             IdFabricante: '' as unknown as number
         }
-
         return (setManufacturerValue(all), setRowSelection({}))
     }
 
-
-
     function setSelectedCategory(event: ChangeEvent<HTMLSelectElement>) {
-
         const option = categoryData.find(category => category.IdCategoriaEquipamento?.toString() === event.target.value)
-
         if (option) return (setCategoryValue(option), setRowSelection({}))
-
         const all: Category = {
             DescricaoCategoriaEquipamento: 'Todas',
             IdCategoriaEquipamento: '' as unknown as number
         }
-
         return (setCategoryValue(all), setRowSelection({}))
     }
 
-
     function setSelectedCompany(event: ChangeEvent<HTMLSelectElement>) {
-
         const option = companyData.find(company => company.IdEmpresa?.toString() === event.target.value)
-
         if (option) return (setCompanyValue(option), setRowSelection({}))
-
         const all: Company = {
             NomeEmpresa: 'Todas',
             IdEmpresa: '' as unknown as number
         }
-
         return (setCompanyValue(all), setRowSelection({}))
     }
 
@@ -190,12 +165,8 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
     }
 
     function DisableButton() {
-
-
         const pageCounters = dividirEArredondar(arrayLength.pageCount, pagination.pageSize)
         if (table.getState().pagination.pageIndex + 1 === pageCounters) return true
-
-
         return false
     }
 
@@ -222,12 +193,9 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
     function dividirEArredondar(numero1: number, numero2: number) {
         const resultado = numero1 / numero2;
         const sobra = resultado % 1;
-
         if (sobra > 0) {
-
             return Math.floor(resultado) + 1;
         } else {
-
             return Math.floor(resultado);
         }
     }
@@ -306,17 +274,13 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         const worksheet = workbook.addWorksheet('Planilha de Dados');
         const dataFull = dataQueryFull.data?.data as EquipamentoFormated[]
 
-
-
         const headerRow = worksheet.addRow(['Patrimonio', 'NumeroSerial', 'Sala', 'Departamento'
             , 'SituacaoEquipamento', 'DescricaoEquipamento', 'DataAquisicao', 'Vencimento Garantia', 'DataCadastro', 'DataModificacao', 'Empresa', 'CategoriaEquipamento', 'Fabricante']);
-
 
         headerRow.eachCell((cell) => {
             cell.font = { bold: true };
             cell.alignment = { horizontal: 'center' };
         });
-
 
         dataFull.forEach((item) => {
             const rowData = Object.values(item);
@@ -325,7 +289,6 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
             worksheet.addRow(rowData)
 
         });
-
 
         workbook.xlsx.writeBuffer().then((buffer) => {
             const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
@@ -338,14 +301,12 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         });
     };
 
-
-    console.log(arrayLength.pageCount, arrayLength.arrayLength, pagination.pageIndex, pagination.pageSize)
     return (
         <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
             <Accordion defaultIndex={[0]} allowToggle colorScheme='blackAlpha' >
                 <AccordionItemStyled title='Filtros Avançados'>
                     <Box display={'flex'} flexDirection={'column'}>
-                        <Box p='1rem' display={'flex'} flexDirection={'row'} gap={'2rem'}>
+                        <Box p='1rem' display={'flex'} flexDirection={'row'} gap={'1rem'}>
                             <Box display={'flex'} flexDirection={'column'}>
                                 <Text>Selecione uma opção para filtrar</Text>
                                 <Box display={'flex'} flexDirection={'column'} gap={'1rem'}>
@@ -360,7 +321,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                                     <Input placeholder="Pesquisar selecionado" w={'250px'} onChange={event => setSearchValue(event.target.value)} />
                                 </Box>
                             </Box>
-                            <Box display={'flex'} flexDirection={'row'} flexWrap={'wrap'}>
+                            <Box display={'flex'} flexDirection={'row'} flexWrap={'wrap'} gap={'1rem'}>
                                 <Box display={'flex'} flexDirection={'column'}>
                                     <Text>Selecionar situação equipamento</Text>
                                     <Select placeholder='Selecionar Situação' width={'250px'} onChange={setSelectedSituation} defaultValue={situationValue.IdSituacaoEquipamento}>
@@ -400,7 +361,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                                 </Box>
                                 <Box display={'flex'} flexDirection={'column'}>
                                     <Text>Selecionar Departamento</Text>
-                                    <Select placeholder='Selecionar departamento' width={'250px'} onChange={setSelectedDepartment} defaultValue={manufacturerValue.IdFabricante}>
+                                    <Select placeholder='Selecionar departamento' width={'250px'} onChange={setSelectedDepartment} defaultValue={departmentValue.IdDepartamento}>
                                         {departmentData.map(
                                             department =>
                                                 <option value={department.IdDepartamento} key={department.IdDepartamento}>
@@ -478,7 +439,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                     isDisabled={!table.getCanPreviousPage()}>{'<<'}</Button>
                 <IconButton colorScheme="teal" aria-label='back' onClick={() => table.previousPage()} isDisabled={!table.getCanPreviousPage()} icon={<ArrowBackIcon />} />
                 <IconButton colorScheme="teal" aria-label='foward' onClick={() => table.nextPage()} isDisabled={DisableButton()} icon={<ArrowForwardIcon />} />
-                <Button colorScheme="teal" onClick={() => table.setPageIndex(dividirEArredondar(arrayLength.arrayLength, pagination.pageSize))}
+                <Button colorScheme="teal" onClick={() => table.setPageIndex(dividirEArredondar(arrayLength.pageCount, pagination.pageSize) - 1)}
                     isDisabled={DisableButton()}>{'>>'}</Button>
                 <Box justifyContent={'space-between'} display={'flex'} width={'100%'} alignItems={'center'}>
                     Página {table.getState().pagination.pageIndex + 1} de {dividirEArredondar(arrayLength.pageCount, pagination.pageSize)}
@@ -497,8 +458,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
             <ModalStyled title="Remover"
                 onClose={deleteMultipleDataModal.onClose}
                 open={deleteMultipleDataModal.isOpen}
-                isCentered={true}
-            >
+                isCentered={true}>
                 <ModalBody>
                     <Text>
                         Você está prestes a desativar {deleteIds.length} registros. Deseja prosseguir com a operação?
@@ -511,7 +471,6 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                     </Box>
                 </ModalFooter>
             </ModalStyled>
-
             <ModalStyled title="Remover"
                 onClose={enableMultipleDataModal.onClose}
                 open={enableMultipleDataModal.isOpen}
@@ -529,7 +488,6 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                     </Box>
                 </ModalFooter>
             </ModalStyled>
-
             <ModalStyled title={`Adicionar patrimônio`}
                 onClose={createDataModal.onClose}
                 open={createDataModal.isOpen}

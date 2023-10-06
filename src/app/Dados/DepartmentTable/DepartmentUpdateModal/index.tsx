@@ -13,12 +13,14 @@ type DepartmentModal = {
     blockData: Block[]
     departmentSituationData: DepartmentSituation[]
     depTypeData: DepType[]
+    componentData?: Department
     dataQuery: UseQueryResult<void, unknown>
+
 }
 
-export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeData, departmentSituationData, dataQuery }: DepartmentModal) {
+export function DepartmentUpdateModal({ onClose, open, isCentered, blockData, depTypeData, departmentSituationData, componentData, dataQuery }: DepartmentModal) {
 
-    const { post } = useApi()
+    const { patch } = useApi()
 
     const {
         register,
@@ -29,48 +31,58 @@ export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeD
 
     const onSubmit = async (data: Department) => {
 
-        console.log('teste:', data)
         await handlePost(data);
-        await dataQuery.refetch();
+        await dataQuery.refetch()
         reset();
 
     }
 
     async function handlePost(data: Department) {
         try {
-            const response = await post<Department>(`department/register`, data)
+            const response = await patch<Department>(`department/update/${componentData?.IdDepartamento}`, data)
             console.log('Resposta add:', response)
 
         } catch (error) {
-            console.log('Erro no add', error);
+            console.log('Erro no update', error);
         }
         onClose()
     }
 
 
-    const checkData = (data: Department) => {
-        const formData: Partial<Department> = {};
+    const checkData = (formData: Department, originalData?: Department) => {
+        const filteredData: Partial<Department> = {};
 
-        formData.NomeDepartamento = data.NomeDepartamento;
-        formData.IdBlocoDepartamento = selectedBloco;
-        formData.IdSituacaoDepartamento = selectedSituacao;
-        formData.IdTipoDepartamento = selectedTipo;
+        if (formData.NomeDepartamento !== originalData?.NomeDepartamento) {
+            filteredData.NomeDepartamento = formData?.NomeDepartamento;
+        }
 
-        return formData;
+        if (selectedBloco !== originalData?.IdBlocoDepartamento) {
+            filteredData.IdBlocoDepartamento = selectedBloco;
+        }
+        if (selectedSituacao !== originalData?.IdSituacaoDepartamento) {
+            filteredData.IdSituacaoDepartamento = selectedSituacao;
+        }
+        if (selectedTipo !== originalData?.IdTipoDepartamento) {
+            filteredData.IdTipoDepartamento = selectedTipo;
+        }
+        return filteredData;
     };
 
     const handleFormSubmit = (data: Department) => {
-        const fields = checkData(data);
 
-        onSubmit(fields);
+        const fields = checkData(data, componentData);
+
+        if (Object.keys(fields).length === 0) {
+            onClose();
+        } else {
+            onSubmit(fields);
+        };
 
     }
 
-    const [selectedBloco, setSelectedBloco] = useState<number>()
-    const [selectedSituacao, setSelectedSituacao] = useState<number>()
-    const [selectedTipo, setSelectedTipo] = useState<number>()
-
-
+    const [selectedBloco, setSelectedBloco] = useState<number | undefined>(componentData?.IdBlocoDepartamento)
+    const [selectedSituacao, setSelectedSituacao] = useState<number | undefined>(componentData?.IdSituacaoDepartamento)
+    const [selectedTipo, setSelectedTipo] = useState<number | undefined>(componentData?.IdTipoDepartamento)
 
     function setSelectedBlocoOption(event: ChangeEvent<HTMLSelectElement>) {
         const option = blockData.find(option => option.IdBlocoDepartamento?.toString() === event.target.value)
@@ -89,12 +101,13 @@ export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeD
 
     return (
 
-        <ModalStyled onClose={onClose} title="Adicionar Departamento" open={open} isCentered={isCentered}>
+        <ModalStyled onClose={onClose} title="Editar Departamento" open={open} isCentered={isCentered}>
             <form onSubmit={handleSubmit(handleFormSubmit)}>
                 <ModalBody>
                     <FormControl isInvalid={!!errors.NomeDepartamento} isRequired>
                         <FormLabel>Nome Departamento</FormLabel>
                         <Input
+                            defaultValue={componentData?.NomeDepartamento}
                             id="NomeDepartamento"
                             {...register("NomeDepartamento", { maxLength: 20, required: true })}
                         />
@@ -138,7 +151,7 @@ export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeD
                 </ModalBody>
                 <ModalFooter>
                     <Box display={'inline-flex'} gap={'1rem'}>
-                        <Button colorScheme={"green"} type="submit">Adicionar</Button>
+                        <Button colorScheme={"green"} type="submit">Editar</Button>
                         <Button onClick={onClose}>Cancel</Button>
                     </Box>
                 </ModalFooter>

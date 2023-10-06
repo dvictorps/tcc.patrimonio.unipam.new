@@ -13,7 +13,7 @@ import { DataTableType } from '@/app/PatrimonioLista/DataTable'
 export default function PatrimonioLista() {
 
   const { categoryData, companyData, manufacturerData, departmentData, situationData, arrayLength, deleteIds, useFetchData, roomData,
-    useFetchFullData } = useApi();
+    useFetchFullData, fetchTableDescriptionData } = useApi();
 
   const route = 'equipment'
 
@@ -220,7 +220,9 @@ export default function PatrimonioLista() {
   });
 
   useEffect(() => {
-    dataQuery.refetch()
+    fetchTableDescriptionData();
+    dataQuery.refetch();
+    dataQueryFull.refetch();
   }, [])
 
   return (

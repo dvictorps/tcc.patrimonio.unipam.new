@@ -6,7 +6,7 @@ import { UseQueryResult } from "react-query";
 import { Equipamento } from "@/utils/types";
 import { useEffect, useState } from "react";
 import { useForm } from 'react-hook-form'
-import { EquipmentInputModal } from "@/app/PatrimonioLista/ActionMenu/EquipmentInputModal";
+import { EquipmentInputModal } from "./EquipmentUpdateModal";
 
 export function ActionMenu(
     id: number,

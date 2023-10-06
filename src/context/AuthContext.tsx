@@ -3,6 +3,7 @@ import Cookies from 'js-cookie';
 import { api } from '@/api/api';
 import jwt from 'jsonwebtoken'
 import { useRouter } from 'next/navigation';
+import { AxiosResponse } from 'axios';
 
 type User = {
     id: number
@@ -15,6 +16,7 @@ type AuthContextType = {
     user: User | null;
     login: (username: string, password: string) => Promise<boolean>;
     logout: () => void;
+    register: (username: string, password: string, name: string, email: string) => Promise<AxiosResponse<any>>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -74,6 +76,16 @@ export function AuthProvider({ children }: AuthProviderType) {
         }
     };
 
+    async function register(username: string, password: string, name: string, email: string): Promise<AxiosResponse<any>> {
+        return await api.post('auth/signup', {
+            Usuario: username,
+            Senha: password,
+            Nome: name,
+            Email: email,
+        });
+    };
+
+
     function logout() {
         Cookies.remove('token');
         setUser(null);
@@ -81,7 +93,7 @@ export function AuthProvider({ children }: AuthProviderType) {
     };
 
     return (
-        <AuthContext.Provider value={{ user, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, register }}>
             {children}
         </AuthContext.Provider>
     );

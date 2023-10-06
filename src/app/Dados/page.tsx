@@ -1,44 +1,58 @@
 'use client'
-import { useApi } from "@/context/ApiContext";
-import { Department } from "@/utils/types"
-import dynamic from "next/dynamic";
-import { GenericTableType } from "@/components/GenericTable";
-import { DepartmentColumns } from "./columns";
-import { Box, Button, useDisclosure } from "@chakra-ui/react";
-import { DepartmentModal } from "./DepartmentModal";
-import { useEffect, useReducer, useState } from "react";
-import { useQuery } from "react-query";
+import { Box, Select, Text } from "@chakra-ui/react";
+import Sidebar from "@/components/Sidebar";
+import { DepartmentTable } from "./DepartmentTable";
+import { ChangeEvent, useState } from "react";
 
-const DataTableDepartamento = dynamic<GenericTableType<Department>>(() => import('@/components/GenericTable'), { ssr: false })
 
 export default function Dados() {
 
-    const { categoryData, companyData, manufacturerData, departmentData, situationData, roomData,
-        roomTypeData, roomSituationData, depTypeData, blockData, cityData, stateData, departmentSituationData, fetchTableDescriptionData } = useApi();
+    const searchSelectOptions = [
+        {
+            label: 'Selecionar tipo de dado',
+            value: 'nenhum'
+        },
+        {
+            label: 'Departamento',
+            value: 'departamento'
+        },
+    ]
 
-    const departmentModal = useDisclosure()
-    const departmentModal2 = useDisclosure()
+    const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
 
-    const dataQuery = useQuery(
-        ['data'],
-        () => fetchTableDescriptionData(),
-        { keepPreviousData: true }
-    )
+
+    function setSelectedOption(event: ChangeEvent<HTMLSelectElement>) {
+        const option = searchSelectOptions.find(option => option.value === event.target.value)
+        if (option) return setSelectOption(option)
+    }
 
     return (
-        <>
+        <Box display={'flex'} minHeight={'100vh'}>
+            <Sidebar />
 
-            <Box borderRadius={'6px'} shadow={'outline'} m='1rem' p={'1rem'}>
+            <Box flexDirection={'column'} boxSizing='border-box' flex={1} padding={'1rem'} sx={{ maxWidth: 'calc(100% - 15rem)', }}>
+                <Text fontSize={'3xl'} color={'blue.700'}>Dados no sistema</Text>
+                <Box display={'flex'} width={'100%'} flexDirection={'column'}>
 
-                <Button onClick={departmentModal.onOpen} colorScheme="blue">Adicionar</Button>
-                <DepartmentModal dataQuery={dataQuery} blockData={blockData} depTypeData={depTypeData} departmentSituationData={departmentSituationData}
-                    onClose={departmentModal.onClose} open={departmentModal.isOpen} isCentered />
+                    <Text>Selecione o tipo de dado</Text>
+                    <Select width={'250px'} onChange={setSelectedOption} value={selectOption.value}>
+                        {searchSelectOptions.map(
+                            option =>
+                                <option value={option.value} key={option.value}>
+                                    {option.label}
+                                </option>
+                        )}
 
-                <DepartmentModal dataQuery={dataQuery} blockData={blockData} depTypeData={depTypeData} departmentSituationData={departmentSituationData}
-                    onClose={departmentModal2.onClose} open={departmentModal2.isOpen} isCentered />
+                    </Select>
+                    {selectOption.value === 'departamento' && (<DepartmentTable />)}
 
-                <DataTableDepartamento dataQuery={dataQuery} columns={DepartmentColumns(departmentModal2.onOpen)} data={departmentData} />
+
+
+
+
+
+                </Box>
             </Box>
-        </>
+        </Box>
     )
 }
