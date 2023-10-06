@@ -6,7 +6,7 @@ import { ChangeEvent, useState } from "react";
 import { CompanyTable } from "./CompanyTable";
 import { CityTable } from "./CityTable";
 import { RoomTable } from "./RoomTable";
-import { RoomTypeTable } from "./RoomTypeData";
+import { RoomTypeTable } from "./RoomTypeTable";
 
 
 export default function Dados() {

@@ -138,14 +138,14 @@ export function ApiProvider({ children }: ApiProviderType) {
 
             const category = responses[0].data; // ---
             const company = responses[1].data; // ----
-            const manufacturer = responses[2].data; // A fazer
+            const manufacturer = responses[2].data; // <--- fazendo
             const department = responses[3].data; //---
             const situation = responses[4].data; //---
             const room = responses[5].data; // ----
             const block = responses[6].data; // A fazer
             const depType = responses[7].data; // A fazer
             const roomSituation = responses[8].data; //----
-            const roomType = responses[9].data; // < --- fazendo
+            const roomType = responses[9].data; //  --- 
             const city = responses[10].data; //  ----
             const state = responses[11].data; //----
             const departmentSituations = responses[12].data; //----
