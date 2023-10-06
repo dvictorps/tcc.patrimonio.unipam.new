@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AxiosResponse } from 'axios';
 import { api } from '@/api/api';
-import { ArrayType, Block, Category, City, Company, DepType, Department, DepartmentSituation, Equipamento, Manufacturer, ReqData, Room, RoomSituation, RoomType, Situation, State } from '@/utils/types';
+import { ArrayType, Block, Category, City, Company, DepType, Department, DepartmentSituation, Equipamento, Manufacturer, PersonSituation, PersonType, ReqData, Room, RoomSituation, RoomType, Situation, State, Users } from '@/utils/types';
 import { UseQueryResult, useQuery } from 'react-query';
 import { SelectOptions, FetchDataOptions } from '@/utils/types';
 import { PaginationState } from '@tanstack/react-table';
@@ -66,6 +66,9 @@ type ApiContextType = {
             data: QueryResult[];
             totalRecords: number;
         }, unknown>
+    personTypeData: PersonType[]
+    personSituationData: PersonSituation[]
+    usersData: Users[]
 
 };
 
@@ -93,7 +96,9 @@ export function ApiProvider({ children }: ApiProviderType) {
     const [cityData, setCityData] = useState<City[]>([]);
     const [stateData, setStateData] = useState<State[]>([]);
     const [departmentSituationData, setDepartmentSituationData] = useState<DepartmentSituation[]>([]);
-
+    const [personTypeData, setPersonTypeData] = useState<PersonType[]>([]);
+    const [personSituationData, setPersonSituationTypeData] = useState<PersonSituation[]>([]);
+    const [usersData, setUsersData] = useState<Users[]>([]);
 
     const [rowSelection, setRowSelection] = useState({})
 
@@ -129,27 +134,29 @@ export function ApiProvider({ children }: ApiProviderType) {
 
     async function fetchTableDescriptionData() {
         const urls = ['/category', '/company', '/manufacturer', '/department', '/equipmentSituation', '/room', '/block', '/depType', '/roomSituation', '/roomType',
-            '/city', '/state', '/departmentSituations'
+            '/city', '/state', '/departmentSituations', '/personType', '/personSituation, /users'
         ];
         const requests = urls.map((url) => api.get(url));
 
         try {
             const responses = await Promise.all(requests);
 
-            const category = responses[0].data; // ---
-            const company = responses[1].data; // ----
-            const manufacturer = responses[2].data; // ----
-            const department = responses[3].data; //---
-            const situation = responses[4].data; //---
-            const room = responses[5].data; // ----
-            const block = responses[6].data; // < ---- fazendo
-            const depType = responses[7].data; // ---
-            const roomSituation = responses[8].data; //----
-            const roomType = responses[9].data; //  --- 
-            const city = responses[10].data; //  ----
-            const state = responses[11].data; //----
-            const departmentSituations = responses[12].data; //----
-
+            const category = responses[0].data;
+            const company = responses[1].data;
+            const manufacturer = responses[2].data;
+            const department = responses[3].data;
+            const situation = responses[4].data;
+            const room = responses[5].data;
+            const block = responses[6].data;
+            const depType = responses[7].data;
+            const roomSituation = responses[8].data;
+            const roomType = responses[9].data;
+            const city = responses[10].data;
+            const state = responses[11].data;
+            const departmentSituations = responses[12].data;
+            const personType = responses[13].data;
+            const personSituation = responses[14].data
+            const users = responses[15].data
 
             setCategoryData(category);
             setCompanyData(company);
@@ -164,7 +171,9 @@ export function ApiProvider({ children }: ApiProviderType) {
             setCityData(city);
             setStateData(state);
             setDepartmentSituationData(departmentSituations);
-
+            setPersonTypeData(personType);
+            setPersonSituationTypeData(personSituation);
+            setUsersData(users);
 
         } catch (error) {
             console.error('Erro nas requisições:', error);
@@ -346,7 +355,9 @@ export function ApiProvider({ children }: ApiProviderType) {
         getCategory, getBlock, getCity, getCompany,
         getDepartment, getDepartmentSituation, getDepType,
         getManufacturer, getRoom, getRoomSituation, getRoomType,
-        getSituation, getState, fetchTableFullData, useFetchFullData
+        getSituation, getState, fetchTableFullData, useFetchFullData,
+        personTypeData,
+        personSituationData, usersData
 
     };
 

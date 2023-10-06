@@ -132,3 +132,20 @@ export type DepartmentSituation = {
     IdSituacaoDepartamento?: number
     DescricaoSituacaoDepartamento?: string
 }
+
+export type PersonType = {
+    IdTipoPessoa: number
+    DescricaoTipoPessoa: string
+}
+
+export type PersonSituation = {
+    IdSituacaoPessoa: number
+    DescricaoSituacaoPessoa: string
+}
+
+export type Users = {
+    IdPessoa: number
+    Usuario: string
+    IdSituacaoPessoa: number
+    IdTipoPessoa: number
+}
