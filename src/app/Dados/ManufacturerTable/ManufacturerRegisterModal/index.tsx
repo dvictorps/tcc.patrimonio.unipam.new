@@ -1,10 +1,10 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
-import { RoomType } from "@/utils/types"
+import { Manufacturer } from "@/utils/types"
 import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
-type RoomTypeModal = {
+type ManufacturerModal = {
 
     open: boolean
     onClose(): void
@@ -12,7 +12,7 @@ type RoomTypeModal = {
     dataQuery: UseQueryResult<void, unknown>
 }
 
-export function RoomTypeModal({ onClose, open, isCentered, dataQuery }: RoomTypeModal) {
+export function ManufacturerModal({ onClose, open, isCentered, dataQuery }: ManufacturerModal) {
 
     const { post } = useApi()
 
@@ -23,7 +23,7 @@ export function RoomTypeModal({ onClose, open, isCentered, dataQuery }: RoomType
         reset
     } = useForm()
 
-    const onSubmit = async (data: RoomType) => {
+    const onSubmit = async (data: Manufacturer) => {
 
         console.log('teste:', data)
         await handlePost(data);
@@ -32,9 +32,9 @@ export function RoomTypeModal({ onClose, open, isCentered, dataQuery }: RoomType
 
     }
 
-    async function handlePost(data: RoomType) {
+    async function handlePost(data: Manufacturer) {
         try {
-            const response = await post<RoomType>(`roomType/register`, data)
+            const response = await post<Manufacturer>(`manufacturer/register`, data)
             console.log('Resposta add:', response)
 
         } catch (error) {
@@ -44,15 +44,15 @@ export function RoomTypeModal({ onClose, open, isCentered, dataQuery }: RoomType
     }
 
 
-    const checkData = (data: RoomType) => {
-        const formData: Partial<RoomType> = {};
+    const checkData = (data: Manufacturer) => {
+        const formData: Partial<Manufacturer> = {};
 
-        formData.DescricaoTipoSala = data.DescricaoTipoSala;
+        formData.NomeFabricante = data.NomeFabricante;
 
         return formData;
     };
 
-    const handleFormSubmit = (data: RoomType) => {
+    const handleFormSubmit = (data: Manufacturer) => {
         const fields = checkData(data);
         console.log('formdata', fields)
         onSubmit(fields);
@@ -62,17 +62,17 @@ export function RoomTypeModal({ onClose, open, isCentered, dataQuery }: RoomType
 
     return (
 
-        <ModalStyled onClose={onClose} title="Adicionar Cidade" open={open} isCentered={isCentered}>
+        <ModalStyled onClose={onClose} title="Adicionar Fabricante" open={open} isCentered={isCentered}>
             <form onSubmit={handleSubmit(handleFormSubmit)}>
                 <ModalBody>
-                    <FormControl isInvalid={!!errors.DescricaoTipoSala} isRequired>
-                        <FormLabel>Tipo Sala</FormLabel>
+                    <FormControl isInvalid={!!errors.NomeFabricante} isRequired>
+                        <FormLabel>Nome</FormLabel>
                         <Input
-                            id="DescricaoTipoSala"
-                            {...register("DescricaoTipoSala", { maxLength: 20, required: true })}
+                            id="NomeFabricante"
+                            {...register("NomeFabricante", { maxLength: 100, required: true })}
                         />
-                        {errors.DescricaoTipoSala && errors.DescricaoTipoSala.type === "maxLength" && (
-                            <FormErrorMessage>O tipo da sala pode ter no máximo 20 caracteres</FormErrorMessage>
+                        {errors.NomeFabricante && errors.NomeFabricante.type === "maxLength" && (
+                            <FormErrorMessage>O nome da fabricante pode ter no máximo 100 caracteres</FormErrorMessage>
                         )}
                     </FormControl>
                 </ModalBody>

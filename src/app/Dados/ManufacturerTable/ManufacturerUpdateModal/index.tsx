@@ -1,21 +1,20 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
-import { RoomType } from "@/utils/types"
+import { Manufacturer } from "@/utils/types"
 import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
-import { ChangeEvent, useState } from "react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
-type RoomTypeUpdateModal = {
+type ManufacturerUpdateModal = {
 
     open: boolean
     onClose(): void
     isCentered?: boolean
     dataQuery: UseQueryResult<void, unknown>
-    componentData?: RoomType
+    componentData?: Manufacturer
 
 }
 
-export function RoomTypeUpdateModal({ onClose, open, isCentered, dataQuery, componentData }: RoomTypeUpdateModal) {
+export function ManufacturerUpdateModal({ onClose, open, isCentered, dataQuery, componentData }: ManufacturerUpdateModal) {
 
     const { patch } = useApi()
 
@@ -26,7 +25,7 @@ export function RoomTypeUpdateModal({ onClose, open, isCentered, dataQuery, comp
         reset
     } = useForm()
 
-    const onSubmit = async (data: RoomType) => {
+    const onSubmit = async (data: Manufacturer) => {
 
         await handlePost(data);
         await dataQuery.refetch()
@@ -34,9 +33,9 @@ export function RoomTypeUpdateModal({ onClose, open, isCentered, dataQuery, comp
 
     }
 
-    async function handlePost(data: RoomType) {
+    async function handlePost(data: Manufacturer) {
         try {
-            const response = await patch<RoomType>(`RoomType/update/${componentData?.IdTipoSala}`, data)
+            const response = await patch<Manufacturer>(`manufacturer/update/${componentData?.IdFabricante}`, data)
             console.log('Resposta update:', response)
 
         } catch (error) {
@@ -46,16 +45,16 @@ export function RoomTypeUpdateModal({ onClose, open, isCentered, dataQuery, comp
     }
 
 
-    const checkData = (formData: RoomType, originalData?: RoomType) => {
-        const filteredData: Partial<RoomType> = {};
+    const checkData = (formData: Manufacturer, originalData?: Manufacturer) => {
+        const filteredData: Partial<Manufacturer> = {};
 
-        if (formData.DescricaoTipoSala !== originalData?.DescricaoTipoSala) {
-            filteredData.DescricaoTipoSala = formData?.DescricaoTipoSala;
+        if (formData.NomeFabricante !== originalData?.NomeFabricante) {
+            filteredData.NomeFabricante = formData?.NomeFabricante;
         }
         return filteredData;
     };
 
-    const handleFormSubmit = (data: RoomType) => {
+    const handleFormSubmit = (data: Manufacturer) => {
 
         const fields = checkData(data, componentData);
 
@@ -69,18 +68,18 @@ export function RoomTypeUpdateModal({ onClose, open, isCentered, dataQuery, comp
 
     return (
 
-        <ModalStyled onClose={onClose} title="Editar Tipo Sala" open={open} isCentered={isCentered}>
+        <ModalStyled onClose={onClose} title="Editar fabricante" open={open} isCentered={isCentered}>
             <form onSubmit={handleSubmit(handleFormSubmit)}>
                 <ModalBody>
-                    <FormControl isInvalid={!!errors.DescricaoTipoSala} isRequired>
+                    <FormControl isInvalid={!!errors.NomeFabricante} isRequired>
                         <FormLabel>Descrição</FormLabel>
                         <Input
-                            defaultValue={componentData?.DescricaoTipoSala}
-                            id="DescricaoTipoSala"
-                            {...register("DescricaoTipoSala", { maxLength: 20, required: true })}
+                            defaultValue={componentData?.NomeFabricante}
+                            id="NomeFabricante"
+                            {...register("NomeFabricante", { maxLength: 100, required: true })}
                         />
-                        {errors.DescricaoTipoSala && errors.DescricaoTipoSala.type === "maxLength" && (
-                            <FormErrorMessage>O tipo de sala pode ter no máximo 150 caracteres</FormErrorMessage>
+                        {errors.NomeFabricante && errors.NomeFabricante.type === "maxLength" && (
+                            <FormErrorMessage>O nome da fabricante pode ter no máximo 150 caracteres</FormErrorMessage>
                         )}
                     </FormControl>
                 </ModalBody>

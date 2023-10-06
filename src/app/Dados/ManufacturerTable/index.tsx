@@ -1,19 +1,19 @@
 import { Box, Button, IconButton, useDisclosure } from "@chakra-ui/react";
-import { RoomTypeModal } from "./RoomTypeRegisterModal";
 import { GenericTableType } from "@/components/GenericTable";
 import dynamic from "next/dynamic";
 import { useQuery } from "react-query";
 import { useApi } from "@/context/ApiContext";
 import { useState } from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { RoomTypeUpdateModal } from "./RoomTypeUpdateModal";
+import { ManufacturerModal } from "./ManufacturerRegisterModal";
+import { ManufacturerUpdateModal } from "./ManufacturerUpdateModal";
 import { HamburgerIcon } from "@chakra-ui/icons";
-import { RoomType } from "@/utils/types";
-const DataTableRoomType = dynamic<GenericTableType<RoomType>>(() => import('@/components/GenericTable'), { ssr: false })
+import { Manufacturer } from "@/utils/types";
+const DataTableManufacturer = dynamic<GenericTableType<Manufacturer>>(() => import('@/components/GenericTable'), { ssr: false })
 
-export function RoomTypeTable() {
+export function ManufacturerTable() {
 
-    const { getOne, fetchTableDescriptionData, roomTypeData } = useApi();
+    const { getOne, fetchTableDescriptionData, manufacturerData } = useApi();
 
     const dataQuery = useQuery(
         ['data'],
@@ -21,17 +21,17 @@ export function RoomTypeTable() {
         { keepPreviousData: true }
     )
 
-    const [componentData, setComponentData] = useState<RoomType>()
+    const [componentData, setComponentData] = useState<Manufacturer>()
 
-    const roomTypeRegisterModal = useDisclosure();
-    const roomTypeUpdateModal = useDisclosure();
+    const ManufacturerRegisterModal = useDisclosure();
+    const manufacturerUpdateModal = useDisclosure();
 
 
     function ButtonWorking(id: number) {
 
         async function handleGet() {
             try {
-                const response = await getOne<RoomType>('roomType', id.toString())
+                const response = await getOne<Manufacturer>('manufacturer', id.toString())
                 setComponentData(response)
 
 
@@ -39,37 +39,37 @@ export function RoomTypeTable() {
                 setComponentData({})
                 console.log('erro get ', error)
             }
-            roomTypeUpdateModal.onOpen()
+            manufacturerUpdateModal.onOpen()
         }
 
 
         return (
             <Box display={'flex'} gap={'1rem'}>
-                <RoomTypeUpdateModal dataQuery={dataQuery}
-                    onClose={roomTypeUpdateModal.onClose} open={roomTypeUpdateModal.isOpen} isCentered componentData={componentData} />
+                <ManufacturerUpdateModal dataQuery={dataQuery}
+                    onClose={manufacturerUpdateModal.onClose} open={manufacturerUpdateModal.isOpen} isCentered componentData={componentData} />
                 <IconButton onClick={handleGet} aria-label="edit" icon={<HamburgerIcon />} />
             </Box>
         )
     }
 
-    const columns: ColumnDef<RoomType>[] = [
+    const columns: ColumnDef<Manufacturer>[] = [
         {
             header: 'Ações',
-            accessorKey: 'IdTipoSala',
+            accessorKey: 'IdFabricante',
             cell: info => ButtonWorking(info.getValue<number>())
         },
         {
-            header: 'Tipo Sala',
-            accessorKey: 'DescricaoTipoSala',
+            header: 'Fabricante',
+            accessorKey: 'NomeFabricante',
         },
 
     ]
 
     return (
         <Box borderRadius={'6px'} shadow={'outline'} m='1rem' p={'1rem'}>
-            <Button onClick={roomTypeRegisterModal.onOpen}>Adicionar</Button>
-            <RoomTypeModal dataQuery={dataQuery} onClose={roomTypeRegisterModal.onClose} open={roomTypeRegisterModal.isOpen} isCentered />
-            <DataTableRoomType columns={columns} data={roomTypeData} />
+            <Button onClick={ManufacturerRegisterModal.onOpen}>Adicionar</Button>
+            <ManufacturerModal dataQuery={dataQuery} onClose={ManufacturerRegisterModal.onClose} open={ManufacturerRegisterModal.isOpen} isCentered />
+            <DataTableManufacturer columns={columns} data={manufacturerData} />
         </Box>
 
     )

@@ -7,6 +7,7 @@ import { CompanyTable } from "./CompanyTable";
 import { CityTable } from "./CityTable";
 import { RoomTable } from "./RoomTable";
 import { RoomTypeTable } from "./RoomTypeTable";
+import { ManufacturerTable } from "./ManufacturerTable";
 
 
 export default function Dados() {
@@ -35,6 +36,10 @@ export default function Dados() {
         {
             label: 'Tipo de Sala',
             value: 'tiposala'
+        },
+        {
+            label: 'Fabricante',
+            value: 'fabricante'
         }
     ]
 
@@ -69,6 +74,7 @@ export default function Dados() {
                     {selectOption.value === 'cidade' && (<CityTable />)}
                     {selectOption.value === 'sala' && (<RoomTable />)}
                     {selectOption.value === 'tiposala' && (<RoomTypeTable />)}
+                    {selectOption.value === 'fabricante' && (<ManufacturerTable />)}
 
                 </Box>
             </Box>
