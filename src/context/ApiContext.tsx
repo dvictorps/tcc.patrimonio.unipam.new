@@ -136,19 +136,19 @@ export function ApiProvider({ children }: ApiProviderType) {
         try {
             const responses = await Promise.all(requests);
 
-            const category = responses[0].data;
-            const company = responses[1].data;
-            const manufacturer = responses[2].data;
-            const department = responses[3].data;
-            const situation = responses[4].data;
-            const room = responses[5].data;
-            const block = responses[6].data;
-            const depType = responses[7].data;
-            const roomSituation = responses[8].data; //
-            const roomType = responses[9].data;
-            const city = responses[10].data;
-            const state = responses[11].data; //
-            const departmentSituations = responses[12].data; //
+            const category = responses[0].data; // ---
+            const company = responses[1].data; // ----
+            const manufacturer = responses[2].data; // A fazer
+            const department = responses[3].data; //---
+            const situation = responses[4].data; //---
+            const room = responses[5].data; // A  fazer
+            const block = responses[6].data; // A fazer
+            const depType = responses[7].data; // A fazer
+            const roomSituation = responses[8].data; //----
+            const roomType = responses[9].data; // A fazer
+            const city = responses[10].data; // Fazendo <--
+            const state = responses[11].data; //----
+            const departmentSituations = responses[12].data; //----
 
 
             setCategoryData(category);

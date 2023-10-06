@@ -43,12 +43,12 @@ export function DepartmentTable() {
         }
 
         return (
-            <>
+            <Box>
                 <DepartmentUpdateModal dataQuery={dataQuery} blockData={blockData} depTypeData={depTypeData}
                     departmentSituationData={departmentSituationData}
                     onClose={departmentUpdateModal.onClose} open={departmentUpdateModal.isOpen} isCentered componentData={componentData} />
                 <IconButton onClick={handleGet} aria-label="edit" icon={<HamburgerIcon />} />
-            </>
+            </Box>
         )
     }
 

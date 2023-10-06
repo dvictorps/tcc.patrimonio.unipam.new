@@ -3,6 +3,8 @@ import { Box, Select, Text } from "@chakra-ui/react";
 import Sidebar from "@/components/Sidebar";
 import { DepartmentTable } from "./DepartmentTable";
 import { ChangeEvent, useState } from "react";
+import { CompanyTable } from "./CompanyTable";
+import { CityTable } from "./CityTable";
 
 
 export default function Dados() {
@@ -16,6 +18,14 @@ export default function Dados() {
             label: 'Departamento',
             value: 'departamento'
         },
+        {
+            label: 'Empresa',
+            value: 'empresa'
+        },
+        {
+            label: 'Cidade',
+            value: 'cidade'
+        }
     ]
 
     const [selectOption, setSelectOption] = useState(searchSelectOptions[0]);
@@ -45,11 +55,8 @@ export default function Dados() {
 
                     </Select>
                     {selectOption.value === 'departamento' && (<DepartmentTable />)}
-
-
-
-
-
+                    {selectOption.value === 'empresa' && (<CompanyTable />)}
+                    {selectOption.value === 'cidade' && (<CityTable />)}
 
                 </Box>
             </Box>
