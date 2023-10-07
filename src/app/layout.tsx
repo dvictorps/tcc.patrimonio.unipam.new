@@ -1,6 +1,5 @@
 'use client'
 // app/layout.tsx
-// import Sidebar from "@/components/Sidebar";
 import { Providers } from "./providers";
 
 
@@ -13,7 +12,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
-            {children}
+          {children}
         </Providers>
       </body>
     </html>

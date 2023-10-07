@@ -227,7 +227,6 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
     async function handleEnableMultiple() {
         try {
             const response = await patch<QueryResult>(`/equipment/enable?${idsComBaseNaPosicaoStyled}`, '1');
-            console.log('Resposta Enable:', response.data);
             setRowSelection({})
             table.setPageIndex(0)
             await dataQuery.refetch()
@@ -262,7 +261,6 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     const onSubmit = async (data: any) => {
 
-        console.log('teste:', data)
         await handlePost(data);
         reset();
 

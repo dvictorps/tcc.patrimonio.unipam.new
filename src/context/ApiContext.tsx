@@ -230,7 +230,6 @@ export function ApiProvider({ children }: ApiProviderType) {
         try {
             const url = `/${route}?${selectOption.value}=${searchValue}&situation=${situation}&company=${company}&category=${category}&manufacturer=${manufacturer}&department=${department}`
             const response = await api.get(url)
-            console.log('RESPOSTA DO RELATORIO', response)
             const responseTyped: ReqData<Type> = response.data
             return { data: responseTyped.data, totalRecords: responseTyped.totalRecords }
         } catch (error) {
