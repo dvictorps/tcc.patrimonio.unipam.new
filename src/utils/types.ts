@@ -144,8 +144,13 @@ export type PersonSituation = {
 }
 
 export type Users = {
-    IdPessoa: number
-    Usuario: string
-    IdSituacaoPessoa: number
-    IdTipoPessoa: number
+    IdPessoa?: number
+    Usuario?: string
+    Nome?: string
+    Email?: string
+    IdSituacaoPessoa?: number
+    IdTipoPessoa?: number
+    Senha?: string
+    DataCriacao?: Date
+    DataModificacao?: Date,
 }

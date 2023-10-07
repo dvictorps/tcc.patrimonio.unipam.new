@@ -1,4 +1,5 @@
-import { LuLayoutDashboard, LuActivitySquare, LuHome, LuPlus } from 'react-icons/lu'
+import { LuLayoutDashboard, LuActivitySquare, LuHome } from 'react-icons/lu'
+import { FaUsers } from 'react-icons/fa'
 import { MdLogout } from 'react-icons/md'
 import { Img, Icon, Button, Box, Text, VStack, Divider } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
@@ -25,10 +26,10 @@ const menuOptions = [
         link: '/Dados'
     },
     {
-        option: 'Cadastrar Usuário',
-        icon: LuPlus,
+        option: 'Usuários',
+        icon: FaUsers,
         id: 4,
-        link: '/Cadastrar'
+        link: '/Usuarios'
     }
 ]
 

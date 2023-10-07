@@ -55,6 +55,8 @@ type ApiContextType = {
     getBlock(id: number): string | undefined
     getCity(id: number): string | undefined
     getState(id: number): string | undefined
+    getPersonSituation(id: number): string | undefined
+    getPersonType(id: number): string | undefined
     getDepartmentSituation(id: number): string | undefined
     fetchTableFullData: <Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string,
         company: string, category: string, manufacturer: string, department: string) => Promise<{
@@ -134,7 +136,7 @@ export function ApiProvider({ children }: ApiProviderType) {
 
     async function fetchTableDescriptionData() {
         const urls = ['/category', '/company', '/manufacturer', '/department', '/equipmentSituation', '/room', '/block', '/depType', '/roomSituation', '/roomType',
-            '/city', '/state', '/departmentSituations', '/personType', '/personSituation, /users'
+            '/city', '/state', '/departmentSituations', '/personType', '/personSituation', '/users'
         ];
         const requests = urls.map((url) => api.get(url));
 
@@ -323,6 +325,18 @@ export function ApiProvider({ children }: ApiProviderType) {
         return departmentSituation?.DescricaoSituacaoDepartamento
     }
 
+    function getPersonType(id: number) {
+        const personType = personTypeData.find((personType) => personType.IdTipoPessoa === id);
+        return personType?.DescricaoTipoPessoa
+    }
+
+    function getPersonSituation(id: number) {
+        const personSituation = personSituationData.find((personSituation) => personSituation.IdSituacaoPessoa === id);
+        return personSituation?.DescricaoSituacaoPessoa
+    }
+
+
+
     const contextValue: ApiContextType = {
         post,
         delete: deleteRequest,
@@ -357,8 +371,9 @@ export function ApiProvider({ children }: ApiProviderType) {
         getManufacturer, getRoom, getRoomSituation, getRoomType,
         getSituation, getState, fetchTableFullData, useFetchFullData,
         personTypeData,
-        personSituationData, usersData
-
+        personSituationData, usersData,
+        getPersonSituation,
+        getPersonType
     };
 
 
