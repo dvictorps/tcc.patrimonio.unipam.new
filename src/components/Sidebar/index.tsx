@@ -1,4 +1,5 @@
-import { LuLayoutDashboard, LuSettings, LuHome, LuPlus } from 'react-icons/lu'
+import { LuLayoutDashboard, LuActivitySquare, LuHome } from 'react-icons/lu'
+import { FaUsers } from 'react-icons/fa'
 import { MdLogout } from 'react-icons/md'
 import { Img, Icon, Button, Box, Text, VStack, Divider } from '@chakra-ui/react'
 import { useRouter } from 'next/navigation'
@@ -19,11 +20,17 @@ const menuOptions = [
         link: '/PatrimonioLista'
     },
     {
-        option: 'Cadastro de Patrimônio',
-        icon: LuPlus,
+        option: 'Dados',
+        icon: LuActivitySquare,
         id: 3,
-        link: '/equipamento'
+        link: '/Dados'
     },
+    {
+        option: 'Usuários',
+        icon: FaUsers,
+        id: 4,
+        link: '/Usuarios'
+    }
 ]
 
 
