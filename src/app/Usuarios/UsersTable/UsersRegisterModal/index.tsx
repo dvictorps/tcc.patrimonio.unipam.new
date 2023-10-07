@@ -28,7 +28,6 @@ export function UsersModal({ onClose, open, isCentered, personTypeData, personSi
 
     const onSubmit = async (data: Users) => {
 
-        console.log('teste:', data)
         await handlePost(data);
         await dataQuery.refetch()
         reset();

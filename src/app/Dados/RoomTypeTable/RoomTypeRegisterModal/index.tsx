@@ -25,7 +25,6 @@ export function RoomTypeModal({ onClose, open, isCentered, dataQuery }: RoomType
 
     const onSubmit = async (data: RoomType) => {
 
-        console.log('teste:', data)
         await handlePost(data);
         await dataQuery.refetch()
         reset();
@@ -54,7 +53,6 @@ export function RoomTypeModal({ onClose, open, isCentered, dataQuery }: RoomType
 
     const handleFormSubmit = (data: RoomType) => {
         const fields = checkData(data);
-        console.log('formdata', fields)
         onSubmit(fields);
 
     }

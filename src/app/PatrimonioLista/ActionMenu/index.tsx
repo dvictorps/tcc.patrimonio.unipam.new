@@ -103,7 +103,6 @@ export function ActionMenu(
     const onSubmit = async (data: Equipamento) => {
 
         await handlePatch(data);
-        console.log('aqui', data);
         editButtonRefetch();
 
     }

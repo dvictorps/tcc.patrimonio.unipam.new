@@ -50,10 +50,8 @@ export function AuthProvider({ children }: AuthProviderType) {
                 Usuario: username,
                 Senha: password,
             });
-            console.log('Logou:', response.data)
             const tokenCookie = Cookies.get('token');
             const cookieAways = tokenCookie ? tokenCookie : 'Não funcionou';
-            console.log('chegou aqui:', cookieAways)
 
             if (cookieAways != 'Não Funcionou') {
 
@@ -61,7 +59,6 @@ export function AuthProvider({ children }: AuthProviderType) {
                 try {
                     const decodedUser = jwt.decode(cookieAways) as User;
                     router.push('/')
-                    console.log('usuario decodificado:', decodedUser)
                     setUser(decodedUser);
 
 

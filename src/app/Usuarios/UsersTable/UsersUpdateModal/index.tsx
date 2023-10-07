@@ -48,9 +48,6 @@ export function UsersUpdateModal({ onClose, open, isCentered, personTypeData, pe
         onClose()
     }
 
-
-    console.log('compnentData:', componentData)
-
     const checkData = (formData: Users, originalData?: Users) => {
         const filteredData: Partial<Users> = {};
 
