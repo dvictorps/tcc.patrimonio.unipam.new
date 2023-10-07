@@ -66,8 +66,10 @@ export function BlockTable() {
     ]
 
     return (
-        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' p={'1rem'}>
-            <Button onClick={blockRegisterModal.onOpen}>Adicionar</Button>
+        <Box borderRadius={'6px'} shadow={'outline'} m='1rem'>
+            <Box p={'1rem'}>
+                <Button onClick={blockRegisterModal.onOpen}>Adicionar</Button>
+            </Box>
             <BlockModal dataQuery={dataQuery} onClose={blockRegisterModal.onClose} open={blockRegisterModal.isOpen} isCentered />
             <DataTableBlock columns={columns} data={blockData} />
         </Box>

@@ -66,8 +66,10 @@ export function ManufacturerTable() {
     ]
 
     return (
-        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' p={'1rem'}>
-            <Button onClick={ManufacturerRegisterModal.onOpen}>Adicionar</Button>
+        <Box borderRadius={'6px'} shadow={'outline'} m='1rem'>
+            <Box p={'1rem'}>
+                <Button onClick={ManufacturerRegisterModal.onOpen}>Adicionar</Button>
+            </Box>
             <ManufacturerModal dataQuery={dataQuery} onClose={ManufacturerRegisterModal.onClose} open={ManufacturerRegisterModal.isOpen} isCentered />
             <DataTableManufacturer columns={columns} data={manufacturerData} />
         </Box>

@@ -80,8 +80,9 @@ export function DepartmentTable() {
     ]
 
     return (
-        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' p={'1rem'}>
-            <Button onClick={departmentRegisterModal.onOpen}>Adicionar</Button>
+        <Box borderRadius={'6px'} shadow={'outline'} m='1rem'>
+            <Box p={'1rem'}>
+                <Button onClick={departmentRegisterModal.onOpen}>Adicionar</Button></Box>
             <DepartmentModal dataQuery={dataQuery} blockData={blockData} depTypeData={depTypeData} departmentSituationData={departmentSituationData}
                 onClose={departmentRegisterModal.onClose} open={departmentRegisterModal.isOpen} isCentered />
 

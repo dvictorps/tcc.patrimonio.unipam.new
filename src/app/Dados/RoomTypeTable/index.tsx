@@ -66,8 +66,10 @@ export function RoomTypeTable() {
     ]
 
     return (
-        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' p={'1rem'}>
-            <Button onClick={roomTypeRegisterModal.onOpen}>Adicionar</Button>
+        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
+            <Box p={'1rem'}>
+                <Button onClick={roomTypeRegisterModal.onOpen}>Adicionar</Button>
+            </Box>
             <RoomTypeModal dataQuery={dataQuery} onClose={roomTypeRegisterModal.onClose} open={roomTypeRegisterModal.isOpen} isCentered />
             <DataTableRoomType columns={columns} data={roomTypeData} />
         </Box>

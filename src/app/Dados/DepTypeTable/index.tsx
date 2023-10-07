@@ -66,8 +66,10 @@ export function DepTypeTable() {
     ]
 
     return (
-        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' p={'1rem'}>
-            <Button onClick={depTypeRegisterModal.onOpen}>Adicionar</Button>
+        <Box borderRadius={'6px'} shadow={'outline'} m='1rem'>
+            <Box p={'1rem'}>
+                <Button onClick={depTypeRegisterModal.onOpen}>Adicionar</Button>
+            </Box>
             <DepTypeModal dataQuery={dataQuery} onClose={depTypeRegisterModal.onClose} open={depTypeRegisterModal.isOpen} isCentered />
             <DataTableDepType columns={columns} data={depTypeData} />
         </Box>

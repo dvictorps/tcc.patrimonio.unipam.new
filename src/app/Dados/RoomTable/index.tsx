@@ -79,8 +79,10 @@ export function RoomTable() {
     ]
 
     return (
-        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' p={'1rem'}>
-            <Button onClick={roomRegisterModal.onOpen}>Adicionar</Button>
+        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' >
+            <Box p={'1rem'}>
+                <Button onClick={roomRegisterModal.onOpen}>Adicionar</Button>
+            </Box>
             <RoomModal dataQuery={dataQuery} blockData={blockData} roomSituationData={roomSituationData} roomTypeData={roomTypeData}
                 onClose={roomRegisterModal.onClose} open={roomRegisterModal.isOpen} isCentered />
 

@@ -89,8 +89,10 @@ export function CompanyTable() {
     ]
 
     return (
-        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' p={'1rem'}>
-            <Button onClick={companyRegisterModal.onOpen}>Adicionar</Button>
+        <Box borderRadius={'6px'} shadow={'outline'} m='1rem'>
+            <Box p={'1rem'}>
+                <Button onClick={companyRegisterModal.onOpen}>Adicionar</Button>
+            </Box>
             <CompanyModal cityData={cityData} dataQuery={dataQuery} onClose={companyRegisterModal.onClose} open={companyRegisterModal.isOpen} isCentered />
 
             <DataTableCompany columns={columns} data={companyData} />

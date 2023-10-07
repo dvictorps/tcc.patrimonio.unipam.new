@@ -71,8 +71,10 @@ export function CityTable() {
     ]
 
     return (
-        <Box borderRadius={'6px'} shadow={'outline'} m='1rem' p={'1rem'}>
-            <Button onClick={cityRegisterModal.onOpen}>Adicionar</Button>
+        <Box borderRadius={'6px'} shadow={'outline'} m='1rem'>
+            <Box p={'1rem'}>
+                <Button onClick={cityRegisterModal.onOpen}>Adicionar</Button>
+            </Box>
             <CityModal stateData={stateData} dataQuery={dataQuery} onClose={cityRegisterModal.onClose} open={cityRegisterModal.isOpen} isCentered />
             <DataTableCity columns={columns} data={cityData} />
         </Box>
