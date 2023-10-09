@@ -174,6 +174,10 @@ export default function PatrimonioLista() {
       accessorKey: 'IdFabricante',
       cell: info => getManufacturer(info.getValue<number>()),
     },
+    {
+      header: 'Descrição',
+      accessorKey: 'DescricaoEquipamento',
+    },
   ]
 
   function getCategory(id: number) {
