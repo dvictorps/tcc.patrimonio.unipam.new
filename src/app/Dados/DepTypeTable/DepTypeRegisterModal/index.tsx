@@ -25,7 +25,6 @@ export function DepTypeModal({ onClose, open, isCentered, dataQuery }: DepTypeMo
 
     const onSubmit = async (data: DepType) => {
 
-        console.log('teste:', data)
         await handlePost(data);
         await dataQuery.refetch()
         reset();
@@ -54,7 +53,6 @@ export function DepTypeModal({ onClose, open, isCentered, dataQuery }: DepTypeMo
 
     const handleFormSubmit = (data: DepType) => {
         const fields = checkData(data);
-        console.log('formdata', fields)
         onSubmit(fields);
 
     }

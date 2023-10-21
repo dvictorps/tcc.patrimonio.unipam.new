@@ -24,8 +24,6 @@ export function ManufacturerModal({ onClose, open, isCentered, dataQuery }: Manu
     } = useForm()
 
     const onSubmit = async (data: Manufacturer) => {
-
-        console.log('teste:', data)
         await handlePost(data);
         await dataQuery.refetch()
         reset();
@@ -54,7 +52,6 @@ export function ManufacturerModal({ onClose, open, isCentered, dataQuery }: Manu
 
     const handleFormSubmit = (data: Manufacturer) => {
         const fields = checkData(data);
-        console.log('formdata', fields)
         onSubmit(fields);
 
     }

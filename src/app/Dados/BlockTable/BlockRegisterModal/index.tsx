@@ -25,7 +25,7 @@ export function BlockModal({ onClose, open, isCentered, dataQuery }: BlockModal)
 
     const onSubmit = async (data: Block) => {
 
-        console.log('teste:', data)
+
         await handlePost(data);
         await dataQuery.refetch()
         reset();
@@ -54,7 +54,6 @@ export function BlockModal({ onClose, open, isCentered, dataQuery }: BlockModal)
 
     const handleFormSubmit = (data: Block) => {
         const fields = checkData(data);
-        console.log('formdata', fields)
         onSubmit(fields);
 
     }

@@ -29,7 +29,6 @@ export function RoomModal({ onClose, open, isCentered, blockData, roomTypeData, 
 
     const onSubmit = async (data: Room) => {
 
-        console.log('teste:', data)
         await handlePost(data);
         await dataQuery.refetch()
         reset();

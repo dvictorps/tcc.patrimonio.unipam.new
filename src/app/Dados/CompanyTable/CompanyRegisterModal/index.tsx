@@ -27,7 +27,6 @@ export function CompanyModal({ onClose, open, isCentered, cityData, dataQuery }:
 
     const onSubmit = async (data: Company) => {
 
-        console.log('teste:', data)
         await handlePost(data);
         await dataQuery.refetch()
         reset();
@@ -61,7 +60,6 @@ export function CompanyModal({ onClose, open, isCentered, cityData, dataQuery }:
 
     const handleFormSubmit = (data: Company) => {
         const fields = checkData(data);
-        console.log('formdata', fields)
         onSubmit(fields);
 
     }

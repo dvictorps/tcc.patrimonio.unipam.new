@@ -29,7 +29,6 @@ export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeD
 
     const onSubmit = async (data: Department) => {
 
-        console.log('teste:', data)
         await handlePost(data);
         await dataQuery.refetch()
         reset();
