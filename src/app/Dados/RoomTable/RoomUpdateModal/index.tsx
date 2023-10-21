@@ -138,7 +138,7 @@ export function RoomUpdateModal({ onClose, open, isCentered, blockData, roomType
                         </Select>
                     </FormControl>
                     <FormControl isInvalid={!!errors.IdFabricante} isRequired>
-                        <FormLabel>Fabricante</FormLabel>
+                        <FormLabel>Tipo</FormLabel>
                         <Select placeholder='Selecionar tipo' value={selectedTipo} onChange={setSelectTipoOption}>
                             {roomTypeData.map(
                                 roomType =>

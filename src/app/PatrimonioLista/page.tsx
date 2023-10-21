@@ -1,7 +1,7 @@
 'use client'
 import { Box, Text, useDisclosure } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
-import { Category, Company, Department, Equipamento, EquipamentoFormated, Manufacturer, Situation } from '@/utils/types'
+import { Category, Company, Department, Equipamento, EquipamentoFormated, Manufacturer, Room, Situation } from '@/utils/types'
 const DataTable = dynamic<DataTableType<Equipamento>>(() => import('@/app/PatrimonioLista/DataTable'), { ssr: false })
 import Sidebar from '@/components/Sidebar'
 import { HTMLProps, useEffect, useRef, useState } from 'react'
@@ -55,13 +55,18 @@ export default function PatrimonioLista() {
     NomeDepartamento: undefined
   })
 
+  const [roomValue, setRoomValue] = useState<Room>({
+    IdSala: undefined,
+    DescricaoSala: undefined
+  })
+
   const dataQuery = useFetchData<Equipamento>(selectOption, searchValue, route, situationValue.IdSituacaoEquipamento?.toString()
     || '', companyValue.IdEmpresa?.toString() || '', categoryValue.IdCategoriaEquipamento?.toString() || ''
-    , manufacturerValue.IdFabricante?.toString() || '', departmentValue.IdDepartamento?.toString() || '')
+    , manufacturerValue.IdFabricante?.toString() || '', departmentValue.IdDepartamento?.toString() || '', roomValue.IdSala?.toString() || '')
 
   const dataQueryFull = useFetchFullData<EquipamentoFormated>(selectOption, searchValue, 'equipment/formated/get', situationValue.IdSituacaoEquipamento?.toString()
     || '', companyValue.IdEmpresa?.toString() || '', categoryValue.IdCategoriaEquipamento?.toString() || ''
-    , manufacturerValue.IdFabricante?.toString() || '', departmentValue.IdDepartamento?.toString() || '')
+    , manufacturerValue.IdFabricante?.toString() || '', departmentValue.IdDepartamento?.toString() || '', roomValue.IdSala?.toString() || '')
 
   function IndeterminateCheckbox({
     indeterminate,
@@ -255,6 +260,8 @@ export default function PatrimonioLista() {
               setCompanyValue={setCompanyValue}
               setDepartmentValue={setDepartmentValue}
               setManufacturerValue={setManufacturerValue}
+              setRoomValue={setRoomValue}
+              roomValue={roomValue}
             />
           </Box>
         </Box>

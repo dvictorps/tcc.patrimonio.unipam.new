@@ -23,7 +23,7 @@ import {
     Spinner
 } from '@chakra-ui/react'
 import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon, AddIcon, CheckIcon, Search2Icon } from "@chakra-ui/icons";
-import { SelectOptions, ArrayType, Situation, Equipamento, EquipamentoFormated, Company, Category, Manufacturer, Department } from "@/utils/types";
+import { SelectOptions, ArrayType, Situation, Equipamento, EquipamentoFormated, Company, Category, Manufacturer, Department, Room } from "@/utils/types";
 import { AccordionItemStyled } from "../../../components/Accordion/AccordionItemStyled";
 import { UseQueryResult } from "react-query";
 import React from "react";
@@ -61,10 +61,12 @@ export type DataTableType<QueryResult> = {
     setCategoryValue: Dispatch<SetStateAction<Category>>
     setManufacturerValue: Dispatch<SetStateAction<Manufacturer>>
     setDepartmentValue: Dispatch<SetStateAction<Department>>
+    setRoomValue: Dispatch<SetStateAction<Room>>
     companyValue: Company
     categoryValue: Category
     manufacturerValue: Manufacturer
     departmentValue: Department
+    roomValue: Room
     situationData: Situation[]
     dataQueryFull: UseQueryResult<{
         data: QueryResult[];
@@ -73,8 +75,8 @@ export type DataTableType<QueryResult> = {
 }
 
 export default function DataTable<QueryResult>({ column, searchSelectOptions, arrayLength, idPosit, dataQuery, selectOption, setSearchValue,
-    setSelectOption, situationValue, setSituationValue, situationData, dataQueryFull, categoryValue, companyValue, departmentValue, manufacturerValue,
-    setCategoryValue, setCompanyValue, setDepartmentValue, setManufacturerValue
+    setSelectOption, situationValue, setSituationValue, situationData, dataQueryFull, categoryValue, companyValue, departmentValue, manufacturerValue, roomValue,
+    setCategoryValue, setCompanyValue, setDepartmentValue, setManufacturerValue, setRoomValue
 }: DataTableType<QueryResult>) {
 
     const { patch, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination, companyData, categoryData, manufacturerData, departmentData, roomData, post } = useApi()
@@ -133,6 +135,16 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
             IdEmpresa: '' as unknown as number
         }
         return (setCompanyValue(all), setRowSelection({}))
+    }
+
+    function setSelectedRoom(event: ChangeEvent<HTMLSelectElement>) {
+        const option = roomData.find(room => room.IdSala?.toString() === event.target.value)
+        if (option) return (setRoomValue(option), setRowSelection({}))
+        const all: Room = {
+            DescricaoSala: 'Todas',
+            IdSala: '' as unknown as number
+        }
+        return (setRoomValue(all), setRowSelection({}))
     }
 
     const defaultData = useMemo(() => [], [])
@@ -376,6 +388,18 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                                             category =>
                                                 <option value={category.IdCategoriaEquipamento} key={category.IdCategoriaEquipamento}>
                                                     {category.DescricaoCategoriaEquipamento}
+                                                </option>
+                                        )}
+
+                                    </Select>
+                                </Box>
+                                <Box display={'flex'} flexDirection={'column'}>
+                                    <Text>Selecionar Sala</Text>
+                                    <Select placeholder='Selecionar sala' width={'250px'} onChange={setSelectedRoom} defaultValue={roomValue.IdSala}>
+                                        {roomData.map(
+                                            room =>
+                                                <option value={room.IdSala} key={room.IdSala}>
+                                                    {room.DescricaoSala}
                                                 </option>
                                         )}
 

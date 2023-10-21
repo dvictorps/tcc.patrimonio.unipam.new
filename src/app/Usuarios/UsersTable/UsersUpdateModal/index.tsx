@@ -49,7 +49,6 @@ export function UsersUpdateModal({ onClose, open, isCentered, personTypeData, pe
     }
 
 
-    console.log('compnentData:', componentData)
 
     const checkData = (formData: Users, originalData?: Users) => {
         const filteredData: Partial<Users> = {};
@@ -71,6 +70,7 @@ export function UsersUpdateModal({ onClose, open, isCentered, personTypeData, pe
         if (selectedTipo !== originalData?.IdTipoPessoa) {
             filteredData.IdTipoPessoa = selectedTipo;
         }
+        console.log('teste', filteredData)
         return filteredData;
     };
 
@@ -138,16 +138,6 @@ export function UsersUpdateModal({ onClose, open, isCentered, personTypeData, pe
                             <FormErrorMessage>O Usuário pode ter no máximo 20 caracteres</FormErrorMessage>
                         )}
                     </FormControl>
-                    {/* <FormControl isInvalid={!!errors.Senha} isRequired>
-                        <FormLabel>Senha</FormLabel>
-                        <Input
-                            id="Senha"
-                            {...register("Senha", { maxLength: 20, required: true })}
-                        />
-                        {errors.Senha && errors.Senha.type === "maxLength" && (
-                            <FormErrorMessage>A senha pode ter no máximo 20 caracteres</FormErrorMessage>
-                        )}
-                    </FormControl> */}
                     <FormControl isInvalid={!!errors.IdSituacaoPessoa} isRequired>
                         <FormLabel>Situação Usuário</FormLabel>
                         <Select placeholder='Selecionar situação' value={selectedSituacao} onChange={setSelectedSituacaoOption}>
