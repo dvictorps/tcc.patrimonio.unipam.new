@@ -477,7 +477,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                     </Box>
                 </Box>
             </Box>
-            <ModalStyled title="Remover"
+            <ModalStyled title="Desativar"
                 onClose={deleteMultipleDataModal.onClose}
                 open={deleteMultipleDataModal.isOpen}
                 isCentered={true}>
@@ -493,7 +493,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                     </Box>
                 </ModalFooter>
             </ModalStyled>
-            <ModalStyled title="Remover"
+            <ModalStyled title="Reativar"
                 onClose={enableMultipleDataModal.onClose}
                 open={enableMultipleDataModal.isOpen}
                 isCentered={true}
