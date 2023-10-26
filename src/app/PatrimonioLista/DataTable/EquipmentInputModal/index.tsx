@@ -1,5 +1,5 @@
 import { Category, Company, Department, Equipamento, Manufacturer, Room, Situation } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { ChangeEvent, useEffect, useState } from "react"
 import { UseFormRegister, FieldValues, UseFormHandleSubmit, FormState, FieldErrors, UseFormSetValue } from "react-hook-form"
 type EquipmentModal = {
@@ -18,6 +18,7 @@ type EquipmentModal = {
 
 export function EquipmentInputModal({ register, handleSubmit, errors, onSubmit, onClose, companyData,
     categoryData, manufacturerData, departmentData, situationData, roomData }: EquipmentModal) {
+
 
     const checkData = (data: Equipamento) => {
         const formData: Partial<Equipamento> = {};

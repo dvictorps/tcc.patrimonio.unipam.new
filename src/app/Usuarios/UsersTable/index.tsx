@@ -37,7 +37,7 @@ export function UsersTable() {
 
             } catch (error) {
 
-                console.log('erro get ', error)
+                // console.log('erro get ', error)
             }
             usersUpdateModal.onOpen()
         }

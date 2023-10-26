@@ -38,7 +38,7 @@ export function CityTable() {
 
             } catch (error) {
                 setComponentData({})
-                console.log('erro get ', error)
+                // console.log('erro get ', error)
             }
             cityUpdateModal.onOpen()
         }

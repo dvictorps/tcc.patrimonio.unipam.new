@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { Category } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { ChangeEvent, useState } from "react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
@@ -18,6 +18,7 @@ type CategoryUpdateModal = {
 export function CategoryUpdateModal({ onClose, open, isCentered, dataQuery, componentData }: CategoryUpdateModal) {
 
     const { patch } = useApi()
+    const toast = useToast()
 
     const {
         register,
@@ -36,11 +37,24 @@ export function CategoryUpdateModal({ onClose, open, isCentered, dataQuery, comp
 
     async function handlePost(data: Category) {
         try {
-            const response = await patch<Category>(`category/update/${componentData?.IdCategoriaEquipamento}`, data)
-            console.log('Resposta update:', response)
+            await patch<Category>(`category/update/${componentData?.IdCategoriaEquipamento}`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Categoria atualizada com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no update', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }

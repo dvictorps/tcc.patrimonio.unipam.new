@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { Block, Room, RoomSituation, RoomType } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { ChangeEvent, useState } from "react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
@@ -19,6 +19,7 @@ type RoomModal = {
 export function RoomModal({ onClose, open, isCentered, blockData, roomTypeData, roomSituationData, dataQuery }: RoomModal) {
 
     const { post } = useApi()
+    const toast = useToast()
 
     const {
         register,
@@ -37,11 +38,24 @@ export function RoomModal({ onClose, open, isCentered, blockData, roomTypeData, 
 
     async function handlePost(data: Room) {
         try {
-            const response = await post<Room>(`room/register`, data)
-            console.log('Resposta add:', response)
+            await post<Room>(`room/register`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Sala cadastrada com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no add', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }

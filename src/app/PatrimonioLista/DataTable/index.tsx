@@ -20,7 +20,8 @@ import {
     ModalBody,
     useDisclosure,
     Divider,
-    Spinner
+    Spinner,
+    useToast
 } from '@chakra-ui/react'
 import { DeleteIcon, ArrowForwardIcon, ArrowBackIcon, AddIcon, CheckIcon, Search2Icon } from "@chakra-ui/icons";
 import { SelectOptions, ArrayType, Situation, Equipamento, EquipamentoFormated, Company, Category, Manufacturer, Department, Room } from "@/utils/types";
@@ -32,6 +33,7 @@ import { useApi } from "@/context/ApiContext";
 import { EquipmentInputModal } from "./EquipmentInputModal";
 import { useForm } from "react-hook-form";
 import ExcelJS from 'exceljs'
+import { AxiosError } from "axios";
 
 const selectResultsOptions = [
     10,
@@ -80,6 +82,7 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 }: DataTableType<QueryResult>) {
 
     const { patch, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination, companyData, categoryData, manufacturerData, departmentData, roomData, post } = useApi()
+    const toast = useToast()
 
     function setSelectedOption(event: ChangeEvent<HTMLSelectElement>) {
         const option = searchSelectOptions.find(option => option.value === event.target.value)
@@ -223,14 +226,27 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     async function handleDeleteMultiple() {
         try {
-            const response = await patch<QueryResult>(`/equipment/disable?${idsComBaseNaPosicaoStyled}`, '2');
-            console.log('Resposta Disable:', response.data);
+            await patch<QueryResult>(`/equipment/disable?${idsComBaseNaPosicaoStyled}`, '2');
             setRowSelection({})
             table.setPageIndex(0)
             await dataQuery.refetch()
+            toast({
+                title: 'Sucesso',
+                description: 'Equipamentos atualizados',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no Disable:', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
 
         deleteMultipleDataModal.onClose()
@@ -238,13 +254,27 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     async function handleEnableMultiple() {
         try {
-            const response = await patch<QueryResult>(`/equipment/enable?${idsComBaseNaPosicaoStyled}`, '1');
+            await patch<QueryResult>(`/equipment/enable?${idsComBaseNaPosicaoStyled}`, '1');
             setRowSelection({})
             table.setPageIndex(0)
             await dataQuery.refetch()
+            toast({
+                title: 'Sucesso',
+                description: 'Equipamentos atualizados',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no Enable:', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
 
         enableMultipleDataModal.onClose()
@@ -252,14 +282,27 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     async function handlePost(data: Equipamento) {
         try {
-            const response = await post<Equipamento>(`equipment/register`, data)
-            console.log('Resposta add:', response)
+            await post<Equipamento>(`equipment/register`, data)
             setRowSelection({})
             await dataQuery.refetch()
+            toast({
+                title: 'Sucesso',
+                description: 'Equipamento cadastrado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
 
-        } catch (error) {
-            console.log('Erro no add', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         createDataModal.onClose()
     }
@@ -273,7 +316,12 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
 
     const onSubmit = async (data: any) => {
 
+
         await handlePost(data);
+
+
+
+
         reset();
 
     }
@@ -308,6 +356,13 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
             a.download = 'planilha.xlsx';
             a.click();
             URL.revokeObjectURL(url);
+            toast({
+                title: 'Sucesso',
+                description: 'Relatório gerado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
         });
     };
 

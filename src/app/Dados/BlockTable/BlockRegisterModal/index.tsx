@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { Block } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
 type BlockModal = {
@@ -14,6 +14,7 @@ type BlockModal = {
 
 export function BlockModal({ onClose, open, isCentered, dataQuery }: BlockModal) {
 
+    const toast = useToast();
     const { post } = useApi()
 
     const {
@@ -34,11 +35,24 @@ export function BlockModal({ onClose, open, isCentered, dataQuery }: BlockModal)
 
     async function handlePost(data: Block) {
         try {
-            const response = await post<Block>(`block/register`, data)
-            console.log('Resposta add:', response)
+            await post<Block>(`block/register`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Bloco cadastrado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no add', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }

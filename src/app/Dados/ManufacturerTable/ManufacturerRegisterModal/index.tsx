@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { Manufacturer } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
 type ManufacturerModal = {
@@ -15,6 +15,7 @@ type ManufacturerModal = {
 export function ManufacturerModal({ onClose, open, isCentered, dataQuery }: ManufacturerModal) {
 
     const { post } = useApi()
+    const toast = useToast()
 
     const {
         register,
@@ -32,11 +33,24 @@ export function ManufacturerModal({ onClose, open, isCentered, dataQuery }: Manu
 
     async function handlePost(data: Manufacturer) {
         try {
-            const response = await post<Manufacturer>(`manufacturer/register`, data)
-            console.log('Resposta add:', response)
+            await post<Manufacturer>(`manufacturer/register`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Fabricante cadastrada com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no add', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }

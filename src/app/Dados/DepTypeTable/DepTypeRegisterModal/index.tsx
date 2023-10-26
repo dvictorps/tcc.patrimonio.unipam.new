@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { DepType } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
 type DepTypeModal = {
@@ -15,6 +15,7 @@ type DepTypeModal = {
 export function DepTypeModal({ onClose, open, isCentered, dataQuery }: DepTypeModal) {
 
     const { post } = useApi()
+    const toast = useToast()
 
     const {
         register,
@@ -33,11 +34,24 @@ export function DepTypeModal({ onClose, open, isCentered, dataQuery }: DepTypeMo
 
     async function handlePost(data: DepType) {
         try {
-            const response = await post<DepType>(`DepType/register`, data)
-            console.log('Resposta add:', response)
+            await post<DepType>(`DepType/register`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Tipo de departamento cadastrado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no add', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }

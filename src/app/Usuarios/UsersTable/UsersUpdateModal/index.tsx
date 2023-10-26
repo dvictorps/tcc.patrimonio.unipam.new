@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { PersonSituation, PersonType, Users } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { ChangeEvent, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
@@ -21,6 +21,7 @@ type UsersUpdateModal = {
 export function UsersUpdateModal({ onClose, open, isCentered, personTypeData, personSituationData, dataQuery, componentData }: UsersUpdateModal) {
 
     const { patch } = useApi()
+    const toast = useToast()
 
     const {
         register,
@@ -39,11 +40,24 @@ export function UsersUpdateModal({ onClose, open, isCentered, personTypeData, pe
 
     async function handlePost(data: Users) {
         try {
-            const response = await patch<Users>(`users/update/${componentData?.IdPessoa}`, data)
-            console.log('Resposta add:', response)
+            await patch<Users>(`users/update/${componentData?.IdPessoa}`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Usuário atualizado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no update', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }
@@ -68,7 +82,7 @@ export function UsersUpdateModal({ onClose, open, isCentered, personTypeData, pe
         if (selectedTipo !== originalData?.IdTipoPessoa) {
             filteredData.IdTipoPessoa = selectedTipo;
         }
-        console.log('teste', filteredData)
+
         return filteredData;
     };
 

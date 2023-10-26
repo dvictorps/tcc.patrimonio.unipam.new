@@ -196,7 +196,7 @@ export function ApiProvider({ children }: ApiProviderType) {
             return responseTyped
 
         } catch (error) {
-            console.log(error)
+            // console.log(error)
         }
     }
 
@@ -209,7 +209,7 @@ export function ApiProvider({ children }: ApiProviderType) {
             setArrayLength({ arrayLength: responseTyped.data.length, pageCount: responseTyped.totalRecords } as ArrayType)
             return { data: responseTyped.data, totalRecords: responseTyped.totalRecords }
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             return { data: [], totalRecords: 404 };
         }
     };
@@ -233,7 +233,7 @@ export function ApiProvider({ children }: ApiProviderType) {
             const responseTyped: ReqData<Type> = response.data
             return { data: responseTyped.data, totalRecords: responseTyped.totalRecords }
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             return { data: [], totalRecords: 404 };
         }
     };

@@ -37,7 +37,7 @@ export function DepTypeTable() {
 
             } catch (error) {
                 setComponentData({})
-                console.log('erro get ', error)
+                // console.log('erro get ', error)
             }
             depTypeUpdateModal.onOpen()
         }

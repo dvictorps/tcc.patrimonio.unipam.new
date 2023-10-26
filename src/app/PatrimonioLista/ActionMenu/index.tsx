@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal";
 import { useApi } from "@/context/ApiContext";
 import { HamburgerIcon, EditIcon, DeleteIcon, CheckIcon, ExternalLinkIcon } from "@chakra-ui/icons";
-import { useDisclosure, Menu, MenuButton, IconButton, MenuList, MenuItem, ModalBody, ModalFooter, Button, Box, Text, FormControl, Input, FormLabel, FormErrorMessage } from "@chakra-ui/react";
+import { useDisclosure, Menu, MenuButton, IconButton, MenuList, MenuItem, ModalBody, ModalFooter, Button, Box, Text, FormControl, Input, FormLabel, FormErrorMessage, useToast } from "@chakra-ui/react";
 import { UseQueryResult } from "react-query";
 import { Equipamento } from "@/utils/types";
 import { useEffect, useState } from "react";
@@ -13,6 +13,9 @@ export function ActionMenu(
     dataQuery: UseQueryResult<{ data: Equipamento[]; totalRecords: number; }, unknown>,
 
 ) {
+
+    const toast = useToast()
+
 
     const deleteUniqueModal = useDisclosure();
     const enableUniqueModal = useDisclosure();
@@ -26,26 +29,52 @@ export function ActionMenu(
 
     async function handleDelete() {
         try {
-            const response = await patch<Equipamento>(`/${route}/disable/${id}`, '2');
-            console.log('Resposta Patch:', response.data);
+            await patch<Equipamento>(`/${route}/disable/${id}`, '2');
             await dataQuery.refetch()
             setRowSelection({})
+            toast({
+                title: 'Sucesso',
+                description: 'Equipamento desativado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no Patch:', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         deleteUniqueModal.onClose()
     }
 
     async function handleEnable() {
         try {
-            const response = await patch<Equipamento>(`/${route}/enable/${id}`, '1');
-            console.log('Resposta Patch:', response.data);
+            await patch<Equipamento>(`/${route}/enable/${id}`, '1');
             await dataQuery.refetch()
             setRowSelection({})
+            toast({
+                title: 'Sucesso',
+                description: 'Equipamento ativado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no Patch:', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         deleteUniqueModal.onClose()
     }
@@ -57,7 +86,7 @@ export function ActionMenu(
 
 
         } catch (error) {
-            console.log('erro get ', error)
+            // console.log('erro get ', error)
         }
     }
 
@@ -87,10 +116,24 @@ export function ActionMenu(
 
     async function handlePatch(data: Equipamento) {
         try {
-            const response = await patch<Equipamento>(`${route}/update/${id}`, data);
-            console.log('Resposta da requisição:', response.data);
-        } catch (error) {
-            console.log('Erro na requisição:', error);
+            await patch<Equipamento>(`${route}/update/${id}`, data);
+            toast({
+                title: 'Sucesso',
+                description: 'Equipamento atualizado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
+
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
     }
 

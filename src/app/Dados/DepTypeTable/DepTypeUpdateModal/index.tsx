@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { DepType } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { ChangeEvent, useState } from "react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
@@ -18,6 +18,7 @@ type DepTypeUpdateModal = {
 export function DepTypeUpdateModal({ onClose, open, isCentered, dataQuery, componentData }: DepTypeUpdateModal) {
 
     const { patch } = useApi()
+    const toast = useToast()
 
     const {
         register,
@@ -36,11 +37,24 @@ export function DepTypeUpdateModal({ onClose, open, isCentered, dataQuery, compo
 
     async function handlePost(data: DepType) {
         try {
-            const response = await patch<DepType>(`DepType/update/${componentData?.IdTipoDepartamento}`, data)
-            console.log('Resposta update:', response)
+            await patch<DepType>(`DepType/update/${componentData?.IdTipoDepartamento}`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Tipo de departamento atualizado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no update', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }

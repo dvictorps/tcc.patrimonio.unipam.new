@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { Block, Category, Company, DepType, Department, DepartmentSituation, Equipamento, Manufacturer, Room, Situation } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { ChangeEvent, useEffect, useState } from "react"
 import { UseFormRegister, FieldValues, UseFormHandleSubmit, FormState, FieldErrors, UseFormSetValue, useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
@@ -21,6 +21,7 @@ type DepartmentModal = {
 export function DepartmentUpdateModal({ onClose, open, isCentered, blockData, depTypeData, departmentSituationData, componentData, dataQuery }: DepartmentModal) {
 
     const { patch } = useApi()
+    const toast = useToast()
 
     const {
         register,
@@ -39,11 +40,24 @@ export function DepartmentUpdateModal({ onClose, open, isCentered, blockData, de
 
     async function handlePost(data: Department) {
         try {
-            const response = await patch<Department>(`department/update/${componentData?.IdDepartamento}`, data)
-            console.log('Resposta add:', response)
+            await patch<Department>(`department/update/${componentData?.IdDepartamento}`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Departamento atualizado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no update', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }

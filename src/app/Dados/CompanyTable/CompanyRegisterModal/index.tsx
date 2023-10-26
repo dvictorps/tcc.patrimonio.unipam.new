@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { City, Company } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { ChangeEvent, useState } from "react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
@@ -17,6 +17,7 @@ type CompanyModal = {
 export function CompanyModal({ onClose, open, isCentered, cityData, dataQuery }: CompanyModal) {
 
     const { post } = useApi()
+    const toast = useToast()
 
     const {
         register,
@@ -35,11 +36,24 @@ export function CompanyModal({ onClose, open, isCentered, cityData, dataQuery }:
 
     async function handlePost(data: Company) {
         try {
-            const response = await post<Company>(`company/register`, data)
-            console.log('Resposta add:', response)
+            await post<Company>(`company/register`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Empresa cadastrada com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no add', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }

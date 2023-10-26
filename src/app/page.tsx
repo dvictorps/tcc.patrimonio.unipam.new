@@ -25,7 +25,7 @@ export default function Home() {
       setGraphicsData(responseData)
 
     } catch (error) {
-      console.log(error)
+      // console.log(error)
     }
   };
 
@@ -37,7 +37,7 @@ export default function Home() {
       setEquipmentData(responseToSend)
 
     } catch (error) {
-      console.log(error)
+      // console.log(error)
     }
   };
 
@@ -48,7 +48,7 @@ export default function Home() {
       setBarGraphicsData(responseData)
 
     } catch (error) {
-      console.log(error)
+      // console.log(error)
     }
   };
 

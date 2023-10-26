@@ -37,7 +37,7 @@ export function ManufacturerTable() {
 
             } catch (error) {
                 setComponentData({})
-                console.log('erro get ', error)
+                // console.log('erro get ', error)
             }
             manufacturerUpdateModal.onOpen()
         }

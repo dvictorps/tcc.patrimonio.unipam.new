@@ -37,7 +37,7 @@ export function CompanyTable() {
 
             } catch (error) {
                 setComponentData({})
-                console.log('erro get ', error)
+                // console.log('erro get ', error)
             }
             companyUpdateModal.onOpen()
         }

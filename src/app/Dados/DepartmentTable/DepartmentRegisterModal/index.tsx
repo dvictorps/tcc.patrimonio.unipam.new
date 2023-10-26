@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { Block, Category, Company, DepType, Department, DepartmentSituation, Equipamento, Manufacturer, Room, Situation } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { ChangeEvent, useEffect, useState } from "react"
 import { UseFormRegister, FieldValues, UseFormHandleSubmit, FormState, FieldErrors, UseFormSetValue, useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
@@ -19,6 +19,7 @@ type DepartmentModal = {
 export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeData, departmentSituationData, dataQuery }: DepartmentModal) {
 
     const { post } = useApi()
+    const toast = useToast()
 
     const {
         register,
@@ -37,11 +38,24 @@ export function DepartmentModal({ onClose, open, isCentered, blockData, depTypeD
 
     async function handlePost(data: Department) {
         try {
-            const response = await post<Department>(`department/register`, data)
-            console.log('Resposta add:', response)
+            await post<Department>(`department/register`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Departamento cadastrado com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no add', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }

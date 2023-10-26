@@ -37,7 +37,7 @@ export function RoomTypeTable() {
 
             } catch (error) {
                 setComponentData({})
-                console.log('erro get ', error)
+                // console.log('erro get ', error)
             }
             roomTypeUpdateModal.onOpen()
         }

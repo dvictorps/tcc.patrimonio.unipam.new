@@ -1,7 +1,7 @@
 import { ModalStyled } from "@/components/Modal"
 import { useApi } from "@/context/ApiContext"
 import { Manufacturer } from "@/utils/types"
-import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select } from "@chakra-ui/react"
+import { ModalBody, FormControl, FormLabel, Input, FormErrorMessage, ModalFooter, Button, Box, Select, useToast } from "@chakra-ui/react"
 import { useForm } from "react-hook-form"
 import { UseQueryResult } from "react-query"
 type ManufacturerUpdateModal = {
@@ -17,6 +17,7 @@ type ManufacturerUpdateModal = {
 export function ManufacturerUpdateModal({ onClose, open, isCentered, dataQuery, componentData }: ManufacturerUpdateModal) {
 
     const { patch } = useApi()
+    const toast = useToast()
 
     const {
         register,
@@ -35,11 +36,24 @@ export function ManufacturerUpdateModal({ onClose, open, isCentered, dataQuery, 
 
     async function handlePost(data: Manufacturer) {
         try {
-            const response = await patch<Manufacturer>(`manufacturer/update/${componentData?.IdFabricante}`, data)
-            console.log('Resposta update:', response)
+            await patch<Manufacturer>(`manufacturer/update/${componentData?.IdFabricante}`, data)
+            toast({
+                title: 'Sucesso',
+                description: 'Fabricante cadastrada com sucesso',
+                status: 'success',
+                duration: 9000,
+                isClosable: true,
+            })
 
-        } catch (error) {
-            console.log('Erro no update', error);
+        } catch (error: any) {
+            const errorMessage = error.response.data.message;
+            toast({
+                title: 'Algo deu errado',
+                description: errorMessage,
+                status: 'error',
+                duration: 9000,
+                isClosable: true,
+            })
         }
         onClose()
     }

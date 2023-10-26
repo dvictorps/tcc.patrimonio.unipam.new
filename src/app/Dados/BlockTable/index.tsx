@@ -37,7 +37,7 @@ export function BlockTable() {
 
             } catch (error) {
                 setComponentData({})
-                console.log('erro get ', error)
+                // console.log('erro get ', error)
             }
             blockUpdateModal.onOpen()
         }
