@@ -125,6 +125,7 @@ export function UsersModal({ onClose, open, isCentered, personTypeData, personSi
                     <FormControl isInvalid={!!errors.Senha} isRequired>
                         <FormLabel>Senha</FormLabel>
                         <Input
+                            type="password"
                             id="Senha"
                             {...register("Senha", { maxLength: 20, required: true })}
                         />
