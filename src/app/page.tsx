@@ -81,7 +81,7 @@ export default function Home() {
     const r = Math.floor(Math.random() * 256);
     const g = Math.floor(Math.random() * 256);
     const b = Math.floor(Math.random() * 256);
-    return `rgba(${r}, ${g}, ${b}, 0.2)`; // RGBA com opacidade de 0.2
+    return `rgba(${r}, ${g}, ${b}, 0.2)`;
   }
 
   const data1 = {
@@ -145,7 +145,7 @@ export default function Home() {
               width: '90%'
             }
           }}>
-            <Text fontSize={'3xl'}>Separação por situação</Text>
+            <Text fontSize={'3xl'}>Divisão por situação</Text>
             <Doughnut data={data} />
           </Box>
           <Box shadow={'dark-lg'} borderRadius={'5px'} p={'1rem'} flexWrap={'wrap'} width={'49%'} sx={{
@@ -153,7 +153,7 @@ export default function Home() {
               width: '90%'
             }
           }}>
-            <Text fontSize={'3xl'}>Separação por departamento</Text>
+            <Text fontSize={'3xl'}>Divisão por departamento</Text>
             <Pie data={data1} />
           </Box>
         </Box>

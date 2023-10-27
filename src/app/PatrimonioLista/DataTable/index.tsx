@@ -64,6 +64,8 @@ export type DataTableType<QueryResult> = {
     setManufacturerValue: Dispatch<SetStateAction<Manufacturer>>
     setDepartmentValue: Dispatch<SetStateAction<Department>>
     setRoomValue: Dispatch<SetStateAction<Room>>
+    setInitialDateValue: Dispatch<SetStateAction<string | undefined>>
+    setLastDateValue: Dispatch<SetStateAction<string | undefined>>
     companyValue: Company
     categoryValue: Category
     manufacturerValue: Manufacturer
@@ -78,7 +80,7 @@ export type DataTableType<QueryResult> = {
 
 export default function DataTable<QueryResult>({ column, searchSelectOptions, arrayLength, idPosit, dataQuery, selectOption, setSearchValue,
     setSelectOption, situationValue, setSituationValue, situationData, dataQueryFull, categoryValue, companyValue, departmentValue, manufacturerValue, roomValue,
-    setCategoryValue, setCompanyValue, setDepartmentValue, setManufacturerValue, setRoomValue
+    setCategoryValue, setCompanyValue, setDepartmentValue, setManufacturerValue, setRoomValue, setInitialDateValue, setLastDateValue
 }: DataTableType<QueryResult>) {
 
     const { patch, rowSelection, setRowSelection, deleteIds, pageIndex, pageSize, setPagination, companyData, categoryData, manufacturerData, departmentData, roomData, post } = useApi()
@@ -149,6 +151,18 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
         }
         return (setRoomValue(all), setRowSelection({}))
     }
+
+    function setSelectedInitialDate(event: ChangeEvent<HTMLInputElement>) {
+
+        return (setInitialDateValue(event.target.value), setRowSelection({}))
+    }
+
+    function setSelectedLastDate(event: ChangeEvent<HTMLInputElement>) {
+
+        return (setLastDateValue(event.target.value), setRowSelection({}))
+    }
+
+
 
     const defaultData = useMemo(() => [], [])
 
@@ -459,6 +473,16 @@ export default function DataTable<QueryResult>({ column, searchSelectOptions, ar
                                         )}
 
                                     </Select>
+                                </Box>
+                                <Box display={'flex'} flexDirection={'column'}>
+                                    <Text>Selecionar Data Inicial de Cadastro</Text>
+                                    <Input placeholder='Selecionar Data Inicial' type="datetime-local" width={'250px'} onChange={setSelectedInitialDate} />
+
+
+                                </Box>
+                                <Box display={'flex'} flexDirection={'column'}>
+                                    <Text>Selecionar Data Final de Cadastro</Text>
+                                    <Input placeholder='Selecionar Data Final' type="datetime-local" width={'250px'} onChange={setSelectedLastDate} />
                                 </Box>
                             </Box>
                         </Box>

@@ -24,14 +24,14 @@ type ApiContextType = {
     fetchTableDescriptionData: () => void;
     arrayLength: ArrayType
     fetchTableData: <Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string,
-        company: string, category: string, manufacturer: string, department: string, room: string) => Promise<{
+        company: string, category: string, manufacturer: string, department: string, room: string, initialDate: string, lastDate: string) => Promise<{
             data: Type[];
             totalRecords: number;
         }>
     rowSelection: Record<string, never>
     setRowSelection: React.Dispatch<React.SetStateAction<{}>>
     useFetchData: <QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
-        manufacturer: string, department: string, room: string) => UseQueryResult<{
+        manufacturer: string, department: string, room: string, initialDate: string, lastDate: string) => UseQueryResult<{
             data: QueryResult[];
             totalRecords: number;
         }, unknown>
@@ -59,12 +59,12 @@ type ApiContextType = {
     getPersonType(id: number): string | undefined
     getDepartmentSituation(id: number): string | undefined
     fetchTableFullData: <Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string,
-        company: string, category: string, manufacturer: string, department: string, room: string) => Promise<{
+        company: string, category: string, manufacturer: string, department: string, room: string, initialDate: string, lastDate: string) => Promise<{
             data: Type[];
             totalRecords: number;
         }>
     useFetchFullData: <QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
-        manufacturer: string, department: string, room: string) => UseQueryResult<{
+        manufacturer: string, department: string, room: string, initialDate: string, lastDate: string) => UseQueryResult<{
             data: QueryResult[];
             totalRecords: number;
         }, unknown>
@@ -201,9 +201,9 @@ export function ApiProvider({ children }: ApiProviderType) {
     }
 
     async function fetchTableData<Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
-        manufacturer: string, department: string, room: string) {
+        manufacturer: string, department: string, room: string, initialDate: string, lastDate: string) {
         try {
-            const url = `/${route}?${selectOption.value}=${searchValue}&take=${fetchDataOptions.pageSize}&skip=${fetchDataOptions.pageIndex * fetchDataOptions.pageSize}&situation=${situation}&company=${company}&category=${category}&manufacturer=${manufacturer}&department=${department}&room=${room}`
+            const url = `/${route}?${selectOption.value}=${searchValue}&take=${fetchDataOptions.pageSize}&skip=${fetchDataOptions.pageIndex * fetchDataOptions.pageSize}&situation=${situation}&company=${company}&category=${category}&manufacturer=${manufacturer}&department=${department}&room=${room}&initialDate=${initialDate}&lastDate=${lastDate}`
             const response = await api.get(url)
             const responseTyped: ReqData<Type> = response.data
             setArrayLength({ arrayLength: responseTyped.data.length, pageCount: responseTyped.totalRecords } as ArrayType)
@@ -216,19 +216,19 @@ export function ApiProvider({ children }: ApiProviderType) {
 
 
     function useFetchData<QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
-        manufacturer: string, department: string, room: string) {
+        manufacturer: string, department: string, room: string, initialDate: string, lastDate: string) {
         const dataQuery = useQuery(
             ['data', fetchDataOptions],
-            () => fetchTableData<QueryResult>(selectOption, searchValue, route, situation, company, category, manufacturer, department, room),
+            () => fetchTableData<QueryResult>(selectOption, searchValue, route, situation, company, category, manufacturer, department, room, initialDate, lastDate),
             { keepPreviousData: true }
         )
         return dataQuery
     }
 
     async function fetchTableFullData<Type>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
-        manufacturer: string, department: string, room: string) {
+        manufacturer: string, department: string, room: string, initialDate: string, lastDate: string) {
         try {
-            const url = `/${route}?${selectOption.value}=${searchValue}&situation=${situation}&company=${company}&category=${category}&manufacturer=${manufacturer}&department=${department}&room=${room}`
+            const url = `/${route}?${selectOption.value}=${searchValue}&situation=${situation}&company=${company}&category=${category}&manufacturer=${manufacturer}&department=${department}&room=${room}&initialDate=${initialDate}&lastDate=${lastDate}`
             const response = await api.get(url)
             const responseTyped: ReqData<Type> = response.data
             return { data: responseTyped.data, totalRecords: responseTyped.totalRecords }
@@ -239,10 +239,10 @@ export function ApiProvider({ children }: ApiProviderType) {
     };
 
     function useFetchFullData<QueryResult>(selectOption: SelectOptions, searchValue: string, route: string, situation: string, company: string, category: string,
-        manufacturer: string, department: string, room: string) {
+        manufacturer: string, department: string, room: string, initialDate: string, lastDate: string) {
         const dataQuery = useQuery(
             ['data'],
-            () => fetchTableFullData<QueryResult>(selectOption, searchValue, route, situation, company, category, manufacturer, department, room),
+            () => fetchTableFullData<QueryResult>(selectOption, searchValue, route, situation, company, category, manufacturer, department, room, initialDate, lastDate),
             { keepPreviousData: true }
         )
         return dataQuery

@@ -60,13 +60,16 @@ export default function PatrimonioLista() {
     DescricaoSala: undefined
   })
 
+  const [initialDateValue, setInitialDateValue] = useState<string>();
+  const [lastDateValue, setlastDateValue] = useState<string>();
+
   const dataQuery = useFetchData<Equipamento>(selectOption, searchValue, route, situationValue.IdSituacaoEquipamento?.toString()
     || '', companyValue.IdEmpresa?.toString() || '', categoryValue.IdCategoriaEquipamento?.toString() || ''
-    , manufacturerValue.IdFabricante?.toString() || '', departmentValue.IdDepartamento?.toString() || '', roomValue.IdSala?.toString() || '')
+    , manufacturerValue.IdFabricante?.toString() || '', departmentValue.IdDepartamento?.toString() || '', roomValue.IdSala?.toString() || '', initialDateValue || '', lastDateValue || '')
 
   const dataQueryFull = useFetchFullData<EquipamentoFormated>(selectOption, searchValue, 'equipment/formated/get', situationValue.IdSituacaoEquipamento?.toString()
     || '', companyValue.IdEmpresa?.toString() || '', categoryValue.IdCategoriaEquipamento?.toString() || ''
-    , manufacturerValue.IdFabricante?.toString() || '', departmentValue.IdDepartamento?.toString() || '', roomValue.IdSala?.toString() || '')
+    , manufacturerValue.IdFabricante?.toString() || '', departmentValue.IdDepartamento?.toString() || '', roomValue.IdSala?.toString() || '', initialDateValue || '', lastDateValue || '')
 
   function IndeterminateCheckbox({
     indeterminate,
@@ -266,6 +269,8 @@ export default function PatrimonioLista() {
               setManufacturerValue={setManufacturerValue}
               setRoomValue={setRoomValue}
               roomValue={roomValue}
+              setInitialDateValue={setInitialDateValue}
+              setLastDateValue={setlastDateValue}
             />
           </Box>
         </Box>
