@@ -151,9 +151,9 @@ export function DepartmentUpdateModal({ onClose, open, isCentered, blockData, de
                             )}
                         </Select>
                     </FormControl>
-                    <FormControl isInvalid={!!errors.IdFabricante} isRequired>
-                        <FormLabel>Fabricante</FormLabel>
-                        <Select placeholder='Selecionar fabricante' value={selectedTipo} onChange={setSelectTipoOption}>
+                    <FormControl isInvalid={!!errors.IdTipoDepartamento} isRequired>
+                        <FormLabel>Tipo departamento</FormLabel>
+                        <Select placeholder='Selecionar tipo departamento' value={selectedTipo} onChange={setSelectTipoOption}>
                             {depTypeData.map(
                                 depType =>
                                     <option value={depType.IdTipoDepartamento} key={depType.IdTipoDepartamento}>
